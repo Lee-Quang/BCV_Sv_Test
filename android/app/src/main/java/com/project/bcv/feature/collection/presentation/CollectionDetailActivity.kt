@@ -19,8 +19,8 @@ import com.project.bcv.core.ui.RemoteImages
 import com.project.bcv.core.ui.ScreenMotion
 import com.project.bcv.databinding.ActivityCollectionDetailBinding
 import com.project.bcv.databinding.ItemCollectionPlaceCardBinding
-import com.project.bcv.feature.account.data.local.SessionPreferences
-import com.project.bcv.feature.account.presentation.AccountActivity
+import com.project.bcv.feature.account.auth.data.local.SessionPreferences
+import com.project.bcv.feature.account.auth.presentation.AccountActivity
 import com.project.bcv.feature.collection.domain.CollectionCard
 import com.project.bcv.feature.collection.domain.CollectionDetail
 import kotlinx.coroutines.launch

@@ -1,22 +1,21 @@
 using Bcv.Api.Modules.Account.Api;
 using Bcv.Api.Modules.Account.Application;
 using Bcv.Api.Modules.Account.Infrastructure;
-using Bcv.Api.Modules.ActivityLevel.Api;
-using Bcv.Api.Modules.ActivityLevel.Application;
-using Bcv.Api.Modules.ActivityLevel.Infrastructure;
-using Bcv.Api.Modules.Interests.Api;
-using Bcv.Api.Modules.Interests.Application;
-using Bcv.Api.Modules.Interests.Infrastructure;
-using Bcv.Api.Modules.Collection;
-using Bcv.Api.Modules.Quest;
-using Bcv.Api.Modules.Inventory;
-using Bcv.Api.Modules.Profile;
-using Bcv.Api.Modules.Explore.Api;
-using Bcv.Api.Modules.Explore.Application;
-using Bcv.Api.Modules.Explore.Infrastructure;
-using Bcv.Api.Modules.StartingPoint.Api;
-using Bcv.Api.Modules.StartingPoint.Application;
-using Bcv.Api.Modules.StartingPoint.Infrastructure;
+using Bcv.Api.Modules.Discovery.Api;
+using Bcv.Api.Modules.Discovery.Application;
+using Bcv.Api.Modules.Discovery.Infrastructure;
+using Bcv.Api.Modules.Journey.Api;
+using Bcv.Api.Modules.Journey.Application;
+using Bcv.Api.Modules.Journey.Infrastructure;
+using Bcv.Api.Modules.PlaceCollection.Api;
+using Bcv.Api.Modules.PlaceCollection.Infrastructure;
+using Bcv.Api.Modules.QuestItem.Api;
+using Bcv.Api.Modules.QuestItem.Infrastructure;
+using Bcv.Api.Modules.StatsNotify.Api;
+using Bcv.Api.Modules.StatsNotify.Infrastructure;
+using Bcv.Api.Modules.StepLocation.Api;
+using Bcv.Api.Modules.StepLocation.Application;
+using Bcv.Api.Modules.StepLocation.Infrastructure;
 using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,13 +45,18 @@ builder.Services.AddScoped<IActivityLevelRepository, PostgresActivityLevelReposi
 builder.Services.AddScoped<ActivityLevelService>();
 builder.Services.AddScoped<IStartingPointRepository, PostgresStartingPointRepository>();
 builder.Services.AddScoped<StartingPointService>();
+builder.Services.AddScoped<IProfileRepository, PostgresProfileRepository>();
+builder.Services.AddScoped<ProfileService>();
 builder.Services.AddScoped<IExploreRepository, PostgresExploreRepository>();
 builder.Services.AddScoped<ExploreService>();
+builder.Services.AddScoped<IJourneyRepository, PostgresJourneyRepository>();
+builder.Services.AddScoped<JourneyService>();
 builder.Services.AddScoped<CollectionRepository>();
 builder.Services.AddScoped<QuestRepository>();
 builder.Services.AddScoped<InventoryRepository>();
 builder.Services.AddScoped<ItemUseRepository>();
-builder.Services.AddScoped<ProfileRepository>();
+builder.Services.AddScoped<StatisticsRepository>();
+builder.Services.AddScoped<NotificationRepository>();
 // Avatars go to Cloudflare R2 when R2__* is set (see run-local.ps1); otherwise they stay inline in the database.
 var r2 = builder.Configuration.GetSection("R2");
 if (new[] { "AccountId", "Bucket", "AccessKeyId", "SecretAccessKey", "PublicBaseUrl" }.All(k => !string.IsNullOrWhiteSpace(r2[k])))
@@ -80,14 +84,18 @@ app.MapGet("/health", async (NpgsqlDataSource db, CancellationToken cancellation
         return Results.Problem("Database unavailable", statusCode: 503);
     }
 });
+// Modules as in the architecture: Account & User, Step & Virtual Location, Discovery, Journey,
+// Place & Collection, Quest & Item, Statistics & Notification.
 app.MapAccountEndpoints();
 app.MapInterestEndpoints();
 app.MapActivityLevelEndpoints();
+app.MapProfileEndpoints();
 app.MapStartingPointEndpoints();
 app.MapExploreEndpoints();
+app.MapJourneyEndpoints();
 app.MapCollectionEndpoints();
 app.MapQuestEndpoints();
 app.MapInventoryEndpoints();
 app.MapItemUseEndpoints();
-app.MapProfileEndpoints();
+app.MapStatsNotifyEndpoints();
 app.Run();

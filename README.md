@@ -4,8 +4,8 @@ Theo [tài liệu đồ án](https://docs.google.com/document/d/1GAQdAqCcwr_Iivf
 
 | Thư mục | Nội dung |
 | --- | --- |
-| `android/` | Ứng dụng Android Kotlin. Các tính năng Account, Interests, ActivityLevel, HealthConnect, StartingPoint và Explore được tách trong `feature/`; HTTP dùng chung ở `core/network`. |
-| `backend/` | ASP.NET Core API dạng modular monolith. Các module Account, Interests, ActivityLevel, StartingPoint và Explore tách API, Application, Infrastructure. |
+| `android/` | Ứng dụng Android Kotlin. `feature/` chia theo module nghiệp vụ (account, location, discovery, journey, collection, questitem, statsnotify); mỗi tính năng có `presentation` (Activity + ViewModel), `domain` (model, interface repository) và `data` (cài đặt, nguồn dữ liệu). Phần dùng chung ở `core/` (network, presentation, ui, map, di). |
+| `backend/` | ASP.NET Core API dạng modular monolith theo mục 3.2 của tài liệu kiến trúc: các module Account, StepLocation, Discovery, Journey, PlaceCollection, QuestItem, StatsNotify (và Shared), mỗi module chia lớp Api, Application, Domain, Infrastructure. |
 | `db/` | Schema 25 bảng và dữ liệu mẫu PostgreSQL BCV hiện có. |
 
 ## Chạy backend

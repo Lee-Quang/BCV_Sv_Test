@@ -12,8 +12,8 @@ import com.project.bcv.BuildConfig
 import com.project.bcv.R
 import com.project.bcv.core.map.GoongDirectionsClient
 import com.project.bcv.core.map.RoadRoute
-import com.project.bcv.feature.explore.domain.ExploreJourney
-import com.project.bcv.feature.startingpoint.domain.Coordinates
+import com.project.bcv.feature.discovery.domain.ExploreJourney
+import com.project.bcv.feature.location.startingpoint.domain.Coordinates
 import org.maplibre.android.MapLibre
 import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng

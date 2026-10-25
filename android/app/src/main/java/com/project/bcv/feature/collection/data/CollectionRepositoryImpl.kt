@@ -2,7 +2,7 @@ package com.project.bcv.feature.collection.data
 
 import com.project.bcv.core.network.ApiFailure
 import com.project.bcv.core.network.JsonApiClient
-import com.project.bcv.feature.account.data.local.SessionPreferences
+import com.project.bcv.feature.account.auth.data.local.SessionPreferences
 import com.project.bcv.feature.collection.domain.CollectionCard
 import com.project.bcv.feature.collection.domain.CollectionDetail
 import com.project.bcv.feature.collection.domain.CollectionOverview

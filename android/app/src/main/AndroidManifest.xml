@@ -22,47 +22,47 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="${usesCleartextTraffic}"
         android:theme="@style/Theme.BướcChânViệt">
-        <activity android:name=".feature.explore.presentation.ExploreActivity" android:exported="false" />
-        <activity android:name=".feature.explore.presentation.PlaceDetailActivity" android:exported="false" />
+        <activity android:name=".feature.discovery.presentation.ExploreActivity" android:exported="false" />
+        <activity android:name=".feature.discovery.presentation.PlaceDetailActivity" android:exported="false" />
         <activity android:name=".feature.journey.presentation.JourneyActivity" android:exported="false" />
         <activity android:name=".feature.collection.presentation.CollectionActivity" android:exported="false" />
         <activity android:name=".feature.collection.presentation.CollectionDetailActivity" android:exported="false" />
         <activity android:name=".feature.collection.presentation.CardDetailActivity" android:exported="false" />
-        <activity android:name=".feature.quest.presentation.QuestActivity" android:exported="false" />
-        <activity android:name=".feature.inventory.presentation.InventoryActivity" android:exported="false" />
-        <activity android:name=".feature.inventory.presentation.SpeedShoesActivity" android:exported="false" />
-        <activity android:name=".feature.inventory.presentation.FlightTicketActivity" android:exported="false" />
-        <activity android:name=".feature.profile.presentation.ProfileActivity" android:exported="false" />
-        <activity android:name=".feature.profile.presentation.EditProfileActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".feature.profile.presentation.ChangePasswordActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".feature.profile.presentation.StatsActivity" android:exported="false" />
-        <activity android:name=".feature.profile.presentation.JourneyHistoryActivity" android:exported="false" />
-        <activity android:name=".feature.profile.presentation.NotificationsActivity" android:exported="false" />
-        <activity android:name=".feature.healthconnect.presentation.HealthConnectActivity" android:exported="false" />
-        <activity android:name=".feature.startingpoint.presentation.StartingPointActivity" android:exported="false" />
-        <activity android:name=".feature.healthconnect.presentation.HealthPermissionRationaleActivity" android:exported="true">
+        <activity android:name=".feature.questitem.quest.presentation.QuestActivity" android:exported="false" />
+        <activity android:name=".feature.questitem.inventory.presentation.InventoryActivity" android:exported="false" />
+        <activity android:name=".feature.questitem.inventory.presentation.SpeedShoesActivity" android:exported="false" />
+        <activity android:name=".feature.questitem.inventory.presentation.FlightTicketActivity" android:exported="false" />
+        <activity android:name=".feature.account.profile.presentation.ProfileActivity" android:exported="false" />
+        <activity android:name=".feature.account.profile.presentation.EditProfileActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".feature.account.profile.presentation.ChangePasswordActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".feature.statsnotify.stats.presentation.StatsActivity" android:exported="false" />
+        <activity android:name=".feature.journey.presentation.JourneyHistoryActivity" android:exported="false" />
+        <activity android:name=".feature.statsnotify.notifications.presentation.NotificationsActivity" android:exported="false" />
+        <activity android:name=".feature.account.healthconnect.presentation.HealthConnectActivity" android:exported="false" />
+        <activity android:name=".feature.location.startingpoint.presentation.StartingPointActivity" android:exported="false" />
+        <activity android:name=".feature.account.healthconnect.presentation.HealthPermissionRationaleActivity" android:exported="true">
             <intent-filter>
                 <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
             </intent-filter>
         </activity>
         <activity-alias
-            android:name=".feature.healthconnect.presentation.ViewHealthPermissionUsageActivity"
+            android:name=".feature.account.healthconnect.presentation.ViewHealthPermissionUsageActivity"
             android:exported="true"
-            android:targetActivity=".feature.healthconnect.presentation.HealthPermissionRationaleActivity"
+            android:targetActivity=".feature.account.healthconnect.presentation.HealthPermissionRationaleActivity"
             android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
                 <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
             </intent-filter>
         </activity-alias>
-        <activity android:name=".feature.activitylevel.presentation.ActivityLevelActivity" android:exported="false" />
-        <activity android:name=".feature.interests.presentation.InterestsActivity" android:exported="false" />
+        <activity android:name=".feature.account.activitylevel.presentation.ActivityLevelActivity" android:exported="false" />
+        <activity android:name=".feature.account.interests.presentation.InterestsActivity" android:exported="false" />
         <activity
-            android:name=".feature.account.presentation.PasswordResetActivity"
+            android:name=".feature.account.auth.presentation.PasswordResetActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".feature.account.presentation.AccountActivity"
+            android:name=".feature.account.auth.presentation.AccountActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>

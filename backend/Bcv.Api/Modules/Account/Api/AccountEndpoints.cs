@@ -1,5 +1,6 @@
 using Bcv.Api.Modules.Account.Application;
 using Bcv.Api.Modules.Account.Domain;
+using Bcv.Api.Modules.Shared.Api;
 
 namespace Bcv.Api.Modules.Account.Api;
 
@@ -14,7 +15,7 @@ public static class AccountEndpoints
             await Execute(() => service.Login(new LoginCommand(request.Email, request.Password), ct), logs));
         group.MapGet("/me", async (HttpRequest request, ISessionStore sessions, AccountService service, CancellationToken ct) =>
         {
-            var user = sessions.Get(Bearer(request));
+            var user = CurrentUser.Get(request, sessions);
             if (user is null) return Results.Unauthorized();
             var active = await service.GetActiveUser(user.UserId, ct);
             return active is null ? Results.Unauthorized() : Results.Ok(active);
@@ -31,14 +32,14 @@ public static class AccountEndpoints
         group.MapPost("/change-password", async (ChangePasswordRequest body, HttpRequest request, ISessionStore sessions,
             AccountService service, ILoggerFactory logs, CancellationToken ct) =>
         {
-            var user = sessions.Get(Bearer(request));
+            var user = CurrentUser.Get(request, sessions);
             if (user is null) return Results.Unauthorized();
             return await Execute(() => service.ChangePassword(user.UserId,
                 new ChangePasswordCommand(body.CurrentPassword, body.NewPassword, body.ConfirmPassword), ct), logs);
         });
         group.MapPost("/logout", (HttpRequest request, ISessionStore sessions) =>
         {
-            sessions.Revoke(Bearer(request));
+            sessions.Revoke(CurrentUser.Token(request));
             return Results.NoContent();
         });
     }
@@ -62,11 +63,5 @@ public static class AccountEndpoints
             logs.CreateLogger("Account").LogError(ex, "Account request failed");
             return Results.Json(new ApiError("SERVER_ERROR", "Máy chủ đang gặp lỗi. Vui lòng thử lại."), statusCode: 500);
         }
-    }
-
-    private static string? Bearer(HttpRequest request)
-    {
-        var value = request.Headers.Authorization.ToString();
-        return value.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) ? value[7..] : null;
     }
 }

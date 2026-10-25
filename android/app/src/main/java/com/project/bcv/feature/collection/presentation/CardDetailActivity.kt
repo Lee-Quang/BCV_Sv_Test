@@ -15,7 +15,7 @@ import com.project.bcv.R
 import com.project.bcv.core.ui.RemoteImages
 import com.project.bcv.core.ui.ScreenMotion
 import com.project.bcv.databinding.ActivityCardDetailBinding
-import com.project.bcv.feature.explore.presentation.PlaceDetailActivity
+import com.project.bcv.feature.discovery.presentation.PlaceDetailActivity
 import kotlinx.coroutines.launch
 
 /** "Thẻ địa danh": one collectible card, shown from what the collection screen already loaded. */

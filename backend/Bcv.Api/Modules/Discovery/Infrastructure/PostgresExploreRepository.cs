@@ -1,0 +1,130 @@
+using Npgsql;
+using NpgsqlTypes;
+using Bcv.Api.Modules.Discovery.Application;
+using Bcv.Api.Modules.Shared.Infrastructure;
+using Bcv.Api.Modules.StepLocation.Domain;
+
+namespace Bcv.Api.Modules.Discovery.Infrastructure;
+
+public sealed class PostgresExploreRepository(NpgsqlDataSource db) : IExploreRepository
+{
+
+    public async Task<ExploreSnapshot> LoadAsync(long userId, CancellationToken ct)
+    {
+        await using var connection = await db.OpenConnectionAsync(ct);
+        return await LoadSnapshotAsync(connection, userId, ct);
+    }
+
+    public async Task<ExplorePlaceDetail> LoadPlaceAsync(long userId, long placeId, CancellationToken ct)
+    {
+        await using var connection = await db.OpenConnectionAsync(ct);
+        long id;
+        string name, placeType, regionName;
+        string? introduction, highlights;
+        bool discovered;
+        decimal distanceKm;
+        await using (var command = new NpgsqlCommand($"""
+            SELECT p.place_id, p.name, pt.name,
+                   EXISTS (SELECT 1 FROM public.user_discovered_place d
+                           WHERE d.user_id = $1 AND d.place_id = p.place_id),
+                   ({GeoSql.VirtualLocationToPlaceMeters} / 1000.0)::numeric, p.introduction, p.highlights, r.name
+            FROM public.place p
+            JOIN public.place_type pt ON pt.place_type_id = p.place_type_id
+            JOIN public.region r ON r.region_id = p.region_id
+            JOIN public.virtual_location v ON v.user_id = $1
+            WHERE p.place_id = $2
+            """, connection))
+        {
+            command.Parameters.Add(new NpgsqlParameter<long> { TypedValue = userId, NpgsqlDbType = NpgsqlDbType.Bigint });
+            command.Parameters.Add(new NpgsqlParameter<long> { TypedValue = placeId, NpgsqlDbType = NpgsqlDbType.Bigint });
+            await using var reader = await command.ExecuteReaderAsync(ct);
+            if (!await reader.ReadAsync(ct))
+                throw new ExploreException("PLACE_NOT_FOUND", "Không tìm thấy địa danh hoặc vị trí ảo.");
+            id = reader.GetInt64(0);
+            name = reader.GetString(1);
+            placeType = reader.GetString(2);
+            discovered = reader.GetBoolean(3);
+            distanceKm = reader.GetDecimal(4);
+            introduction = discovered && !reader.IsDBNull(5) ? reader.GetString(5) : null;
+            highlights = discovered && !reader.IsDBNull(6) ? reader.GetString(6) : null;
+            regionName = reader.GetString(7);
+        }
+
+        var images = new List<string>();
+        await using (var command = new NpgsqlCommand("""
+            SELECT image_key FROM public.place_image
+            WHERE place_id = $1 ORDER BY place_image_id
+            """, connection))
+        {
+            command.Parameters.Add(new NpgsqlParameter<long> { TypedValue = placeId, NpgsqlDbType = NpgsqlDbType.Bigint });
+            await using var reader = await command.ExecuteReaderAsync(ct);
+            while (await reader.ReadAsync(ct)) images.Add(reader.GetString(0));
+        }
+
+        // The first photo stays visible (blurred) while locked; the gallery opens with the place.
+        return new ExplorePlaceDetail(id, name, placeType, images.FirstOrDefault(), discovered, distanceKm,
+            distanceKm <= 0 ? 0 : StepConversion.RequiredSteps(distanceKm), introduction, highlights, regionName,
+            discovered ? images : []);
+    }
+
+    private static async Task<ExploreSnapshot> LoadSnapshotAsync(NpgsqlConnection connection,
+        long userId, CancellationToken ct)
+    {
+        ExploreLocation? location = null;
+        await using (var command = new NpgsqlCommand("""
+            SELECT r.name, p.name, v.latitude, v.longitude
+            FROM public.virtual_location v
+            JOIN public.region r ON r.region_id = v.region_id
+            LEFT JOIN public.place p ON p.place_id = v.nearest_place_id
+            WHERE v.user_id = $1
+            """, connection))
+        {
+            command.Parameters.Add(new NpgsqlParameter<long> { TypedValue = userId, NpgsqlDbType = NpgsqlDbType.Bigint });
+            await using var reader = await command.ExecuteReaderAsync(ct);
+            if (await reader.ReadAsync(ct))
+                location = new ExploreLocation(reader.GetString(0), reader.IsDBNull(1) ? null : reader.GetString(1),
+                    reader.GetDecimal(2), reader.GetDecimal(3));
+        }
+
+        ExploreJourney? journey = null;
+        await using (var command = new NpgsqlCommand("""
+            SELECT j.journey_id, p.name, p.latitude, p.longitude,
+                   j.required_steps, j.recorded_steps, j.status,
+                   EXTRACT(EPOCH FROM j.started_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::bigint,
+                   j.start_latitude, j.start_longitude
+            FROM public.journey j
+            JOIN public.place p ON p.place_id = j.destination_place_id
+            WHERE j.user_id = $1 AND j.status IN ('IN_PROGRESS', 'COMPLETED')
+            ORDER BY CASE WHEN j.status = 'IN_PROGRESS' THEN 0 ELSE 1 END,
+                     j.started_at DESC, j.journey_id DESC
+            LIMIT 1
+            """, connection))
+        {
+            command.Parameters.Add(new NpgsqlParameter<long> { TypedValue = userId, NpgsqlDbType = NpgsqlDbType.Bigint });
+            await using var reader = await command.ExecuteReaderAsync(ct);
+            if (await reader.ReadAsync(ct))
+                journey = new ExploreJourney(reader.GetInt64(0), reader.GetString(1),
+                    reader.GetDecimal(2), reader.GetDecimal(3), reader.GetInt32(4),
+                    reader.GetInt32(5), reader.GetString(6), reader.GetInt64(7),
+                    reader.GetDecimal(8), reader.GetDecimal(9));
+        }
+        var places = new List<ExploreMapPlace>();
+        await using (var command = new NpgsqlCommand("""
+            SELECT p.place_id, p.name, p.latitude, p.longitude,
+                   (d.place_id IS NOT NULL) AS is_discovered
+            FROM public.place p
+            LEFT JOIN public.user_discovered_place d
+              ON d.place_id = p.place_id AND d.user_id = $1
+            WHERE p.status <> 'INACTIVE'
+            ORDER BY p.place_id
+            """, connection))
+        {
+            command.Parameters.Add(new NpgsqlParameter<long> { TypedValue = userId, NpgsqlDbType = NpgsqlDbType.Bigint });
+            await using var reader = await command.ExecuteReaderAsync(ct);
+            while (await reader.ReadAsync(ct))
+                places.Add(new ExploreMapPlace(reader.GetInt64(0), reader.GetString(1),
+                    reader.GetDecimal(2), reader.GetDecimal(3), reader.GetBoolean(4)));
+        }
+        return new ExploreSnapshot(location, journey, places);
+    }
+}

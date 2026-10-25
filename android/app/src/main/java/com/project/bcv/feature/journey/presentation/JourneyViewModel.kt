@@ -7,8 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.project.bcv.core.network.ApiFailure
-import com.project.bcv.feature.explore.domain.ExploreRepository
-import com.project.bcv.feature.explore.domain.ExploreSnapshot
+import com.project.bcv.feature.discovery.domain.ExploreRepository
+import com.project.bcv.feature.discovery.domain.ExploreSnapshot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

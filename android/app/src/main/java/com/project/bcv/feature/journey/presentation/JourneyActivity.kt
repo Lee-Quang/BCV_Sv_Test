@@ -19,12 +19,12 @@ import com.project.bcv.core.di.ExploreModule
 import com.project.bcv.core.ui.BottomNav
 import com.project.bcv.core.ui.NavTab
 import com.project.bcv.feature.collection.presentation.CollectionActivity
-import com.project.bcv.feature.quest.presentation.QuestActivity
+import com.project.bcv.feature.questitem.quest.presentation.QuestActivity
 import com.project.bcv.core.ui.ScreenMotion
 import com.project.bcv.databinding.ActivityJourneyBinding
-import com.project.bcv.feature.account.data.local.SessionPreferences
-import com.project.bcv.feature.account.presentation.AccountActivity
-import com.project.bcv.feature.explore.domain.ExploreJourney
+import com.project.bcv.feature.account.auth.data.local.SessionPreferences
+import com.project.bcv.feature.account.auth.presentation.AccountActivity
+import com.project.bcv.feature.discovery.domain.ExploreJourney
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
