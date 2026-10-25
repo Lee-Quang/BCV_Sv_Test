@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A tappable row: icon, title, one-line description and a chevron. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:background="@drawable/journey_card_bg"
+    android:foreground="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:minHeight="64dp"
+    android:orientation="horizontal"
+    android:padding="12dp">
+
+    <ImageView
+        android:id="@+id/rowIcon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/row_icon_bg"
+        android:contentDescription="@null"
+        android:padding="9dp"
+        app:tint="@color/teal" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/rowTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/forest"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/rowSubtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="#7C9086"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_chevron_right"
+        app:tint="#6F8579" />
+</LinearLayout>

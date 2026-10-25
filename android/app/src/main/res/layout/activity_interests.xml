@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <FrameLayout
+        android:layout_width="110dp"
+        android:layout_height="174dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="28dp"
+        android:clipChildren="true"
+        android:clipToPadding="true"
+        android:importantForAccessibility="no"
+        >
+
+        <com.project.bcv.core.ui.OrbitDecorationView
+            android:id="@+id/orbitDecoration"
+            android:layout_width="174dp"
+            android:layout_height="174dp"
+            android:layout_gravity="top|start" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center"
+        android:text="Chọn sở thích"
+        android:textColor="@color/forest"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="28dp"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="18dp"
+                    android:layout_height="3dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@color/orange" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="GU KHÁM PHÁ CỦA BẠN"
+                    android:textColor="#708876"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Chọn điều bạn"
+                android:textColor="#173F34"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="muốn khám phá."
+                android:textColor="@color/teal"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:lineSpacingExtra="4dp"
+                android:text="Chọn từ 1 đến 3 nhóm địa danh.\nBạn có thể đổi lựa chọn sau trong Hồ sơ."
+                android:textColor="#798E7E"
+                android:textSize="15sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Nhóm địa danh"
+                    android:textColor="@color/forest"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tối đa 3"
+                    android:textColor="#819785"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/placeTypeRows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical" />
+
+            <LinearLayout
+                android:id="@+id/loadingContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Filled with item_place_type_skeleton rows in InterestsActivity. -->
+                <LinearLayout
+                    android:id="@+id/placeTypeSkeleton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:accessibilityLiveRegion="polite"
+                    android:text="Đang tải nhóm địa danh…"
+                    android:textColor="#819785"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/retryButton"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Tải lại"
+                android:visibility="gone" />
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="14dp">
+
+        <TextView
+            android:id="@+id/selectionCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/interest_count_bg"
+            android:paddingStart="13dp"
+            android:paddingEnd="13dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="Chưa chọn nhóm nào"
+            android:textColor="#819584"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/requestError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textColor="@color/error_red"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/continueButton"
+            style="@style/AuthButton"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="15dp"
+            android:text="Tiếp tục"
+            app:icon="@drawable/ic_arrow"
+            app:iconGravity="textEnd" />
+
+        <TextView
+            android:id="@+id/loadingFooter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="Có thể cập nhật sau trong Hồ sơ."
+            android:textColor="#819785"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

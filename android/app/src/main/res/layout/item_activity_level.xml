@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activityLevelCard"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/field_line"
+    app:strokeWidth="1dp">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:id="@+id/activityIconBox"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/activity_icon_box">
+
+                <ImageView
+                    android:id="@+id/activityIcon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@null" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_marginEnd="24dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/activityName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/forest"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/activityDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:lineSpacingExtra="2dp"
+                    android:textColor="#788D7E"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/activitySelectionIndicator"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:layout_gravity="top|end"
+            android:background="@drawable/interest_selection"
+            android:contentDescription="@null"
+            android:padding="4dp" />
+    </FrameLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.health.READ_STEPS" />
+    <uses-permission android:name="android.permission.health.WRITE_STEPS" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <queries>
+        <package android:name="com.google.android.apps.healthdata" />
+    </queries>
+
+    <application
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="${usesCleartextTraffic}"
+        android:theme="@style/Theme.BướcChânViệt">
+        <activity android:name=".feature.explore.presentation.ExploreActivity" android:exported="false" />
+        <activity android:name=".feature.explore.presentation.PlaceDetailActivity" android:exported="false" />
+        <activity android:name=".feature.journey.presentation.JourneyActivity" android:exported="false" />
+        <activity android:name=".feature.collection.presentation.CollectionActivity" android:exported="false" />
+        <activity android:name=".feature.collection.presentation.CollectionDetailActivity" android:exported="false" />
+        <activity android:name=".feature.collection.presentation.CardDetailActivity" android:exported="false" />
+        <activity android:name=".feature.quest.presentation.QuestActivity" android:exported="false" />
+        <activity android:name=".feature.inventory.presentation.InventoryActivity" android:exported="false" />
+        <activity android:name=".feature.inventory.presentation.SpeedShoesActivity" android:exported="false" />
+        <activity android:name=".feature.inventory.presentation.FlightTicketActivity" android:exported="false" />
+        <activity android:name=".feature.profile.presentation.ProfileActivity" android:exported="false" />
+        <activity android:name=".feature.profile.presentation.EditProfileActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".feature.profile.presentation.ChangePasswordActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".feature.profile.presentation.StatsActivity" android:exported="false" />
+        <activity android:name=".feature.profile.presentation.JourneyHistoryActivity" android:exported="false" />
+        <activity android:name=".feature.profile.presentation.NotificationsActivity" android:exported="false" />
+        <activity android:name=".feature.healthconnect.presentation.HealthConnectActivity" android:exported="false" />
+        <activity android:name=".feature.startingpoint.presentation.StartingPointActivity" android:exported="false" />
+        <activity android:name=".feature.healthconnect.presentation.HealthPermissionRationaleActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
+        </activity>
+        <activity-alias
+            android:name=".feature.healthconnect.presentation.ViewHealthPermissionUsageActivity"
+            android:exported="true"
+            android:targetActivity=".feature.healthconnect.presentation.HealthPermissionRationaleActivity"
+            android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
+                <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
+            </intent-filter>
+        </activity-alias>
+        <activity android:name=".feature.activitylevel.presentation.ActivityLevelActivity" android:exported="false" />
+        <activity android:name=".feature.interests.presentation.InterestsActivity" android:exported="false" />
+        <activity
+            android:name=".feature.account.presentation.PasswordResetActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".feature.account.presentation.AccountActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

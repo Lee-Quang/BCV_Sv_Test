@@ -1,0 +1,6 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_success_check_draw">
+    <target
+        android:name="checkPath"
+        android:animation="@animator/success_check_draw" />
+</animated-vector>

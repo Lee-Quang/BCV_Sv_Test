@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Quyền đọc bước chân"
+        android:textColor="@color/forest"
+        android:textSize="26sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:lineSpacingExtra="5dp"
+        android:text="Bước Chân Việt xin quyền đọc số bước và thời gian ghi nhận từ Health Connect để cập nhật tiến độ hành trình khi bạn sử dụng tính năng bước chân. Ứng dụng không xin quyền ghi dữ liệu sức khỏe."
+        android:textColor="@color/forest"
+        android:textSize="16sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:lineSpacingExtra="5dp"
+        android:text="Chúng tôi chỉ truy cập sau khi bạn cấp quyền. Bạn có thể thu hồi quyền bất cứ lúc nào trong Health Connect; khi đó việc đọc bước chân sẽ dừng."
+        android:textColor="@color/muted"
+        android:textSize="15sp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/closeButton"
+        style="@style/AuthButton"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:text="Đã hiểu" />
+</LinearLayout>

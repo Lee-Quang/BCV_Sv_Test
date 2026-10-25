@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="launcher_background">#174D35</color>
+    <!-- Shared background of the bottom-nav tab screens (Khám phá, Hành trình). -->
+    <color name="tab_screen_bg">#FFFFFFFF</color>
+    <color name="forest">#19473B</color>
+    <color name="teal">#07836D</color>
+    <color name="muted">#85968F</color>
+    <color name="field_bg">#F6F9F7</color>
+    <color name="field_line">#DDE9E3</color>
+    <color name="error_red">#DD4A47</color>
+    <color name="orange">#EDA45F</color>
+    <color name="auth_loading_bg">#E5EEEA</color>
+    <color name="auth_loading_text">#496E60</color>
+    <color name="auth_loading_track">#B4CEC2</color>
+</resources>

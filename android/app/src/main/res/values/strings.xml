@@ -1,0 +1,15 @@
+<resources>
+    <string name="auth_error_space">&#160;</string>
+    <string name="app_name">Bước Chân Việt</string>
+    <string name="hero_description">Đường mòn trên núi Việt Nam với người đi bộ khám phá</string>
+    <string name="success_description">Thành công</string>
+    <string name="show_password">Hiện mật khẩu</string>
+    <string name="hide_password">Ẩn mật khẩu</string>
+    <string name="forgot_password">Quên mật khẩu?</string>
+    <string name="password_reset_unavailable">Chức năng đặt lại mật khẩu chưa khả dụng.</string>
+    <string name="register_hero_headline">Hành trình mới,\nbắt đầu từ bạn.</string>
+    <string name="login_hero_headline">Trở lại hành trình,\nkhám phá tiếp thôi.</string>
+    <string name="register_title">Tạo tài khoản</string>
+    <string name="login_title">Chào mừng trở lại</string>
+    <string name="login_subtitle">Đăng nhập để tiếp tục hành trình của bạn.</string>
+</resources>

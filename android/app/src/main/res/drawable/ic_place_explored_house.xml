@@ -1,0 +1,10 @@
+<!-- House with an "M" door: badge icon for an explored place on the map. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="#00000000" android:strokeColor="#B07A3A" android:strokeWidth="1.9"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M3.5,10.5L12,3.8L20.5,10.5M6,8.6V20H18V8.6" />
+    <path android:fillColor="#00000000" android:strokeColor="#B07A3A" android:strokeWidth="1.9"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M9,17V12.2L12,14.8L15,12.2V17" />
+</vector>

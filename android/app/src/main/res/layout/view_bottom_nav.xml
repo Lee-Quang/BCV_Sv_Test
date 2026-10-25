@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shared bottom navigation for the tab screens. BottomNav.select styles the current tab. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:background="@drawable/nav_bar_bg"
+    android:elevation="2dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="8dp"
+    android:paddingTop="4dp"
+    android:paddingEnd="8dp">
+
+    <LinearLayout
+        android:id="@+id/tabExplore"
+        style="@style/NavTab"
+        android:contentDescription="Khám phá">
+
+        <ImageView
+            android:id="@+id/tabExploreIcon"
+            style="@style/NavTabIcon"
+            android:src="@drawable/ic_nav_explore"
+            app:tint="#7D8A82" />
+
+        <TextView
+            android:id="@+id/tabExploreLabel"
+            style="@style/NavTabLabel"
+            android:text="Khám phá" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tabJourney"
+        style="@style/NavTab"
+        android:contentDescription="Hành trình">
+
+        <ImageView
+            android:id="@+id/tabJourneyIcon"
+            style="@style/NavTabIcon"
+            android:src="@drawable/ic_nav_route"
+            app:tint="#7D8A82" />
+
+        <TextView
+            android:id="@+id/tabJourneyLabel"
+            style="@style/NavTabLabel"
+            android:text="Hành trình" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tabCollection"
+        style="@style/NavTab"
+        android:contentDescription="Bộ sưu tập">
+
+        <ImageView
+            android:id="@+id/tabCollectionIcon"
+            style="@style/NavTabIcon"
+            android:src="@drawable/ic_nav_collection"
+            app:tint="#7D8A82" />
+
+        <TextView
+            android:id="@+id/tabCollectionLabel"
+            style="@style/NavTabLabel"
+            android:text="Bộ sưu tập" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tabQuest"
+        style="@style/NavTab"
+        android:contentDescription="Nhiệm vụ">
+
+        <ImageView
+            android:id="@+id/tabQuestIcon"
+            style="@style/NavTabIcon"
+            android:src="@drawable/ic_nav_task"
+            app:tint="#7D8A82" />
+
+        <TextView
+            android:id="@+id/tabQuestLabel"
+            style="@style/NavTabLabel"
+            android:text="Nhiệm vụ" />
+    </LinearLayout>
+</LinearLayout>

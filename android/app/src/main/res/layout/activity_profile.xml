@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tab_screen_bg"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/topBar"
+        layout="@layout/view_detail_top_bar" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="24dp">
+
+            <LinearLayout
+                android:id="@+id/accountCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/panel_bg"
+                android:backgroundTint="#E8F0E2"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <FrameLayout
+                        android:layout_width="58dp"
+                        android:layout_height="58dp">
+
+                        <TextView
+                            android:id="@+id/initials"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/avatar_circle"
+                            android:gravity="center"
+                            android:importantForAccessibility="no"
+                            android:textColor="@color/white"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/avatarImage"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:importantForAccessibility="no"
+                            android:scaleType="centerCrop"
+                            android:visibility="gone"
+                            app:shapeAppearance="@style/AvatarCircle" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:textColor="@color/forest"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/email"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:textColor="#6F8579"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/accountStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/chip_bg"
+                    android:gravity="center"
+                    android:textColor="@color/teal"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <include
+                android:id="@+id/personalLink"
+                layout="@layout/item_profile_link" />
+
+            <include
+                android:id="@+id/preferencesLink"
+                layout="@layout/item_profile_link" />
+
+            <include
+                android:id="@+id/healthLink"
+                layout="@layout/item_profile_link" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:accessibilityHeading="true"
+                android:text="DỮ LIỆU CỦA BẠN"
+                android:textColor="#6F8579"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <include
+                android:id="@+id/statsLink"
+                layout="@layout/item_profile_link" />
+
+            <include
+                android:id="@+id/historyLink"
+                layout="@layout/item_profile_link" />
+
+            <include
+                android:id="@+id/notificationsLink"
+                layout="@layout/item_profile_link" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/logoutButton"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
+                    android:text="Đăng xuất"
+                    android:textAllCaps="false"
+                    android:textColor="#3C7DB0"
+                    android:textStyle="bold"
+                    app:backgroundTint="#E1EBF1"
+                    app:cornerRadius="16dp"
+                    app:icon="@drawable/ic_logout"
+                    app:iconSize="18dp"
+                    app:iconTint="#3C7DB0" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/deleteButton"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:text="Xóa tài khoản"
+                    android:textAllCaps="false"
+                    android:textColor="#C2553F"
+                    android:textStyle="bold"
+                    app:backgroundTint="#FBE9E5"
+                    app:cornerRadius="16dp"
+                    app:icon="@drawable/ic_delete_outline"
+                    app:iconSize="18dp"
+                    app:iconTint="#C2553F" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

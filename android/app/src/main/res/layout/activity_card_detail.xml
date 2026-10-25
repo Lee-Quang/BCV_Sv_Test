@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tab_screen_bg"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp">
+
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/activity_back_circle"
+            android:contentDescription="Quay lại"
+            android:padding="12dp"
+            android:rotation="180"
+            android:src="@drawable/ic_arrow"
+            app:tint="@color/forest" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:text="Thẻ địa danh"
+            android:textColor="@color/forest"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="16dp">
+
+            <TextView
+                android:id="@+id/collectionEyebrow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAllCaps="true"
+                android:textColor="@color/teal"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/headline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:accessibilityHeading="true"
+                android:text="Một dấu chân đáng nhớ."
+                android:textColor="@color/forest"
+                android:textSize="26sp"
+                android:textStyle="bold" />
+
+            <!-- The collectible card, with a solid offset "shadow" behind it. -->
+            <FrameLayout
+                android:id="@+id/cardFrame"
+                android:layout_width="268dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="28dp">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/card_frame_shadow"
+                    android:importantForAccessibility="no" />
+
+                <LinearLayout
+                    android:id="@+id/cardFace"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="6dp"
+                    android:layout_marginBottom="6dp"
+                    android:background="@drawable/card_frame_bg"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <FrameLayout
+                        android:id="@+id/cardImageFrame"
+                        android:layout_width="match_parent"
+                        android:layout_height="244dp"
+                        android:background="@drawable/card_image_bg"
+                        android:clipToOutline="true">
+
+                        <ImageView
+                            android:id="@+id/cardImage"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:contentDescription="@null"
+                            android:scaleType="centerCrop" />
+
+                        <ImageView
+                            android:id="@+id/cardLock"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:src="@drawable/ic_lock"
+                            android:visibility="gone"
+                            app:tint="#8A7E66" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/cardName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:textColor="@color/forest"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="THẺ ĐỊA DANH"
+                            android:textColor="#A36A2A"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:contentDescription="@null"
+                            android:src="@drawable/ic_nav_collection"
+                            app:tint="#A36A2A" />
+                    </LinearLayout>
+                </LinearLayout>
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/ownedChip"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="22dp"
+                android:background="@drawable/card_owned_chip_bg"
+                android:drawablePadding="12dp"
+                android:gravity="center_vertical"
+                android:paddingStart="18dp"
+                android:paddingEnd="26dp"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/ownedNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:lineSpacingExtra="6dp"
+                android:textColor="#6F8579"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/placeButton"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:text="Xem nội dung địa danh"
+        android:textAllCaps="false"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:backgroundTint="@color/teal"
+        app:cornerRadius="18dp"
+        app:icon="@drawable/ic_arrow"
+        app:iconGravity="end"
+        app:iconTint="@color/white" />
+</LinearLayout>

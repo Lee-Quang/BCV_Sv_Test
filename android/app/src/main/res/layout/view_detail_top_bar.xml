@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Back button and title shared by the screens opened from a tab. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="12dp"
+    android:paddingEnd="20dp">
+
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/activity_back_circle"
+        android:contentDescription="Quay lại"
+        android:padding="12dp"
+        android:rotation="180"
+        android:src="@drawable/ic_arrow"
+        app:tint="@color/forest" />
+
+    <TextView
+        android:id="@+id/screenTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_weight="1"
+        android:accessibilityHeading="true"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/forest"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+</LinearLayout>
