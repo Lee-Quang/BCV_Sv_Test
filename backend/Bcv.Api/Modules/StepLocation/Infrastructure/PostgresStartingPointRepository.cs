@@ -32,7 +32,7 @@ public sealed class PostgresStartingPointRepository(NpgsqlDataSource db) : IStar
             SELECT p.place_id, r.region_id, r.name, p.name, p.latitude, p.longitude
             FROM public.place p
             JOIN public.region r ON r.region_id = p.region_id
-            WHERE r.status = 'ACTIVE'
+            WHERE r.status = 'ACTIVE' AND p.status = 'ACTIVE'
             ORDER BY CASE WHEN r.name = 'Hà Nội' THEN 0 ELSE 1 END,
                      ST_Distance({Coordinates},
                          ST_SetSRID(ST_MakePoint(105.8525, 21.028889), 4326)::geography),
@@ -50,7 +50,7 @@ public sealed class PostgresStartingPointRepository(NpgsqlDataSource db) : IStar
             SELECT p.place_id, r.region_id, r.name, p.name, p.latitude, p.longitude
             FROM public.place p
             JOIN public.region r ON r.region_id = p.region_id
-            WHERE r.status = 'ACTIVE'
+            WHERE r.status = 'ACTIVE' AND p.status = 'ACTIVE'
               AND ST_DWithin({Coordinates},
                   ST_SetSRID(ST_MakePoint($2::double precision, $1::double precision), 4326)::geography,
                   75000)

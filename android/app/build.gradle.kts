@@ -37,7 +37,7 @@ android {
         debug {
             manifestPlaceholders["usesCleartextTraffic"] = "true"
             val apiUrl = providers.gradleProperty("bcvApiBaseUrl")
-                .orElse(localDevProperties.getProperty("bcvApiBaseUrl") ?: "http://10.0.2.2:5080/")
+                .orElse(localDevProperties.getProperty("bcvApiBaseUrl") ?: "http://10.0.2.2:5081/")
                 .get()
             buildConfigField("String", "API_BASE_URL", "\"$apiUrl\"")
             val goongMaptilesKey = providers.gradleProperty("bcvGoongMaptilesKey")

@@ -32,7 +32,7 @@ public sealed class PostgresExploreRepository(NpgsqlDataSource db) : IExploreRep
             JOIN public.place_type pt ON pt.place_type_id = p.place_type_id
             JOIN public.region r ON r.region_id = p.region_id
             JOIN public.virtual_location v ON v.user_id = $1
-            WHERE p.place_id = $2
+            WHERE p.place_id = $2 AND p.status = 'ACTIVE' AND r.status = 'ACTIVE'
             """, connection))
         {
             command.Parameters.Add(new NpgsqlParameter<long> { TypedValue = userId, NpgsqlDbType = NpgsqlDbType.Bigint });
@@ -115,7 +115,7 @@ public sealed class PostgresExploreRepository(NpgsqlDataSource db) : IExploreRep
             FROM public.place p
             LEFT JOIN public.user_discovered_place d
               ON d.place_id = p.place_id AND d.user_id = $1
-            WHERE p.status <> 'INACTIVE'
+            WHERE p.status = 'ACTIVE' AND EXISTS (SELECT 1 FROM public.region r WHERE r.region_id=p.region_id AND r.status='ACTIVE')
             ORDER BY p.place_id
             """, connection))
         {

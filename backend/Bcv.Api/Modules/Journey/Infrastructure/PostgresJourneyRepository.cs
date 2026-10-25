@@ -62,7 +62,8 @@ public sealed class PostgresJourneyRepository(NpgsqlDataSource db) : IJourneyRep
         await using (var command = new NpgsqlCommand($"""
             SELECT ({GeoSql.VirtualLocationToPlaceMeters} / 1000.0)::numeric
             FROM public.place p JOIN public.virtual_location v ON v.user_id = $1
-            WHERE p.place_id = $2 AND p.status <> 'INACTIVE'
+            WHERE p.place_id = $2 AND p.status = 'ACTIVE'
+              AND EXISTS (SELECT 1 FROM public.region r WHERE r.region_id=p.region_id AND r.status='ACTIVE')
             """, connection, transaction))
         {
             command.Parameters.Add(new NpgsqlParameter<long> { TypedValue = userId, NpgsqlDbType = NpgsqlDbType.Bigint });

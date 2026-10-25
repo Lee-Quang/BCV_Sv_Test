@@ -22,7 +22,7 @@ public sealed class CollectionRepository(NpgsqlDataSource db)
         int ownedCards, totalCards;
         await using (var command = new NpgsqlCommand($"""
             SELECT count(*) FILTER (WHERE {Owned}), count(*)
-            FROM public.card c WHERE c.status <> 'INACTIVE'
+            FROM public.card c WHERE c.status = 'ACTIVE'
             """, connection))
         {
             command.Parameters.Add(new NpgsqlParameter<long> { TypedValue = userId, NpgsqlDbType = NpgsqlDbType.Bigint });
@@ -41,8 +41,8 @@ public sealed class CollectionRepository(NpgsqlDataSource db)
                         FILTER (WHERE {Owned} AND c.image_key IS NOT NULL))[1:4]
             FROM public.collection col
             JOIN public.collection_card cc ON cc.collection_id = col.collection_id
-            JOIN public.card c ON c.card_id = cc.card_id AND c.status <> 'INACTIVE'
-            WHERE col.status <> 'INACTIVE'
+            JOIN public.card c ON c.card_id = cc.card_id AND c.status = 'ACTIVE'
+            WHERE col.status = 'ACTIVE'
             GROUP BY col.collection_id, col.name, col.description
             ORDER BY col.collection_id
             """, connection))
@@ -68,7 +68,7 @@ public sealed class CollectionRepository(NpgsqlDataSource db)
         string? description;
         await using (var command = new NpgsqlCommand("""
             SELECT name, description FROM public.collection
-            WHERE collection_id = $1 AND status <> 'INACTIVE'
+            WHERE collection_id = $1 AND status = 'ACTIVE'
             """, connection))
         {
             command.Parameters.Add(new NpgsqlParameter<long> { TypedValue = collectionId, NpgsqlDbType = NpgsqlDbType.Bigint });
@@ -82,7 +82,7 @@ public sealed class CollectionRepository(NpgsqlDataSource db)
         await using (var command = new NpgsqlCommand($"""
             SELECT c.card_id, c.place_id, c.name, c.image_key, {Owned} AS owned
             FROM public.collection_card cc
-            JOIN public.card c ON c.card_id = cc.card_id AND c.status <> 'INACTIVE'
+            JOIN public.card c ON c.card_id = cc.card_id AND c.status = 'ACTIVE'
             WHERE cc.collection_id = $2
             ORDER BY owned DESC, cc.collection_card_id
             """, connection))

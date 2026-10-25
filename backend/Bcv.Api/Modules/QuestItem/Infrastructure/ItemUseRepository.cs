@@ -16,7 +16,7 @@ public sealed class ItemUseRepository(NpgsqlDataSource db)
         long userId, string type, bool forUpdate, CancellationToken ct)
     {
         await using var command = new NpgsqlCommand($"""
-            SELECT i.item_id, i.name, i.status <> 'INACTIVE', COALESCE(ui.quantity, 0), i.effect_value, i.effective_range
+            SELECT i.item_id, i.name, i.status = 'ACTIVE', COALESCE(ui.quantity, 0), i.effect_value, i.effective_range
             FROM public.item i
             LEFT JOIN public.user_item ui ON ui.item_id = i.item_id AND ui.user_id = $1
             WHERE i.item_type = $2
@@ -149,8 +149,8 @@ public sealed class ItemUseRepository(NpgsqlDataSource db)
         await using (var command = new NpgsqlCommand("""
             SELECT r.region_id, r.name, COUNT(p.place_id)::int
             FROM public.region r
-            JOIN public.place p ON p.region_id = r.region_id AND p.status <> 'INACTIVE'
-            WHERE r.status <> 'INACTIVE' AND r.region_id IS DISTINCT FROM $1
+            JOIN public.place p ON p.region_id = r.region_id AND p.status = 'ACTIVE'
+            WHERE r.status = 'ACTIVE' AND r.region_id IS DISTINCT FROM $1
             GROUP BY r.region_id, r.name
             ORDER BY r.name
             """, connection))
@@ -171,8 +171,8 @@ public sealed class ItemUseRepository(NpgsqlDataSource db)
             SELECT p.place_id, p.name,
                    EXISTS (SELECT 1 FROM public.user_discovered_place d WHERE d.user_id = $1 AND d.place_id = p.place_id)
             FROM public.place p
-            JOIN public.region r ON r.region_id = p.region_id AND r.status <> 'INACTIVE'
-            WHERE p.region_id = $2 AND p.status <> 'INACTIVE'
+            JOIN public.region r ON r.region_id = p.region_id AND r.status = 'ACTIVE'
+            WHERE p.region_id = $2 AND p.status = 'ACTIVE'
             ORDER BY p.rating_count DESC, p.name
             """, connection);
         command.Parameters.Add(new NpgsqlParameter<long> { TypedValue = userId, NpgsqlDbType = NpgsqlDbType.Bigint });
@@ -207,7 +207,7 @@ public sealed class ItemUseRepository(NpgsqlDataSource db)
             SET region_id = p.region_id, nearest_place_id = p.place_id,
                 latitude = p.latitude, longitude = p.longitude, updated_at = CURRENT_TIMESTAMP
             FROM public.place p JOIN public.region r ON r.region_id = p.region_id
-            WHERE v.user_id = $1 AND p.place_id = $2 AND p.status <> 'INACTIVE' AND r.status <> 'INACTIVE'
+            WHERE v.user_id = $1 AND p.place_id = $2 AND p.status = 'ACTIVE' AND r.status = 'ACTIVE'
               AND p.region_id <> v.region_id
             RETURNING r.name, p.name
             """, connection, transaction))

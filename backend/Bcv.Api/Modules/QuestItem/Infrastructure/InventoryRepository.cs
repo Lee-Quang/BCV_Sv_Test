@@ -12,7 +12,7 @@ public sealed class InventoryRepository(NpgsqlDataSource db)
         var items = new List<InventoryItem>();
         await using (var command = new NpgsqlCommand("""
             SELECT i.item_id, i.name, i.item_type, i.description, i.effect_value, i.effective_range,
-                   i.usage_limit, i.status <> 'INACTIVE', COALESCE(ui.quantity, 0)
+                   i.usage_limit, i.status = 'ACTIVE', COALESCE(ui.quantity, 0)
             FROM public.item i
             LEFT JOIN public.user_item ui ON ui.item_id = i.item_id AND ui.user_id = $1
             ORDER BY i.item_id

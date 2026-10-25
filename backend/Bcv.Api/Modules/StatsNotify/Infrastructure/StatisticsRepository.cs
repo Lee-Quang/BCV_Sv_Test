@@ -15,17 +15,17 @@ public sealed class StatisticsRepository(NpgsqlDataSource db)
             SELECT
               (SELECT COALESCE(SUM(step_count), 0)::bigint FROM public.step_data WHERE user_id = $1),
               (SELECT COUNT(*)::int FROM public.user_discovered_place WHERE user_id = $1),
-              (SELECT COUNT(*)::int FROM public.card c WHERE c.status <> 'INACTIVE' AND (
+              (SELECT COUNT(*)::int FROM public.card c WHERE c.status = 'ACTIVE' AND (
                   EXISTS (SELECT 1 FROM public.user_card uc WHERE uc.user_id = $1 AND uc.card_id = c.card_id)
                   OR EXISTS (SELECT 1 FROM public.user_discovered_place d WHERE d.user_id = $1 AND d.place_id = c.place_id))),
               (SELECT COUNT(*)::int FROM public.quest q JOIN public.quest_progress qp
                  ON qp.quest_id = q.quest_id AND qp.user_id = $1 AND qp.cycle_key = $2
-               WHERE q.cycle_type = 'DAILY' AND q.status <> 'INACTIVE' AND qp.completion_status),
-              (SELECT COUNT(*)::int FROM public.quest WHERE cycle_type = 'DAILY' AND status <> 'INACTIVE'),
+               WHERE q.cycle_type = 'DAILY' AND q.status = 'ACTIVE' AND qp.completion_status),
+              (SELECT COUNT(*)::int FROM public.quest WHERE cycle_type = 'DAILY' AND status = 'ACTIVE'),
               (SELECT COUNT(*)::int FROM public.quest q JOIN public.quest_progress qp
                  ON qp.quest_id = q.quest_id AND qp.user_id = $1 AND qp.cycle_key = $3
-               WHERE q.cycle_type = 'WEEKLY' AND q.status <> 'INACTIVE' AND qp.completion_status),
-              (SELECT COUNT(*)::int FROM public.quest WHERE cycle_type = 'WEEKLY' AND status <> 'INACTIVE')
+               WHERE q.cycle_type = 'WEEKLY' AND q.status = 'ACTIVE' AND qp.completion_status),
+              (SELECT COUNT(*)::int FROM public.quest WHERE cycle_type = 'WEEKLY' AND status = 'ACTIVE')
             """, connection);
         command.Parameters.Add(new NpgsqlParameter<long> { TypedValue = userId, NpgsqlDbType = NpgsqlDbType.Bigint });
         command.Parameters.Add(new NpgsqlParameter<string> { TypedValue = daily, NpgsqlDbType = NpgsqlDbType.Varchar });

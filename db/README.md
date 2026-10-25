@@ -66,17 +66,48 @@ Nguồn ảnh thêm trong `007` (URL ảnh trực tiếp nằm trong SQL):
 
 `013_northern_cards_collections.sql` đã được áp dụng vào `bcv` ngày 25/10/2026: tạo thêm 120 thẻ để đủ 125/125 địa danh miền Bắc có thẻ, giữ nguyên 5 thẻ đã tồn tại, và gắn mỗi thẻ vào đúng một trong 5 bộ sưu tập khu vực (Hà Nội và Kinh Bắc 20, đồng bằng Bắc Bộ 30, biển đảo Bắc Bộ 10, Đông Bắc 30, Tây Bắc 35). Có 31 thẻ miền Bắc dùng ảnh đã nhập; 94 thẻ còn lại giữ `image_key` trống cho tới khi có ảnh đúng địa danh. Script có kiểm tra số lượng và chạy lại không tạo bản ghi trùng. Tổng database hiện có 135 thẻ và 7 bộ sưu tập, kể cả dữ liệu mẫu trước đó.
 
-## Lệnh quản trị
+## Lệnh quản trị theo từng máy
+
+Chạy từ thư mục gốc `BCV-main` bằng PowerShell 7. Tạo `backend/local.settings.json` từ file mẫu nếu chưa có; điền `DbHost`, `DbPort`, `DbName`, `DbUser` và `PsqlPath` của máy hiện tại. Nếu `psql` đã có trong PATH thì để `PsqlPath` trống. Ví dụ đường dẫn trên Windows là `C:/Program Files/PostgreSQL/18/bin/psql.exe`; chọn đúng thư mục cài thực tế của bạn.
 
 ```powershell
-& 'D:\Program Files\PostgreSQL\18\bin\pg_isready.exe' -h 127.0.0.1 -p 5433
-& 'D:\Program Files\PostgreSQL\18\bin\psql.exe' -X -W -h 127.0.0.1 -p 5433 -U postgres -d bcv
+. .\backend\local-config.ps1
+$config = Get-BcvLocalConfig
+$psql = Resolve-BcvPsql $config
+
+# -W hỏi mật khẩu PostgreSQL; không lưu mật khẩu trong file SQL.
+& $psql -X -W -h $config.DbHost -p $config.DbPort -U $config.DbUser -d $config.DbName
 ```
 
-Với một database `bcv` mới và trống, chạy schema từ thư mục gốc dự án:
+Với máy mới chưa có database, tạo database có tên khớp `DbName` bằng pgAdmin hoặc `createdb` đi kèm PostgreSQL. Cần cài PostGIS cho đúng phiên bản PostgreSQL trước khi chạy schema. Nếu khôi phục từ backup đầy đủ thì không chạy các lệnh tạo schema bên dưới.
+
+Với database **mới và trống**, nạp schema và dữ liệu theo thứ tự sau từ thư mục gốc:
 
 ```powershell
-& 'D:\Program Files\PostgreSQL\18\bin\psql.exe' -X -W -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5433 -U postgres -d bcv -f db/001_schema.sql
+. .\backend\local-config.ps1
+$config = Get-BcvLocalConfig
+$psql = Resolve-BcvPsql $config
+$pw = Read-Host 'Mat khau PostgreSQL' -AsSecureString
+$env:PGPASSWORD = [System.Net.NetworkCredential]::new('', $pw).Password
+try {
+    foreach ($file in @(
+        '001_schema.sql',
+        '002_seed_reference.sql',
+        '003_import_places.sql',
+        '004_seed_demo_remaining.sql',
+        '009_describe_regions.sql',
+        '010_place_fun_facts.sql',
+        '012_northern_place_images.sql',
+        '013_northern_cards_collections.sql'
+    )) {
+        & $psql -X -w -v ON_ERROR_STOP=1 -h $config.DbHost -p $config.DbPort -U $config.DbUser -d $config.DbName -f (Join-Path db $file)
+        if ($LASTEXITCODE -ne 0) { throw "Import failed: $file" }
+    }
+} finally {
+    Remove-Item Env:PGPASSWORD -ErrorAction SilentlyContinue
+}
 ```
 
-Script dành cho database trống; không chạy lại trên database đã có bảng. Các thay đổi tiếp theo nên được thêm bằng migration mới.
+Bản `004` đã gồm nội dung cuối cùng của migration `005`–`008`; bản `010` đã gồm sửa nội dung của `011`, nên database mới không cần chạy lại các migration đó. Các migration cũ vẫn được giữ cho database được tạo trước khi sửa dữ liệu. Không chạy lại `001` trên database đã có bảng. Nếu nạp bị dừng giữa chừng, kiểm tra script đã hoàn tất trước khi tiếp tục; không chạy lại toàn bộ lên dữ liệu đang có.
+
+Sau khi nạp, tạo tài khoản quản trị bằng `backend/create-admin.ps1`; tài khoản và mật khẩu admin không tự xuất hiện chỉ từ việc sao chép mã nguồn. Xem [hướng dẫn chạy và cấu hình máy](../web/README.md).

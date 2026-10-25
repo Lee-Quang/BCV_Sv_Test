@@ -28,7 +28,7 @@ public static class PlaceUnlock
         await using var card = new NpgsqlCommand("""
             INSERT INTO public.user_card (user_id, card_id)
             SELECT $1, c.card_id FROM public.card c
-            WHERE c.place_id = $2 AND c.status <> 'INACTIVE'
+            WHERE c.place_id = $2 AND c.status = 'ACTIVE'
             ON CONFLICT (user_id, card_id) DO NOTHING
             """, connection, transaction);
         card.Parameters.Add(new NpgsqlParameter<long> { TypedValue = userId, NpgsqlDbType = NpgsqlDbType.Bigint });

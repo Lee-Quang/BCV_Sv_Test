@@ -1,6 +1,8 @@
 .DS_Store
 .env
 .env.*
+!.env.example
+backend/local.settings.json
 *.local
 *.user
 *.suo
@@ -15,6 +17,7 @@ db.zip
 .cursor/
 .idea/
 .vs/
+.vscode/
 backend/**/bin/
 backend/**/obj/
 backend/**/backend-build-out/

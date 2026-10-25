@@ -27,7 +27,7 @@ public static class QuestProgress
                    $2, $2 >= q.target_value,
                    CASE WHEN $2 >= q.target_value THEN CURRENT_TIMESTAMP END
             FROM public.quest q
-            WHERE q.condition_type = $5 AND q.status <> 'INACTIVE'
+            WHERE q.condition_type = $5 AND q.status = 'ACTIVE'
             ON CONFLICT (user_id, quest_id, cycle_key) DO UPDATE
             SET progress_value = quest_progress.progress_value + EXCLUDED.progress_value,
                 completion_status = quest_progress.completion_status

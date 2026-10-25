@@ -1,0 +1,13 @@
+{
+  "DbHost": "127.0.0.1",
+  "DbPort": 5432,
+  "DbName": "bcv",
+  "DbUser": "postgres",
+  "ApiUrls": "http://0.0.0.0:5081",
+  "SmtpHost": "smtp.gmail.com",
+  "SmtpPort": 587,
+  "SmtpEnableSsl": true,
+  "SmtpUser": "",
+  "SmtpFrom": "",
+  "PsqlPath": ""
+}

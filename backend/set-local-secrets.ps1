@@ -42,7 +42,7 @@ function Set-Value([string]$name, [string]$prompt, [string]$pattern, [string]$hi
 
 if (-not $R2) {
     Set-Secret 'BCV_DB_PASSWORD' 'PostgreSQL BCV password'
-    Set-Secret 'BCV_SMTP_PASSWORD' 'Gmail App Password for nguyenthitho.eve@gmail.com'
+    Set-Secret 'BCV_SMTP_PASSWORD' 'SMTP App Password (sender configured in backend/local.settings.json)'
 }
 
 # Cloudflare R2 for avatars (dashboard: R2 > bucket > Settings, and R2 > Manage API tokens).

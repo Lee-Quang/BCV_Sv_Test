@@ -7,17 +7,48 @@ Theo [tài liệu đồ án](https://docs.google.com/document/d/1GAQdAqCcwr_Iivf
 | `android/` | Ứng dụng Android Kotlin. `feature/` chia theo module nghiệp vụ (account, location, discovery, journey, collection, questitem, statsnotify); mỗi tính năng có `presentation` (Activity + ViewModel), `domain` (model, interface repository) và `data` (cài đặt, nguồn dữ liệu). Phần dùng chung ở `core/` (network, presentation, ui, map, di). |
 | `backend/` | ASP.NET Core API dạng modular monolith theo mục 3.2 của tài liệu kiến trúc: các module Account, StepLocation, Discovery, Journey, PlaceCollection, QuestItem, StatsNotify (và Shared), mỗi module chia lớp Api, Application, Domain, Infrastructure. |
 | `db/` | Schema 25 bảng và dữ liệu mẫu PostgreSQL BCV hiện có. |
+| `web/` | Website quản trị React: dashboard, người dùng, khu vực, địa danh, bản đồ, thẻ, bộ sưu tập, nhiệm vụ và vật phẩm. Xem [hướng dẫn chạy](web/README.md). |
+
+## Công nghệ sử dụng
+
+| Thành phần | Công nghệ | Vai trò |
+| --- | --- | --- |
+| Website quản trị | ReactJS 19, JavaScript/JSX, CSS | Giao diện, thanh điều hướng, dashboard, biểu mẫu và quản lý nội dung |
+| Công cụ web | Vite 7, Node.js, npm | Chạy môi trường phát triển, cài thư viện và build React thành tệp tĩnh |
+| Backend API | C# và ASP.NET Core trên .NET 10, Npgsql | Xử lý nghiệp vụ, kiểm tra quyền quản trị, giao dịch và truy cập database |
+| Database | PostgreSQL và PostGIS | Lưu dữ liệu nghiệp vụ, tọa độ và hỗ trợ truy vấn không gian |
+| Android | Kotlin, Android SDK, Health Connect | Ứng dụng di động, đọc bước chân và đồng bộ với Backend |
+| Bản đồ | Goong Maps, MapLibre GL JS / MapLibre Android | Hiển thị bản đồ và địa danh trên web, Android |
+| Biểu tượng web | Lucide React | Hệ thống biểu tượng giao diện quản trị |
+| Lưu trữ ảnh | Cloudflare R2, tùy chọn | Backend tải ảnh lên kho đối tượng; nếu chưa cấu hình thì dùng lưu trữ inline |
+| Email | SMTP, tùy chọn | Backend gửi mã khôi phục mật khẩu khi đã cấu hình dịch vụ |
+
+ReactJS là công nghệ xây dựng giao diện web quản trị. Node.js/npm và Vite là công cụ phát triển, quản lý thư viện và đóng gói; Backend nghiệp vụ vẫn sử dụng ASP.NET Core. Sau khi build, thư mục `web/dist` có thể phục vụ bằng máy chủ tệp tĩnh kết hợp reverse proxy đến Backend API.
+
+## Cấu hình khi chuyển sang máy khác
+
+Mỗi máy dùng cấu hình riêng, không cần sửa mã nguồn hoặc giữ nguyên ổ đĩa của máy phát triển. Xem [hướng dẫn từng bước cho backend, PostgreSQL, web và đăng nhập quản trị](web/README.md#thiết-lập-theo-từng-máy).
+
+Tại thư mục gốc, chỉ sao chép lần đầu nếu chưa có file cấu hình:
+
+```powershell
+Copy-Item backend/local.settings.example.json backend/local.settings.json
+Copy-Item web/.env.example web/.env.local
+```
+
+Sửa `backend/local.settings.json`: địa chỉ/cổng/tên database/tài khoản PostgreSQL, `ApiUrls`, email SMTP tùy chọn, đường dẫn `psql` của máy. Sửa `web/.env.local`: `BCV_API_TARGET` khớp backend, `WEB_PORT`, `WEB_HOST` và Maptiles Key. Hai file này được Git bỏ qua. Không chép mật khẩu hoặc khóa dịch vụ của máy khác vào dự án.
 
 ## Chạy backend
 
-Cài .NET SDK 10.0 và đảm bảo PostgreSQL BCV đang chạy tại `127.0.0.1:5433`. Đặt chuỗi kết nối bằng biến môi trường trong terminal cá nhân, không lưu mật khẩu vào dự án:
+Cài .NET SDK 10.0, PostgreSQL/PostGIS và chuẩn bị database theo [db/README.md](db/README.md). Cấu hình mặc định là database `bcv` ở `127.0.0.1:5432`, backend ở cổng 5081; có thể thay trong file riêng của từng máy.
 
 ```powershell
-$env:ConnectionStrings__Bcv = 'Host=127.0.0.1;Port=5433;Database=bcv;Username=postgres;Password=<mật khẩu>'
-dotnet run --project backend/Bcv.Api --urls http://0.0.0.0:5080
+$pw = Read-Host 'Mat khau PostgreSQL tren may nay' -AsSecureString
+$env:BCV_DB_PASSWORD = [System.Net.NetworkCredential]::new('', $pw).Password
+.\backend\run-local.ps1
 ```
 
-Hoặc chạy `./backend/run-local.ps1`; script hỏi mật khẩu PostgreSQL bằng hộp nhập an toàn rồi khởi động API trên cổng 5080.
+Script dùng cấu hình máy và mật khẩu đã đặt trong terminal; nếu chưa có mật khẩu thì hỏi nhập an toàn. Nếu chạy trực tiếp bằng `dotnet run`, phải tự đặt `ConnectionStrings__Bcv` đầy đủ; `dotnet run` không tự đọc `backend/local.settings.json`.
 
 Các endpoint: `GET /health`, `POST /api/account/register`, `POST /api/account/login`, `GET /api/account/me`, `POST /api/account/logout`, `GET/PUT /api/interests`, `GET/PUT /api/activity-level`, `GET/PUT /api/starting-point`, `POST /api/starting-point/resolve-current`, `GET /api/explore`, `POST /api/explore/sync-steps`. Cả đăng ký và đăng nhập đều trả phiên cùng cờ `needsInterestSelection`, `needsActivityLevel`, `needsVirtualLocation`. Các API thiết lập và Khám phá yêu cầu Bearer token.
 
@@ -27,12 +58,12 @@ Phiên hiện lưu trong bộ nhớ tiến trình Backend; khởi động lại 
 
 ## Chạy Android
 
-Mở thư mục `android/` bằng Android Studio và chạy app trên emulator. Bản debug mặc định gọi API qua `http://10.0.2.2:5080/`. Với thiết bị thật, tạo `android/dev.properties` chứa `bcvApiBaseUrl=http://<IP-máy-tính>:5080/`; điện thoại và máy tính cần cùng mạng. Cấu hình bản đồ bằng `bcvGoongMaptilesKey=<Maptiles Key>` trong cùng file. `dev.properties` được bỏ qua bởi `.gitignore`; bản release nhận key qua Gradle property `-PbcvGoongMaptilesKey=...`. Key REST API của Goong không được đóng gói vào Android vì màn này không gọi REST API Goong. Script `backend/run-local.ps1` cho API lắng nghe trên cổng 5080 của máy tính. Nếu IP máy tính đổi, cập nhật `dev.properties` rồi build lại. Bản release cần URL HTTPS.
+Mở thư mục `android/` bằng Android Studio và chạy app trên emulator. Bản debug mặc định gọi API qua `http://10.0.2.2:5081/`. Với thiết bị thật, tạo `android/dev.properties` chứa `bcvApiBaseUrl=http://<IP-máy-tính>:5081/`; điện thoại và máy tính cần cùng mạng. Cấu hình bản đồ bằng `bcvGoongMaptilesKey=<Maptiles Key>` trong cùng file. `dev.properties` được bỏ qua bởi `.gitignore`; bản release nhận key qua Gradle property `-PbcvGoongMaptilesKey=...`. Key REST API của Goong không được đóng gói vào Android vì màn này không gọi REST API Goong. Script `backend/run-local.ps1` cho API lắng nghe trên cổng 5081 của máy tính. Nếu IP máy tính đổi, cập nhật `dev.properties` rồi build lại. Bản release cần URL HTTPS.
 
-Nếu điện thoại báo “Chưa thể kết nối”, thử mở `http://<IP-máy-tính>:5080/health` trên điện thoại. Máy tính trả về `{"status":"ok"}` nhưng điện thoại bị timeout thì kiểm tra Windows Firewall. Với mạng Wi-Fi loại Public, mở PowerShell bằng quyền Administrator và tạo ngoại lệ chỉ cho điện thoại đang thử (thay hai IP nếu mạng đổi):
+Nếu điện thoại báo “Chưa thể kết nối”, thử mở `http://<IP-máy-tính>:5081/health` trên điện thoại. Máy tính trả về `{"status":"ok"}` nhưng điện thoại bị timeout thì kiểm tra Windows Firewall. Với mạng Wi-Fi loại Public, mở PowerShell bằng quyền Administrator và tạo ngoại lệ chỉ cho điện thoại đang thử (thay hai IP nếu mạng đổi):
 
 ```powershell
-New-NetFirewallRule -DisplayName 'BCV API for Android phone' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 5080 -LocalAddress 192.168.0.103 -RemoteAddress 192.168.0.102 -Profile Public
+New-NetFirewallRule -DisplayName 'BCV API for Android phone' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 5081 -LocalAddress 192.168.0.103 -RemoteAddress 192.168.0.102 -Profile Public
 ```
 
 Thử lại URL `/health` trên điện thoại trước khi đăng ký. Quy tắc này chỉ dùng cho phát triển trong mạng nội bộ; xóa bằng `Remove-NetFirewallRule -DisplayName 'BCV API for Android phone'` khi không còn cần.

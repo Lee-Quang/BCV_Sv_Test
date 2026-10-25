@@ -57,7 +57,7 @@ public sealed class QuestRepository(NpgsqlDataSource db)
               ON qp.quest_id = q.quest_id AND qp.user_id = $1
              AND qp.cycle_key = CASE q.cycle_type WHEN 'DAILY' THEN $2 WHEN 'WEEKLY' THEN $3 ELSE 'ONCE' END
             LEFT JOIN public.item i ON i.item_id = q.reward_item_id
-            WHERE q.status <> 'INACTIVE' AND q.cycle_type IN ('DAILY', 'WEEKLY')
+            WHERE q.status = 'ACTIVE' AND q.cycle_type IN ('DAILY', 'WEEKLY')
             ORDER BY q.target_value, q.quest_id
             """, connection, transaction))
         {

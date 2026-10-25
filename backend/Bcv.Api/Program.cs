@@ -17,12 +17,14 @@ using Bcv.Api.Modules.StepLocation.Api;
 using Bcv.Api.Modules.StepLocation.Application;
 using Bcv.Api.Modules.StepLocation.Infrastructure;
 using Npgsql;
+using Bcv.Api.Modules.Admin;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Bcv")
     ?? throw new InvalidOperationException("Set ConnectionStrings__Bcv before starting the API.");
 
 builder.Services.AddSingleton(NpgsqlDataSource.Create(connectionString));
+builder.Services.AddScoped<AdminRepository>();
 builder.Services.AddScoped<IAccountRepository, PostgresAccountRepository>();
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddSingleton<ISessionStore, InMemorySessionStore>();
@@ -71,6 +73,28 @@ else
 }
 
 var app = builder.Build();
+// Explicit CLI operation; the public registration endpoint never grants ADMIN permissions.
+if (Array.IndexOf(args, "--create-admin") is var adminIndex && adminIndex >= 0)
+{
+    if (adminIndex + 1 >= args.Length) throw new InvalidOperationException("Provide an email after --create-admin.");
+    var email = args[adminIndex + 1].Trim().ToLowerInvariant();
+    var password = Environment.GetEnvironmentVariable("BCV_ADMIN_PASSWORD") ?? "";
+    if (!System.Net.Mail.MailAddress.TryCreate(email, out var address) || address.Address != email || email.Length > 255)
+        throw new InvalidOperationException("Invalid administrator email.");
+    if (password.Length < 12 || password.Length > 128 || !password.Any(char.IsLetter) || !password.Any(char.IsDigit))
+        throw new InvalidOperationException("BCV_ADMIN_PASSWORD must contain 12–128 characters including letters and digits.");
+    await using var command = app.Services.GetRequiredService<NpgsqlDataSource>().CreateCommand("""
+        INSERT INTO app_user(full_name,email,password_hash,role,status)
+        VALUES('Quản trị viên',$1,$2,'ADMIN','ACTIVE')
+        ON CONFLICT(email) DO NOTHING RETURNING user_id
+        """);
+    command.Parameters.AddWithValue(email);
+    command.Parameters.AddWithValue(Bcv.Api.Modules.Account.Domain.PasswordHasher.Hash(password));
+    var created = await command.ExecuteScalarAsync();
+    if (created is null) throw new InvalidOperationException("Email already exists; no account or permissions were changed.");
+    Console.WriteLine("Administrator created successfully.");
+    return;
+}
 app.MapGet("/health", async (NpgsqlDataSource db, CancellationToken cancellationToken) =>
 {
     try
@@ -98,4 +122,5 @@ app.MapQuestEndpoints();
 app.MapInventoryEndpoints();
 app.MapItemUseEndpoints();
 app.MapStatsNotifyEndpoints();
+app.MapAdminEndpoints();
 app.Run();

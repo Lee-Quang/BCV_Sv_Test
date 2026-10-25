@@ -1,4 +1,7 @@
+param([string]$ConfigPath = '')
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'local-config.ps1')
+$config = Get-BcvLocalConfig $ConfigPath
 $dotnet = Join-Path $env:USERPROFILE '.dotnet\dotnet.exe'
 if (-not (Test-Path -LiteralPath $dotnet)) {
     $dotnet = (Get-Command dotnet -ErrorAction Stop).Source
@@ -7,18 +10,17 @@ if (-not (Test-Path -LiteralPath $dotnet)) {
 & $dotnet build (Join-Path $PSScriptRoot 'Bcv.Api\Bcv.Api.csproj') --verbosity quiet -p:UseAppHost=false
 if ($LASTEXITCODE -ne 0) { throw 'Backend build failed.' }
 
-# Secrets come from user-level environment variables when set (how to set them: see the SMTP note below),
+# Secrets prefer process environment variables, then user-level environment variables (see the SMTP note below),
 # otherwise they are asked for. Nothing is written to the repository.
 function Get-Secret([string]$name, [string]$prompt) {
-    $value = [Environment]::GetEnvironmentVariable($name, 'User')
-    if (-not $value) { $value = [Environment]::GetEnvironmentVariable($name, 'Process') }
+    $value = Get-BcvEnvironment $name
     if ($value) { return $value }
     $secure = Read-Host $prompt -AsSecureString
     return [System.Net.NetworkCredential]::new('', $secure).Password
 }
 
 $plain = Get-Secret 'BCV_DB_PASSWORD' 'PostgreSQL BCV password'
-$env:ConnectionStrings__Bcv = "Host=127.0.0.1;Port=5433;Database=bcv;Username=postgres;Password=$plain"
+$env:ConnectionStrings__Bcv = New-BcvConnectionString $config $plain
 $plain = $null
 
 # Password reset codes go out through Gmail SMTP. Leave the App Password empty (press Enter)
@@ -27,14 +29,14 @@ $plain = $null
 # To stop being asked, set the secrets once for your Windows account:
 #   [Environment]::SetEnvironmentVariable('BCV_DB_PASSWORD', (Read-Host 'PostgreSQL password'), 'User')
 #   [Environment]::SetEnvironmentVariable('BCV_SMTP_PASSWORD', (Read-Host 'Gmail App Password'), 'User')
-$smtpUser = 'nguyenthitho.eve@gmail.com'
-$smtpPassword = (Get-Secret 'BCV_SMTP_PASSWORD' "Gmail App Password for $smtpUser (Enter to log codes instead)") -replace '\s', ''
+$smtpUser = $config.SmtpUser
+$smtpPassword = if ($smtpUser) { (Get-Secret 'BCV_SMTP_PASSWORD' "SMTP password for $smtpUser (Enter to log codes instead)") -replace '\s', '' } else { '' }
 if ($smtpPassword) {
-    $env:Smtp__Host = 'smtp.gmail.com'
-    $env:Smtp__Port = '587'
-    $env:Smtp__EnableSsl = 'true'
+    $env:Smtp__Host = $config.SmtpHost
+    $env:Smtp__Port = [string]$config.SmtpPort
+    $env:Smtp__EnableSsl = ([string]$config.SmtpEnableSsl).ToLowerInvariant()
     $env:Smtp__User = $smtpUser
-    $env:Smtp__From = $smtpUser
+    $env:Smtp__From = if ($config.SmtpFrom) { $config.SmtpFrom } else { $smtpUser }
     $env:Smtp__Password = $smtpPassword
     Write-Host "Password reset codes will be emailed from $smtpUser."
 }
@@ -51,7 +53,7 @@ $r2 = @{
 }
 $r2Values = @{}
 foreach ($entry in $r2.GetEnumerator()) {
-    $value = [Environment]::GetEnvironmentVariable($entry.Value, 'User')
+    $value = Get-BcvEnvironment $entry.Value
     if ($value) { $r2Values[$entry.Key] = $value }
 }
 if ($r2Values.PublicBaseUrl -like '*.r2.cloudflarestorage.com*') {
@@ -67,7 +69,8 @@ else {
 }
 $r2Values = $null
 try {
-    & $dotnet (Join-Path $PSScriptRoot 'Bcv.Api\bin\Debug\net10.0\Bcv.Api.dll') --urls 'http://0.0.0.0:5080'
+    Write-Host "Database: $($config.DbHost):$($config.DbPort)/$($config.DbName); API: $($config.ApiUrls)"
+    & $dotnet (Join-Path $PSScriptRoot 'Bcv.Api\bin\Debug\net10.0\Bcv.Api.dll') --urls $config.ApiUrls
 }
 finally {
     Remove-Item Env:ConnectionStrings__Bcv -ErrorAction SilentlyContinue
