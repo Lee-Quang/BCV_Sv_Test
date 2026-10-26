@@ -1,20 +1,32 @@
 package com.project.bcv.feature.journey.presentation
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import com.project.bcv.feature.discovery.presentation.PlaceDetailActivity
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.os.Build
+import android.provider.Settings
 import android.view.View
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.PermissionController
+import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.records.StepsRecord
 import com.google.android.material.snackbar.Snackbar
 import com.project.bcv.R
 import com.project.bcv.core.di.ExploreModule
+import com.project.bcv.core.steps.DeviceStepTracker
 import com.project.bcv.core.ui.BottomNav
 import com.project.bcv.core.ui.NavTab
 import com.project.bcv.feature.collection.presentation.CollectionActivity
@@ -24,10 +36,12 @@ import com.project.bcv.core.ui.Skeleton
 import com.project.bcv.databinding.ActivityJourneyBinding
 import com.project.bcv.feature.account.auth.data.local.SessionPreferences
 import com.project.bcv.feature.account.auth.presentation.AccountActivity
+import com.project.bcv.feature.account.healthconnect.presentation.HealthConnectActivity
 import com.project.bcv.feature.discovery.domain.ExploreJourney
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.launch
 
 /** "Hành trình" tab: the confirmed progress of the current journey. */
 class JourneyActivity : AppCompatActivity() {
@@ -36,6 +50,21 @@ class JourneyActivity : AppCompatActivity() {
     private lateinit var routeMap: JourneyRouteMap
     private var resumedOnce = false
     private var shownJourney: ExploreJourney? = null
+    private val readStepsPermission = HealthPermission.getReadPermission(StepsRecord::class)
+    private val sensorPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        if (DeviceStepTracker.hasPermission(this)) model.syncSteps()
+        else Snackbar.make(binding.root, "Cần quyền hoạt động thể chất để đếm bước chân.", Snackbar.LENGTH_LONG)
+            .setAction("Mở cài đặt") {
+                startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
+            }.show()
+    }
+    private val healthPermissionLauncher = registerForActivityResult(
+        PermissionController.createRequestPermissionResultContract()
+    ) { granted ->
+        if (readStepsPermission in granted) model.syncSteps()
+        else Snackbar.make(binding.root, "Cần quyền đọc bước chân để đồng bộ hành trình.", Snackbar.LENGTH_LONG)
+            .setAction("Mở cài đặt") { startActivity(Intent(this, HealthConnectActivity::class.java)) }.show()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,9 +85,11 @@ class JourneyActivity : AppCompatActivity() {
         routeMap = JourneyRouteMap(this, savedInstanceState, binding.mapHost)
         binding.progressBar.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> layoutProgress() }
 
-        model = ViewModelProvider(this, JourneyViewModelFactory(ExploreModule.repository(this)))[
+        model = ViewModelProvider(this, JourneyViewModelFactory(ExploreModule.repository(this), ExploreModule.stepSource(this)))[
             JourneyViewModel::class.java]
         model.state.observe(this, ::render)
+        model.permissionRequest.observe(this) { event -> event.take()?.let { requestStepsPermission() } }
+        binding.syncButton.setOnClickListener { model.syncSteps() }
 
         BottomNav.select(binding.bottomNavigation, NavTab.JOURNEY)
         // A tab, not a pushed screen: open and close in place so the bar never moves.
@@ -110,11 +141,12 @@ class JourneyActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         routeMap.onResume()
+        model.setForeground(true)
         // Progress may have been synced on Explore while this screen was in the back stack.
         if (resumedOnce) model.load()
         resumedOnce = true
     }
-    override fun onPause() { routeMap.onPause(); super.onPause() }
+    override fun onPause() { model.setForeground(false); routeMap.onPause(); super.onPause() }
     override fun onStop() { routeMap.onStop(); super.onStop() }
     override fun onLowMemory() { super.onLowMemory(); routeMap.onLowMemory() }
     override fun onSaveInstanceState(outState: Bundle) {
@@ -175,8 +207,8 @@ class JourneyActivity : AppCompatActivity() {
         val completed = journey.status == "COMPLETED"
 
         statusChip.visibility = View.VISIBLE
-        styleChip(loading = false)
-        statusText.text = if (completed) "Hoàn thành" else "Đang đi"
+        styleChip(loading = state.syncing)
+        statusText.text = if (state.syncing) "Đang đồng bộ" else if (completed) "Hoàn thành" else "Đang đi"
         statusChip.contentDescription = "Trạng thái: ${statusText.text}"
 
         destinationName.text = journey.destinationName
@@ -205,8 +237,22 @@ class JourneyActivity : AppCompatActivity() {
         stepsTotal.text = "/ ${format(journey.requiredSteps)} bước"
         percentValue.text = percent(journey.recordedSteps, journey.requiredSteps)
         remainingValue.text = format(remaining)
-        syncedText.text = "Đã đồng bộ · ${SimpleDateFormat("HH:mm", Locale.forLanguageTag("vi-VN"))
-            .format(Date(state.syncedAtMillis))}"
+        syncedText.text = when {
+            state.syncing -> "Đang đồng bộ bước chân…"
+            state.syncError != null -> state.syncError
+            else -> "Đã đồng bộ · ${SimpleDateFormat("HH:mm", Locale.forLanguageTag("vi-VN"))
+                .format(Date(state.syncedAtMillis))}"
+        }
+        syncedText.setTextColor(if (state.syncError != null) 0xFFFFE2C8.toInt() else 0xFFD9FFFFFF.toInt())
+        syncButton.visibility = if (completed) View.GONE else View.VISIBLE
+        syncButton.isEnabled = !state.syncing
+        syncButton.alpha = if (state.syncing) 0.65f else 1f
+        syncButton.text = when {
+            state.syncing -> "Đang đồng bộ…"
+            state.permissionRequired -> "Cho phép đếm bước"
+            state.syncError != null -> "Thử đồng bộ lại"
+            else -> "Đồng bộ bước chân"
+        }
         progressCard.contentDescription = "Tiến độ hành trình: đã đi ${stepsCount.text} trên " +
             "${format(journey.requiredSteps)} bước, ${percentValue.text}, còn ${remainingValue.text} bước. " +
             syncedText.text
@@ -251,6 +297,28 @@ class JourneyActivity : AppCompatActivity() {
 
     private fun unavailable(name: String) {
         Snackbar.make(binding.root, "$name sẽ được bổ sung ở màn tiếp theo.", Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun requestStepsPermission() {
+        if (model.usesDeviceSensor) {
+            if (DeviceStepTracker.hasPermission(this)) { model.syncSteps(); return }
+            val permissions = mutableListOf(Manifest.permission.ACTIVITY_RECOGNITION)
+            if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                permissions += Manifest.permission.POST_NOTIFICATIONS
+            }
+            sensorPermissionLauncher.launch(permissions.toTypedArray())
+        } else lifecycleScope.launch {
+            if (HealthConnectClient.getSdkStatus(this@JourneyActivity) != HealthConnectClient.SDK_AVAILABLE) {
+                startActivity(Intent(this@JourneyActivity, HealthConnectActivity::class.java))
+                return@launch
+            }
+            val granted = runCatching {
+                HealthConnectClient.getOrCreate(this@JourneyActivity).permissionController.getGrantedPermissions()
+            }.getOrDefault(emptySet())
+            if (readStepsPermission in granted) model.syncSteps()
+            else healthPermissionLauncher.launch(setOf(readStepsPermission))
+        }
     }
 
     private fun color(id: Int) = ContextCompat.getColor(this, id)

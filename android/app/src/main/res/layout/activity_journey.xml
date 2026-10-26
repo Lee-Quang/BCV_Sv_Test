@@ -335,7 +335,7 @@
                             </LinearLayout>
 
                             <LinearLayout
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="16dp"
                                 android:gravity="center_vertical"
@@ -350,12 +350,34 @@
 
                                 <TextView
                                     android:id="@+id/syncedText"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="8dp"
+                                    android:layout_weight="1"
                                     android:textColor="#D9FFFFFF"
                                     android:textSize="13sp" />
                             </LinearLayout>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/syncButton"
+                                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                                android:layout_width="match_parent"
+                                android:layout_height="48dp"
+                                android:layout_marginTop="12dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:text="Đồng bộ bước chân"
+                                android:textAllCaps="false"
+                                android:textColor="@color/white"
+                                android:textSize="14sp"
+                                app:backgroundTint="#1FFFFFFF"
+                                app:cornerRadius="14dp"
+                                app:icon="@drawable/ic_sync_outline"
+                                app:iconGravity="textStart"
+                                app:iconSize="20dp"
+                                app:iconTint="@color/white"
+                                app:strokeColor="#80FFFFFF"
+                                app:strokeWidth="1dp" />
                         </LinearLayout>
                     </FrameLayout>
 
