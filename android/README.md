@@ -1,6 +1,6 @@
 # App Android Bước Chân Việt (*android*)
 
-App Kotlin cho người dùng: đọc số bước, đi hành trình ảo trên bản đồ Goong và mở khóa địa danh.
+App Kotlin cho người dùng: đếm bước bằng cảm biến điện thoại, đi hành trình ảo trên bản đồ Goong và mở khóa địa danh.
 
 App gọi Backend API qua HTTP, không truy cập database trực tiếp. Mã nguồn chia theo nghiệp vụ trong `feature/`; phần dùng chung nằm trong `core/`.
 
@@ -16,6 +16,16 @@ App gọi Backend API qua HTTP, không truy cập database trực tiếp. Mã ng
 - [Giấy phép](#giấy-phép)
 
 ## Cài đặt
+
+### Đếm bước trực tiếp trên điện thoại
+
+App ưu tiên cảm biến `TYPE_STEP_COUNTER`, xin quyền **Hoạt động thể chất** và dùng dịch vụ foreground loại `health` để tiếp tục đếm khi khóa màn hình. Thông báo “BCV đang đếm bước chân” hiện trong lúc có hành trình đang thực hiện. Thiết bị không có cảm biến này tiếp tục dùng Health Connect.
+
+Mỗi hành trình có mốc cảm biến riêng; lần đọc đầu tiên chỉ lập mốc, không cộng các bước đã đi trước đó. Tổng bước được lưu trên thiết bị để tiếp tục sau khi mở lại app hoặc khởi động lại điện thoại. Đăng xuất hoặc hoàn thành hành trình sẽ dừng dịch vụ.
+
+Khi màn Khám phá đang hiển thị, app tự gửi bước mới mỗi 3 giây và chỉ hiển thị tiến độ đã được BE xác nhận. Khi ở nền, bước được lưu tại máy và gửi khi quay lại Khám phá hoặc bấm **Đồng bộ**. Đóng buộc ứng dụng sẽ dừng việc theo dõi cho đến khi mở lại app.
+
+`journey.syncedSteps` trong API là tổng bước thực đã nhận, không gồm bước thưởng của Giày tăng tốc; app dùng giá trị này làm mốc khi tiếp tục đếm, tránh cộng lại bước đã đồng bộ.
 
 ### Yêu cầu
 

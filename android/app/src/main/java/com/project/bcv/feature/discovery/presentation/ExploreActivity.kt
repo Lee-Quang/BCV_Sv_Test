@@ -1,11 +1,16 @@
 package com.project.bcv.feature.discovery.presentation
 
 import android.animation.ValueAnimator
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.net.Uri
+import android.provider.Settings
 import android.view.MotionEvent
 import android.view.View
 import androidx.activity.enableEdgeToEdge
@@ -28,6 +33,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.project.bcv.R
 import com.project.bcv.core.di.ExploreModule
 import com.project.bcv.core.di.ProfileModule
+import com.project.bcv.core.steps.DeviceStepTracker
 import com.project.bcv.feature.account.profile.presentation.Avatars
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -80,6 +86,17 @@ class ExploreActivity : AppCompatActivity() {
     }
     private val readStepsPermission = HealthPermission.getReadPermission(StepsRecord::class)
     private var stepsPermissionAsked = false
+    private val sensorPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) {
+        model.checkPermission()
+        if (!DeviceStepTracker.hasPermission(this)) {
+            Snackbar.make(binding.root, "Cần quyền hoạt động thể chất để đếm bước chân.", Snackbar.LENGTH_LONG)
+                .setAction("Mở cài đặt") {
+                    startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
+                }.show()
+        }
+    }
     private val stepsPermissionLauncher = registerForActivityResult(
         PermissionController.createRequestPermissionResultContract()
     ) { granted ->
@@ -182,10 +199,21 @@ class ExploreActivity : AppCompatActivity() {
     }
 
     /**
-     * Shows the Health Connect permission dialog when reading steps is not allowed yet.
-     * Without Health Connect on the device, only an explicit tap opens the setup screen.
+     * Prefer the device's step-counter permission. Health Connect remains the fallback on devices
+     * without that sensor.
      */
     private fun requestStepsPermission(openSetupIfUnavailable: Boolean) {
+        if (model.usesDeviceSensor) {
+            if (!DeviceStepTracker.hasPermission(this)) {
+                val permissions = mutableListOf(Manifest.permission.ACTIVITY_RECOGNITION)
+                if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    permissions += Manifest.permission.POST_NOTIFICATIONS
+                }
+                sensorPermissionLauncher.launch(permissions.toTypedArray())
+            } else model.checkPermission()
+            return
+        }
         lifecycleScope.launch {
             if (HealthConnectClient.getSdkStatus(this@ExploreActivity) != HealthConnectClient.SDK_AVAILABLE) {
                 if (openSetupIfUnavailable) {
@@ -207,7 +235,7 @@ class ExploreActivity : AppCompatActivity() {
         goongMap.onResume()
         // Refreshed on every return so a photo changed in Hồ sơ shows here at once.
         loadProfileAvatar()
-        if (::model.isInitialized) model.checkPermission()
+        if (::model.isInitialized) model.setForeground(true)
         if (returningFromTab) {
             returningFromTab = false
             BottomNav.enter(BottomNav.contentOf(binding.root, binding.bottomNavigation), fromRight = false)
@@ -220,7 +248,7 @@ class ExploreActivity : AppCompatActivity() {
             binding.root.post { goongMap.recenter() }
         }
     }
-    override fun onPause() { goongMap.onPause(); super.onPause() }
+    override fun onPause() { model.setForeground(false); goongMap.onPause(); super.onPause() }
     override fun onStop() { goongMap.onStop(); super.onStop() }
     override fun onLowMemory() { super.onLowMemory(); goongMap.onLowMemory() }
     override fun onSaveInstanceState(outState: Bundle) {
@@ -467,7 +495,7 @@ class ExploreActivity : AppCompatActivity() {
         tertiaryButton.visibility = if (showProgress && journey?.status == "IN_PROGRESS" &&
             state.stage != ExploreStage.PERMISSION_REQUIRED) View.VISIBLE else View.GONE
         tertiaryButton.isEnabled = state.stage != ExploreStage.SYNCING
-        demoStepsButton.visibility = View.VISIBLE
+        demoStepsButton.visibility = if (model.usesDeviceSensor) View.GONE else View.VISIBLE
         demoStepsButton.isEnabled = !demoWriteInFlight
         demoStepsButton.alpha = if (demoWriteInFlight) 0.4f else 1f
         if (renderedStage != state.stage) {
@@ -505,7 +533,9 @@ class ExploreActivity : AppCompatActivity() {
             ExploreStage.EMPTY -> ScreenCopy("Chưa có địa danh đã khám phá", "Chọn một điểm đến để bắt đầu.",
                 "Điểm đến\nđang chờ bạn.", "Hiện chưa có hành trình đang thực hiện.",
                 "Gợi ý điểm đến", footer = "Gợi ý được tìm từ vị trí ảo hiện tại.")
-            ExploreStage.ACTIVE -> ScreenCopy("Hành trình đang thực hiện", "Tiến độ được xác nhận từ số bước đã đồng bộ.",
+            ExploreStage.ACTIVE -> ScreenCopy(
+                if (model.usesDeviceSensor) "Đang đếm bước trên điện thoại" else "Hành trình đang thực hiện",
+                if (model.usesDeviceSensor) "Số bước tự động được cập nhật vào hành trình." else "Tiến độ được xác nhận từ số bước đã đồng bộ.",
                 journey?.destinationName.orEmpty(), "Tiếp tục hành trình khám phá của bạn.",
                 "Xem hành trình", secondary = "Đồng bộ", footer = "Vị trí ảo cập nhật khi hoàn thành hành trình.",
                 noticeBackground = 0xFFEAF2F9.toInt(), noticeColor = 0xFF4B88AD.toInt())
@@ -517,12 +547,15 @@ class ExploreActivity : AppCompatActivity() {
                 journey?.destinationName.orEmpty(), state.message.orEmpty(), "Thử lại",
                 secondary = "Đồng bộ", footer = "Chỉ cập nhật sau khi máy chủ xác nhận.",
                 noticeBackground = 0xFFFCEFEA.toInt(), noticeColor = 0xFFC36E59.toInt())
-            ExploreStage.NO_NEW_STEPS -> ScreenCopy("Chưa có bước chân mới", "Không cộng lại bước đã ghi nhận.",
+            ExploreStage.NO_NEW_STEPS -> ScreenCopy(
+                if (model.usesDeviceSensor) "Đang chờ bước chân mới" else "Chưa có bước chân mới",
+                if (model.usesDeviceSensor) "Đi bộ cùng điện thoại; số bước sẽ tự cập nhật." else "Không cộng lại bước đã ghi nhận.",
                 journey?.destinationName.orEmpty(), "Tiến độ hiện tại của bạn đã được giữ nguyên.",
                 "Xem hành trình", secondary = "Đồng bộ", footer = "Cập nhật lại khi có bước chân mới.")
             ExploreStage.PERMISSION_REQUIRED -> ScreenCopy("Quyền bước chân đã tắt", "Dừng đọc và đồng bộ bước mới.",
-                journey?.destinationName.orEmpty(), "Kết nối Health Connect để tiếp tục đồng bộ.",
-                "Kết nối Health Connect", secondary = "Xem hành trình đã lưu",
+                journey?.destinationName.orEmpty(),
+                if (model.usesDeviceSensor) "Cho phép hoạt động thể chất để đếm bước chân." else "Kết nối Health Connect để tiếp tục đồng bộ.",
+                if (model.usesDeviceSensor) "Cho phép đếm bước" else "Kết nối Health Connect", secondary = "Xem hành trình đã lưu",
                 footer = "Giữ nguyên tiến độ đã được xác nhận.",
                 noticeBackground = 0xFFFFF0D9.toInt(), noticeColor = 0xFFAD7A32.toInt())
             ExploreStage.COMPLETED -> ScreenCopy("Hành trình hoàn thành", "Vị trí ảo cập nhật sau xác nhận Backend.",

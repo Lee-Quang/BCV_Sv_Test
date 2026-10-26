@@ -134,6 +134,8 @@ public sealed class PostgresJourneyRepository(NpgsqlDataSource db) : IJourneyRep
             return;
         }
 
+        // Keep the original idempotency key for both Health Connect and device-counter totals.
+        // Switching the reader must not count previously accepted physical steps a second time.
         var sourceId = $"health-connect:journey:{request.JourneyId}";
         var previousSteps = 0;
         await using (var command = new NpgsqlCommand("""

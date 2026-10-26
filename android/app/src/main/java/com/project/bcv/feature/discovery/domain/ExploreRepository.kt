@@ -15,7 +15,9 @@ data class ExploreJourney(
     /** Where the journey began; the virtual location moves to the destination once it is completed. */
     val start: Coordinates? = null,
     /** The destination PLACE, opened from the journey screen once it is unlocked. */
-    val destinationPlaceId: Long? = null
+    val destinationPlaceId: Long? = null,
+    /** Raw device steps already accepted by the server; excludes speed-shoe bonuses. */
+    val syncedSteps: Int = 0
 ) {
     val progressPercent: Int
         get() = if (requiredSteps <= 0) 0 else (recordedSteps.toLong() * 100 / requiredSteps).toInt().coerceIn(0, 100)
@@ -49,6 +51,9 @@ interface ExploreRepository {
 }
 
 interface StepSource {
+    val usesDeviceSensor: Boolean get() = false
+    fun track(journey: ExploreJourney?) {}
+    fun stopTracking() {}
     suspend fun hasPermission(): Boolean
     suspend fun totalStepsSince(startedAtEpochSeconds: Long): Long
 }

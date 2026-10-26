@@ -13,6 +13,8 @@ import com.project.bcv.feature.discovery.domain.StepSource
 import com.project.bcv.feature.location.startingpoint.domain.AddressLookup
 import com.project.bcv.feature.location.startingpoint.domain.Coordinates
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -39,6 +41,31 @@ class ExploreViewModel(
     /** Street address of the virtual location; kept apart because states are rebuilt often. */
     val address: LiveData<String?> = mutableAddress
     private var addressFor: Coordinates? = null
+    private var foreground = false
+    val usesDeviceSensor: Boolean get() = steps.usesDeviceSensor
+
+    init {
+        viewModelScope.launch {
+            while (isActive) {
+                delay(3_000)
+                val current = mutableState.value ?: continue
+                val journey = current.snapshot?.journey ?: continue
+                if (!foreground || !steps.usesDeviceSensor || journey.status != "IN_PROGRESS" ||
+                    current.stage !in setOf(ExploreStage.ACTIVE, ExploreStage.NO_NEW_STEPS)) continue
+                try {
+                    if (steps.totalStepsSince(journey.startedAtEpochSeconds) > journey.syncedSteps) syncSteps()
+                } catch (error: Exception) {
+                    mutableState.value = current.copy(stage = ExploreStage.SYNC_FAILED,
+                        message = error.message ?: "Chưa đọc được bước chân từ điện thoại.")
+                }
+            }
+        }
+    }
+
+    fun setForeground(active: Boolean) {
+        foreground = active
+        if (active) checkPermission()
+    }
 
     private companion object { const val TAG = "ExploreViewModel" }
 
@@ -52,6 +79,7 @@ class ExploreViewModel(
         viewModelScope.launch {
             try {
                 val snapshot = withContext(Dispatchers.IO) { repository.load() }
+                steps.track(snapshot.journey)
                 mutableState.value = ExploreUiState(snapshot.stage(), snapshot)
                 lookupAddress(snapshot)
                 checkPermission()
@@ -75,9 +103,14 @@ class ExploreViewModel(
             val granted = runCatching { steps.hasPermission() }.getOrDefault(false)
             val latest = mutableState.value ?: return@launch
             if (latest.snapshot?.journey?.id != current.snapshot.journey?.id) return@launch
-            if (!granted) mutableState.value = latest.copy(stage = ExploreStage.PERMISSION_REQUIRED)
-            else if (latest.stage == ExploreStage.PERMISSION_REQUIRED) {
-                mutableState.value = latest.copy(stage = ExploreStage.ACTIVE)
+            if (!granted) {
+                steps.stopTracking()
+                mutableState.value = latest.copy(stage = ExploreStage.PERMISSION_REQUIRED)
+            } else {
+                steps.track(latest.snapshot?.journey)
+                if (latest.stage == ExploreStage.PERMISSION_REQUIRED) {
+                    mutableState.value = latest.copy(stage = ExploreStage.ACTIVE)
+                }
             }
         }
     }
@@ -90,11 +123,14 @@ class ExploreViewModel(
         viewModelScope.launch {
             try {
                 if (!steps.hasPermission()) {
+                    steps.stopTracking()
                     mutableState.value = current.copy(stage = ExploreStage.PERMISSION_REQUIRED)
                     return@launch
                 }
+                steps.track(journey)
                 val total = steps.totalStepsSince(journey.startedAtEpochSeconds)
                 val snapshot = withContext(Dispatchers.IO) { repository.syncSteps(journey.id, total) }
+                steps.track(snapshot.journey)
                 val newJourney = snapshot.journey
                 mutableState.value = ExploreUiState(
                     if (newJourney?.status == "COMPLETED") ExploreStage.COMPLETED
@@ -136,6 +172,7 @@ class ExploreViewModel(
     }
 
     private fun sessionExpired() {
+        steps.stopTracking()
         mutableState.value = ExploreUiState(ExploreStage.SESSION_EXPIRED,
             message = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.")
     }

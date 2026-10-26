@@ -3,10 +3,15 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.health.READ_STEPS" />
     <uses-permission android:name="android.permission.health.WRITE_STEPS" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-feature android:name="android.hardware.sensor.stepcounter" android:required="false" />
 
     <queries>
         <package android:name="com.google.android.apps.healthdata" />
@@ -22,6 +27,8 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="${usesCleartextTraffic}"
         android:theme="@style/Theme.BướcChânViệt">
+        <service android:name=".core.steps.StepCounterService"
+            android:exported="false" android:foregroundServiceType="health" />
         <activity android:name=".feature.discovery.presentation.ExploreActivity" android:exported="false" />
         <activity android:name=".feature.discovery.presentation.PlaceDetailActivity" android:exported="false" />
         <activity android:name=".feature.discovery.presentation.RecommendationActivity" android:exported="false" />
