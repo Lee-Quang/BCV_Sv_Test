@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Loading placeholder for activity_speed_shoes: hero, effect card, journey panel, note and two buttons. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1"
+    android:contentDescription="Đang tải hiệu ứng"
+    android:scrollbars="none"
+    android:visibility="gone">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:paddingStart="20dp" android:paddingTop="8dp"
+        android:paddingEnd="20dp" android:paddingBottom="24dp">
+
+        <!-- Hero: label, ×2 multiplier, caption, owned chip; icon at the end. -->
+        <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:background="@drawable/skeleton_block" android:padding="18dp">
+            <View style="@style/Skeleton.Circle" android:layout_width="64dp" android:layout_height="64dp"
+                android:layout_gravity="top|end" android:layout_marginTop="16dp"
+                android:background="@drawable/skeleton_card" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginEnd="76dp" android:orientation="vertical">
+                <View style="@style/Skeleton.Line" android:layout_width="140dp" android:layout_height="10dp"
+                    android:background="@drawable/skeleton_card" />
+                <View style="@style/Skeleton.Line" android:layout_width="84dp" android:layout_height="40dp"
+                    android:layout_marginTop="10dp" android:background="@drawable/skeleton_card" />
+                <View style="@style/Skeleton.Line" android:layout_width="150dp" android:layout_height="12dp"
+                    android:layout_marginTop="8dp" android:background="@drawable/skeleton_card" />
+                <View style="@style/Skeleton.Line" android:layout_width="110dp" android:layout_height="30dp"
+                    android:layout_marginTop="14dp" android:background="@drawable/skeleton_card" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <View style="@style/Skeleton.Line" android:layout_width="150dp" android:layout_height="16dp"
+            android:layout_marginTop="24dp" />
+
+        <!-- Effect card: two label/value rows and a note. -->
+        <LinearLayout style="@style/Skeleton.Card" android:layout_marginTop="12dp"
+            android:orientation="vertical" android:padding="16dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <View style="@style/Skeleton.Line" android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_marginEnd="120dp" android:layout_height="12dp" />
+                <View style="@style/Skeleton.Line" android:layout_width="36dp" android:layout_height="14dp" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:orientation="horizontal">
+                <View style="@style/Skeleton.Line" android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_marginEnd="90dp" android:layout_height="12dp" />
+                <View style="@style/Skeleton.Line" android:layout_width="120dp" android:layout_height="14dp" />
+            </LinearLayout>
+            <View style="@style/Skeleton.Line" android:layout_width="210dp" android:layout_height="10dp"
+                android:layout_marginTop="20dp" />
+        </LinearLayout>
+
+        <!-- Journey panel: label, destination, check line. -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="14dp" android:background="@drawable/skeleton_block"
+            android:orientation="vertical" android:padding="16dp">
+            <View style="@style/Skeleton.Line" android:layout_width="180dp" android:layout_height="12dp"
+                android:background="@drawable/skeleton_card" />
+            <View style="@style/Skeleton.Line" android:layout_width="200dp" android:layout_height="15dp"
+                android:layout_marginTop="10dp" android:background="@drawable/skeleton_card" />
+            <View style="@style/Skeleton.Line" android:layout_width="230dp" android:layout_height="10dp"
+                android:layout_marginTop="8dp" android:background="@drawable/skeleton_card" />
+        </LinearLayout>
+
+        <View style="@style/Skeleton.Line" android:layout_width="250dp" android:layout_height="11dp"
+            android:layout_marginTop="20dp" />
+        <View style="@style/Skeleton.Line" android:layout_width="270dp" android:layout_height="11dp"
+            android:layout_marginTop="10dp" />
+
+        <View style="@style/Skeleton.Block" android:layout_height="54dp" android:layout_marginTop="24dp" />
+        <View style="@style/Skeleton.Block" android:layout_height="54dp" android:layout_marginTop="10dp" />
+    </LinearLayout>
+</ScrollView>

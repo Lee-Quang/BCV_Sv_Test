@@ -44,6 +44,23 @@ class RoadRoute private constructor(private val points: List<LatLng>) {
         return interpolate(points[before], points[after], along)
     }
 
+    /**
+     * Whether the walk ahead of [fraction] heads east (right on the north-up map). It looks
+     * [LOOK_AHEAD_SHARE] of the route ahead, about what the map shows around the walker, so small
+     * bends in the road do not turn the walker against the visible way to the destination.
+     * Near the end it looks back over the last stretch instead. Null on a pure north/south run.
+     */
+    fun headsEastAt(fraction: Double): Boolean? {
+        val progress = fraction.coerceIn(0.0, 1.0)
+        val total = lengths.last()
+        if (total <= 0.0) return null
+        val window = maxOf(LOOK_AHEAD_SHARE, min(1.0, LOOK_AHEAD_METERS / total))
+        val (from, to) = if (progress + window <= 1.0) pointAt(progress) to pointAt(progress + window)
+            else pointAt((1.0 - window).coerceAtLeast(0.0)) to pointAt(1.0)
+        val east = to.longitude - from.longitude
+        return if (kotlin.math.abs(east) < 1e-7) null else east > 0
+    }
+
     fun progressGeoJson(fraction: Double): String {
         val progress = fraction.coerceIn(0.0, 1.0)
         val features = JSONArray()
@@ -69,6 +86,9 @@ class RoadRoute private constructor(private val points: List<LatLng>) {
         }))
 
     companion object {
+        private const val LOOK_AHEAD_METERS = 40.0
+        private const val LOOK_AHEAD_SHARE = 0.05
+
         fun fromEncodedPolyline(encoded: String): RoadRoute? {
             var index = 0
             var latitude = 0

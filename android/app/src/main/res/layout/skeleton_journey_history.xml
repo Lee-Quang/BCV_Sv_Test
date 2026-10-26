@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Loading placeholder for activity_journey_history: heading, subtitle and four item_journey_history cards. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1"
+    android:contentDescription="Đang tải lịch sử hành trình"
+    android:scrollbars="none"
+    android:visibility="gone">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:paddingStart="20dp" android:paddingTop="8dp"
+        android:paddingEnd="20dp" android:paddingBottom="24dp">
+
+        <View style="@style/Skeleton.Line" android:layout_width="220dp" android:layout_height="18dp"
+            android:layout_marginTop="3dp" />
+        <View style="@style/Skeleton.Line" android:layout_width="190dp" android:layout_height="11dp"
+            android:layout_marginTop="8dp" />
+
+        <include layout="@layout/skeleton_journey_history_item" />
+        <include layout="@layout/skeleton_journey_history_item" />
+        <include layout="@layout/skeleton_journey_history_item" />
+        <include layout="@layout/skeleton_journey_history_item" />
+    </LinearLayout>
+</ScrollView>

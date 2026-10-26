@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Walking figure (Material Symbols directions_walk) with a small plus: "add sample steps". -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_directions_walk_teal" android:right="4dp" />
+    <item android:drawable="@drawable/ic_plus_badge" android:gravity="top|end"
+        android:width="9dp" android:height="9dp" />
+</layer-list>

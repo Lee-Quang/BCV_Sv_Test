@@ -1,3 +1,5 @@
+using Bcv.Api.Modules.Shared.Infrastructure;
+
 namespace Bcv.Api.Modules.Account.Application;
 
 /// <summary>Avatar is the image URL (Cloudflare R2), or a JPEG data URI when no cloud storage is set; null when none.</summary>
@@ -19,17 +21,8 @@ public interface IProfileRepository
     Task CloseAccountAsync(long userId, CancellationToken ct);
 }
 
-/// <summary>Where avatar images live. Returns the value stored in APP_USER.AVATAR.</summary>
-public interface IAvatarStorage
-{
-    Task<string> SaveAsync(long userId, byte[] jpeg, CancellationToken ct);
-
-    /// <summary>Best effort: removes an avatar this storage created earlier; anything else is ignored.</summary>
-    Task DeleteAsync(string? stored, CancellationToken ct);
-}
-
 /// <summary>Profile rules: name and avatar checks, storing the avatar, and closing the account.</summary>
-public sealed class ProfileService(IProfileRepository repository, IAvatarStorage avatars, ISessionStore sessions)
+public sealed class ProfileService(IProfileRepository repository, IImageStorage images, ISessionStore sessions)
 {
     private const string JpegDataUri = "data:image/jpeg;base64,";
 
@@ -51,9 +44,9 @@ public sealed class ProfileService(IProfileRepository repository, IAvatarStorage
         }
 
         var previous = (await LoadAsync(userId, ct)).Avatar;
-        var stored = jpeg is null ? null : await avatars.SaveAsync(userId, jpeg, ct);
+        var stored = jpeg is null ? null : await images.SaveAsync(ImageFolder.Avatar(userId), jpeg, ct);
         await repository.UpdateAsync(userId, name, stored, ct);
-        if (stored is not null) await avatars.DeleteAsync(previous, ct);
+        if (stored is not null) await images.DeleteAsync(previous, ct);
         return await LoadAsync(userId, ct);
     }
 

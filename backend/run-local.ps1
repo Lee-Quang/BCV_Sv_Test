@@ -45,8 +45,8 @@ else {
 }
 $smtpPassword = $null
 
-# Avatars are uploaded to Cloudflare R2 when all five BCV_R2_* values are set (backend\set-local-secrets.ps1);
-# without them the API keeps avatars inline in the database. Never asked for here.
+# Images (avatars/, places/, cards/) are uploaded to Cloudflare R2 when all five BCV_R2_* values are set (backend\set-local-secrets.ps1);
+# without them the API keeps images inline in the database. Never asked for here.
 $r2 = @{
     AccountId = 'BCV_R2_ACCOUNT_ID'; Bucket = 'BCV_R2_BUCKET'; PublicBaseUrl = 'BCV_R2_PUBLIC_URL'
     AccessKeyId = 'BCV_R2_ACCESS_KEY_ID'; SecretAccessKey = 'BCV_R2_SECRET_ACCESS_KEY'
@@ -57,15 +57,15 @@ foreach ($entry in $r2.GetEnumerator()) {
     if ($value) { $r2Values[$entry.Key] = $value }
 }
 if ($r2Values.PublicBaseUrl -like '*.r2.cloudflarestorage.com*') {
-    # That is the private S3 API endpoint; phones can only load avatars from the bucket's public URL.
-    Write-Host 'BCV_R2_PUBLIC_URL is the S3 API endpoint, not the public r2.dev URL: avatars stay in the database.' -ForegroundColor Yellow
+    # That is the private S3 API endpoint; phones can only load images from the bucket's public URL.
+    Write-Host 'BCV_R2_PUBLIC_URL is the S3 API endpoint, not the public r2.dev URL: images stay in the database.' -ForegroundColor Yellow
 }
 elseif ($r2Values.Count -eq $r2.Count) {
     foreach ($entry in $r2Values.GetEnumerator()) { Set-Item "Env:R2__$($entry.Key)" $entry.Value }
-    Write-Host "Avatars will be stored in Cloudflare R2 bucket $($r2Values.Bucket)."
+    Write-Host "Images will be stored in Cloudflare R2 bucket $($r2Values.Bucket) (avatars/, places/, cards/)."
 }
 else {
-    Write-Host 'Cloudflare R2 not configured: avatars stay in the database.'
+    Write-Host 'Cloudflare R2 not configured: images stay in the database.'
 }
 $r2Values = $null
 try {

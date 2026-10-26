@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Loading placeholder for activity_inventory's content: summary card (eyebrow, count, caption,
+  72dp icon), journey banner, section header and the two item types (Giày tăng tốc, Vé máy bay).
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:importantForAccessibility="noHideDescendants"
+    android:orientation="vertical"
+    android:visibility="gone">
+
+    <LinearLayout style="@style/Skeleton.Card" android:gravity="center_vertical"
+        android:orientation="horizontal" android:padding="16dp">
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:orientation="vertical">
+            <View style="@style/Skeleton.Line" android:layout_width="128dp" android:layout_height="10dp" />
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="10dp" android:gravity="bottom" android:orientation="horizontal">
+                <View style="@style/Skeleton.Line" android:layout_width="34dp" android:layout_height="34dp" />
+                <View style="@style/Skeleton.Line" android:layout_width="64dp" android:layout_height="14dp"
+                    android:layout_marginStart="16dp" />
+            </LinearLayout>
+            <View style="@style/Skeleton.Line" android:layout_width="150dp" android:layout_height="12dp"
+                android:layout_marginTop="10dp" />
+        </LinearLayout>
+        <View style="@style/Skeleton.Circle" android:layout_width="72dp" android:layout_height="72dp" />
+    </LinearLayout>
+
+    <View style="@style/Skeleton.Block" android:layout_height="40dp" android:layout_marginTop="14dp" />
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="22dp" android:gravity="center_vertical" android:orientation="horizontal">
+        <View style="@style/Skeleton.Line" android:layout_width="150dp" android:layout_height="16dp" />
+        <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+        <View style="@style/Skeleton.Line" android:layout_width="40dp" android:layout_height="12dp" />
+    </LinearLayout>
+
+    <include layout="@layout/skeleton_inventory_item" />
+    <include layout="@layout/skeleton_inventory_item" />
+</LinearLayout>

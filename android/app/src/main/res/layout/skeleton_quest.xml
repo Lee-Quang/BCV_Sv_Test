@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Loading placeholder for the quest list of activity_quest: four item_quest rows. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:contentDescription="Đang tải nhiệm vụ"
+    android:orientation="vertical"
+    android:visibility="gone">
+
+    <include layout="@layout/skeleton_quest_item" />
+    <include layout="@layout/skeleton_quest_item" />
+    <include layout="@layout/skeleton_quest_item" />
+    <include layout="@layout/skeleton_quest_item" />
+</LinearLayout>

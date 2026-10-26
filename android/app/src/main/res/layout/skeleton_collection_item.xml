@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Same geometry as item_collection_card: 2x2 grid of 40x52 previews, name, owned count, 6dp progress, action row. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Skeleton.Card"
+    android:layout_marginTop="12dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="12dp">
+
+    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <View style="@style/Skeleton.Block" android:layout_width="40dp" android:layout_height="52dp"
+                android:background="@drawable/skeleton_line" />
+            <View style="@style/Skeleton.Block" android:layout_width="40dp" android:layout_height="52dp"
+                android:layout_marginStart="5dp" android:background="@drawable/skeleton_line" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="5dp" android:orientation="horizontal">
+            <View style="@style/Skeleton.Block" android:layout_width="40dp" android:layout_height="52dp"
+                android:background="@drawable/skeleton_line" />
+            <View style="@style/Skeleton.Block" android:layout_width="40dp" android:layout_height="52dp"
+                android:layout_marginStart="5dp" android:background="@drawable/skeleton_line" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_marginStart="16dp" android:layout_weight="1" android:orientation="vertical">
+        <View style="@style/Skeleton.Line" android:layout_width="150dp" android:layout_height="15dp" />
+        <View style="@style/Skeleton.Line" android:layout_width="120dp" android:layout_height="11dp"
+            android:layout_marginTop="10dp" />
+        <View style="@style/Skeleton.Line" android:layout_width="match_parent" android:layout_height="6dp"
+            android:layout_marginTop="14dp" />
+        <View style="@style/Skeleton.Line" android:layout_width="104dp" android:layout_height="12dp"
+            android:layout_marginTop="16dp" />
+    </LinearLayout>
+</LinearLayout>

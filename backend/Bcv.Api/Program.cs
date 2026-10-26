@@ -18,6 +18,7 @@ using Bcv.Api.Modules.StepLocation.Application;
 using Bcv.Api.Modules.StepLocation.Infrastructure;
 using Npgsql;
 using Bcv.Api.Modules.Admin;
+using Bcv.Api.Modules.Shared.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Bcv")
@@ -27,7 +28,11 @@ builder.Services.AddSingleton(NpgsqlDataSource.Create(connectionString));
 builder.Services.AddScoped<AdminRepository>();
 builder.Services.AddScoped<IAccountRepository, PostgresAccountRepository>();
 builder.Services.AddScoped<AccountService>();
-builder.Services.AddSingleton<ISessionStore, InMemorySessionStore>();
+// Sign-ins survive restarts. The file holds only token hashes and lives outside the repository.
+var sessionFile = builder.Configuration["Sessions:FilePath"] ?? Path.Combine(
+    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BCV", "sessions.json");
+builder.Services.AddSingleton<ISessionStore>(services =>
+    new FileSessionStore(sessionFile, services.GetRequiredService<ILogger<FileSessionStore>>()));
 builder.Services.AddSingleton<IPasswordResetStore, InMemoryPasswordResetStore>();
 builder.Services.AddScoped<PasswordResetService>();
 var smtp = builder.Configuration.GetSection("Smtp");
@@ -51,6 +56,8 @@ builder.Services.AddScoped<IProfileRepository, PostgresProfileRepository>();
 builder.Services.AddScoped<ProfileService>();
 builder.Services.AddScoped<IExploreRepository, PostgresExploreRepository>();
 builder.Services.AddScoped<ExploreService>();
+builder.Services.AddScoped<IRecommendationRepository, PostgresRecommendationRepository>();
+builder.Services.AddScoped<RecommendationService>();
 builder.Services.AddScoped<IJourneyRepository, PostgresJourneyRepository>();
 builder.Services.AddScoped<JourneyService>();
 builder.Services.AddScoped<CollectionRepository>();
@@ -59,17 +66,18 @@ builder.Services.AddScoped<InventoryRepository>();
 builder.Services.AddScoped<ItemUseRepository>();
 builder.Services.AddScoped<StatisticsRepository>();
 builder.Services.AddScoped<NotificationRepository>();
-// Avatars go to Cloudflare R2 when R2__* is set (see run-local.ps1); otherwise they stay inline in the database.
+// Avatars, place photos and card art go to Cloudflare R2 (one folder per purpose, see ImageFolder) when
+// R2__* is set (see run-local.ps1); otherwise they stay inline in the database.
 var r2 = builder.Configuration.GetSection("R2");
 if (new[] { "AccountId", "Bucket", "AccessKeyId", "SecretAccessKey", "PublicBaseUrl" }.All(k => !string.IsNullOrWhiteSpace(r2[k])))
 {
     builder.Services.AddSingleton(new R2Settings(r2["AccountId"]!, r2["Bucket"]!, r2["AccessKeyId"]!,
         r2["SecretAccessKey"]!, r2["PublicBaseUrl"]!));
-    builder.Services.AddHttpClient<IAvatarStorage, R2AvatarStorage>();
+    builder.Services.AddHttpClient<IImageStorage, R2ImageStorage>();
 }
 else
 {
-    builder.Services.AddSingleton<IAvatarStorage, InlineAvatarStorage>();
+    builder.Services.AddSingleton<IImageStorage, InlineImageStorage>();
 }
 
 var app = builder.Build();

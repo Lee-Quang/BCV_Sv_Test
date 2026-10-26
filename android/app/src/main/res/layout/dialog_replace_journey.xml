@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Confirmation before a new destination replaces the journey in progress. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/dialog_replace_journey_bg"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <FrameLayout android:layout_width="52dp" android:layout_height="52dp"
+        android:background="@drawable/dialog_replace_journey_icon_bg">
+        <ImageView android:layout_width="26dp" android:layout_height="26dp"
+            android:layout_gravity="center" android:importantForAccessibility="no"
+            android:src="@drawable/ic_nav_route" app:tint="#A0702E" />
+    </FrameLayout>
+
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="20dp" android:accessibilityHeading="true"
+        android:text="Chuyển sang\nhành trình mới?" android:textColor="#1C3F33"
+        android:textSize="24sp" android:textStyle="bold" />
+
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="16dp" android:lineSpacingExtra="6dp"
+        android:text="Hành trình đang thực hiện sẽ được đánh dấu đã từ bỏ. Hành trình mới bắt đầu từ vị trí ảo với 0 bước."
+        android:textColor="#6F8579" android:textSize="15sp" />
+
+    <com.google.android.material.button.MaterialButton android:id="@+id/replaceButton"
+        android:layout_width="match_parent" android:layout_height="52dp"
+        android:layout_marginTop="32dp" android:insetTop="0dp" android:insetBottom="0dp"
+        android:text="Chuyển hành trình" android:textColor="@color/white" android:textSize="15sp"
+        android:textStyle="bold" app:backgroundTint="@color/teal" app:cornerRadius="16dp" />
+
+    <com.google.android.material.button.MaterialButton android:id="@+id/keepButton"
+        android:layout_width="match_parent" android:layout_height="52dp"
+        android:layout_marginTop="8dp" android:insetTop="0dp" android:insetBottom="0dp"
+        android:text="Giữ hành trình cũ" android:textColor="@color/teal" android:textSize="15sp"
+        android:textStyle="bold" app:backgroundTint="#EFF2EA" app:cornerRadius="16dp"
+        app:rippleColor="#1A07836D" />
+</LinearLayout>

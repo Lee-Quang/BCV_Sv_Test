@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Same geometry as item_collection_place_card: 72dp photo, one-line name, owned state. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:background="@drawable/journey_card_bg"
+    android:importantForAccessibility="no"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <View style="@style/Skeleton.Block" android:layout_height="72dp" />
+    <View style="@style/Skeleton.Line" android:layout_width="104dp" android:layout_height="14dp"
+        android:layout_marginStart="4dp" android:layout_marginTop="12dp" />
+    <View style="@style/Skeleton.Line" android:layout_width="82dp" android:layout_height="11dp"
+        android:layout_marginStart="4dp" android:layout_marginTop="9dp" android:layout_marginBottom="6dp" />
+</LinearLayout>

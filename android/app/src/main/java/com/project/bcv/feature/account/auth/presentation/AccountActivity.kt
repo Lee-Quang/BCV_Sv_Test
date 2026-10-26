@@ -32,6 +32,7 @@ import com.project.bcv.R
 import com.project.bcv.BuildConfig
 import com.project.bcv.core.di.AccountModule
 import com.project.bcv.databinding.ActivityAccountBinding
+import com.project.bcv.feature.account.auth.data.local.SessionPreferences
 import com.project.bcv.feature.account.interests.presentation.InterestsActivity
 import com.project.bcv.feature.account.activitylevel.presentation.ActivityLevelActivity
 import com.project.bcv.feature.location.startingpoint.presentation.StartingPointActivity
@@ -92,6 +93,8 @@ class AccountActivity : AppCompatActivity() {
             AccountViewModelFactory(AccountModule.repository(this))
         )[AccountViewModel::class.java]
         model.state.observe(this, ::render)
+        // A saved sign-in continues straight into the app; the form appears only if it is rejected.
+        if (savedInstanceState == null && SessionPreferences(this).token != null) model.restoreSession()
 
         binding.emailInput.doAfterTextChanged { model.onFieldEdited(AccountField.EMAIL) }
         binding.passwordInput.doAfterTextChanged { model.onFieldEdited(AccountField.PASSWORD) }
@@ -219,6 +222,11 @@ class AccountActivity : AppCompatActivity() {
             return@with
         }
 
+        if (state.restoring) {
+            formContainer.visibility = View.INVISIBLE
+            successContainer.visibility = View.GONE
+            return@with
+        }
         formContainer.visibility = View.VISIBLE
         successContainer.visibility = View.GONE
 

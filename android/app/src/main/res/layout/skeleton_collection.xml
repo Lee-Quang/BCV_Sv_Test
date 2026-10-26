@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Loading placeholder for activity_collection's loadedContent: summary card (eyebrow, owned count,
+  8dp bar), "Bộ sưu tập của bạn" header with count, and collection cards.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:accessibilityLiveRegion="polite"
+    android:contentDescription="Đang tải bộ sưu tập"
+    android:orientation="vertical"
+    android:visibility="gone">
+
+    <LinearLayout style="@style/Skeleton.Card" android:layout_marginTop="20dp"
+        android:orientation="vertical" android:padding="16dp">
+        <View style="@style/Skeleton.Line" android:layout_width="150dp" android:layout_height="11dp" />
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" android:gravity="bottom" android:orientation="horizontal">
+            <View style="@style/Skeleton.Line" android:layout_width="30dp" android:layout_height="34dp" />
+            <View style="@style/Skeleton.Line" android:layout_width="140dp" android:layout_height="14dp"
+                android:layout_marginStart="14dp" />
+        </LinearLayout>
+        <View style="@style/Skeleton.Line" android:layout_width="match_parent" android:layout_height="8dp"
+            android:layout_marginTop="14dp" android:layout_marginBottom="8dp" />
+    </LinearLayout>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="26dp" android:gravity="center_vertical" android:orientation="horizontal">
+        <View style="@style/Skeleton.Line" android:layout_width="160dp" android:layout_height="16dp" />
+        <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+        <View style="@style/Skeleton.Line" android:layout_width="36dp" android:layout_height="12dp" />
+    </LinearLayout>
+
+    <include layout="@layout/skeleton_collection_item" />
+    <include layout="@layout/skeleton_collection_item" />
+    <include layout="@layout/skeleton_collection_item" />
+</LinearLayout>

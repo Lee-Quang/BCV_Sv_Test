@@ -17,6 +17,7 @@ import com.project.bcv.R
 import com.project.bcv.core.di.QuestModule
 import com.project.bcv.core.ui.BottomNav
 import com.project.bcv.core.ui.NavTab
+import com.project.bcv.core.ui.Skeleton
 import com.project.bcv.databinding.ActivityQuestBinding
 import com.project.bcv.databinding.ItemQuestBinding
 import com.project.bcv.feature.account.auth.data.local.SessionPreferences
@@ -115,9 +116,14 @@ class QuestActivity : AppCompatActivity() {
     }
 
     private fun render(state: QuestUiState) = with(binding) {
+        if (state != QuestUiState.Loading) Skeleton.hide(skeleton.root)
         when (state) {
-            QuestUiState.Loading -> status(updating = true, title = "Đang cập nhật tiến độ",
-                body = "Các số liệu được giữ đến khi tải xong.")
+            QuestUiState.Loading -> {
+                status(updating = true, title = "Đang cập nhật tiến độ",
+                    body = "Các số liệu được giữ đến khi tải xong.")
+                // First load only: quests already listed stay while they refresh.
+                if (shown == null) Skeleton.show(skeleton.root, questList)
+            }
             is QuestUiState.Failed -> {
                 status(failed = true, title = "Chưa cập nhật được", body = state.message)
                 retryButton.visibility = View.VISIBLE
@@ -180,6 +186,7 @@ class QuestActivity : AppCompatActivity() {
         val overview = shown ?: return@with
         val quests = if (weekly) overview.weekly else overview.daily
         sectionCount.text = "${quests.size} nhiệm vụ"
+        questList.visibility = View.VISIBLE
         questList.removeAllViews()
         quests.forEach { questList.addView(questCard(it).root) }
     }
@@ -214,7 +221,8 @@ class QuestActivity : AppCompatActivity() {
         val rewardColor = if (done) teal else 0xFFA0702E.toInt()
         item.questReward.text = quest.rewardName?.let { "$it × ${quest.rewardQuantity ?: 1}" } ?: "Không có phần thưởng"
         item.questReward.setTextColor(rewardColor)
-        val rewardIcon = if (quest.rewardType == "FLIGHT_TICKET") R.drawable.ic_flight else R.drawable.ic_bolt_outline
+        // Same icons as the items in Túi đồ.
+        val rewardIcon = if (quest.rewardType == "FLIGHT_TICKET") R.drawable.ic_flight else R.drawable.ic_sneaker
         ContextCompat.getDrawable(this, rewardIcon)?.mutate()?.let { drawable ->
             val size = (20 * resources.displayMetrics.density).toInt()
             drawable.setBounds(0, 0, size, size)

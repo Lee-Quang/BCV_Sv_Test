@@ -22,73 +22,32 @@
             android:orientation="vertical" android:paddingStart="24dp" android:paddingEnd="24dp"
             android:paddingTop="16dp" android:paddingBottom="20dp">
 
-        <!-- Shown until the place and its first photo are ready; nothing stale is drawn meanwhile. -->
+        <!--
+          Shown until the place and its first photo are ready: a placeholder shaped like the page that
+          will open (locked destination or discovered content), with the name the map already knows.
+        -->
         <LinearLayout android:id="@+id/loadingContent" android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:orientation="vertical">
-            <TextView android:id="@+id/loadingName" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:textColor="@color/forest"
-                android:textSize="32sp" android:textStyle="bold" />
-            <LinearLayout android:id="@+id/loadingChip" android:layout_width="wrap_content"
-                android:layout_height="40dp" android:layout_marginTop="14dp"
-                android:background="@drawable/journey_status_chip_bg" android:gravity="center_vertical"
-                android:orientation="horizontal" android:paddingStart="14dp" android:paddingEnd="20dp"
-                android:visibility="gone">
-                <ImageView android:layout_width="18dp" android:layout_height="18dp"
-                    android:contentDescription="@null" android:src="@drawable/ic_lock_open_outline"
-                    app:tint="@color/teal" />
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp" android:text="Đã khám phá"
-                    android:textColor="@color/teal" android:textSize="14sp" android:textStyle="bold" />
+            android:layout_height="wrap_content" android:accessibilityLiveRegion="polite"
+            android:contentDescription="Đang tải nội dung địa danh" android:orientation="vertical">
+            <LinearLayout android:id="@+id/loadingSkeleton" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:orientation="vertical">
+                <include android:id="@+id/skeletonLocked" layout="@layout/skeleton_place_detail_locked" />
+                <include android:id="@+id/skeletonUnlocked" layout="@layout/skeleton_place_detail_unlocked"
+                    android:visibility="gone" />
             </LinearLayout>
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="22dp" android:gravity="center_vertical"
-                android:orientation="horizontal">
-                <ImageView android:id="@+id/loadingIcon" android:layout_width="22dp"
-                    android:layout_height="22dp" android:contentDescription="@null"
-                    android:src="@drawable/ic_sync_outline" app:tint="#3C7DB0" />
+            <!-- First load failed: the reason and a retry in place of the placeholder. -->
+            <LinearLayout android:id="@+id/loadingError" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:gravity="center_vertical"
+                android:orientation="horizontal" android:visibility="gone">
                 <TextView android:id="@+id/loadingStatus" android:layout_width="0dp"
-                    android:layout_height="wrap_content" android:layout_marginStart="12dp"
-                    android:layout_weight="1" android:accessibilityLiveRegion="polite"
-                    android:text="Đang tải nội dung…" android:textColor="#3C7DB0" android:textSize="15sp" />
+                    android:layout_height="wrap_content" android:layout_weight="1"
+                    android:accessibilityLiveRegion="polite" android:textColor="@color/error_red"
+                    android:textSize="15sp" />
                 <com.google.android.material.button.MaterialButton android:id="@+id/retryButton"
                     style="@style/Widget.Material3.Button.TextButton" android:layout_width="wrap_content"
                     android:layout_height="wrap_content" android:text="Thử lại" android:textAllCaps="false"
-                    android:textColor="@color/teal" android:visibility="gone" />
+                    android:textColor="@color/teal" />
             </LinearLayout>
-            <LinearLayout android:id="@+id/loadingSkeleton" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:importantForAccessibility="noHideDescendants"
-                android:orientation="vertical">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="180dp"
-                    android:layout_marginTop="16dp" android:background="@drawable/place_skeleton_media"
-                    android:orientation="vertical" android:padding="18dp">
-                    <View android:layout_width="110dp" android:layout_height="9dp"
-                        android:background="@drawable/place_skeleton_media_bar" />
-                    <View android:layout_width="210dp" android:layout_height="6dp"
-                        android:layout_marginTop="12dp" android:background="@drawable/place_skeleton_media_bar" />
-                </LinearLayout>
-                <View android:layout_width="186dp" android:layout_height="18dp"
-                    android:layout_marginTop="26dp" android:background="@drawable/place_skeleton_line" />
-                <View android:layout_width="272dp" android:layout_height="8dp"
-                    android:layout_marginTop="14dp" android:background="@drawable/place_skeleton_line" />
-                <View android:layout_width="match_parent" android:layout_height="8dp"
-                    android:layout_marginTop="22dp" android:background="@drawable/place_skeleton_line" />
-                <View android:layout_width="272dp" android:layout_height="8dp"
-                    android:layout_marginTop="22dp" android:background="@drawable/place_skeleton_line" />
-                <View android:layout_width="match_parent" android:layout_height="8dp"
-                    android:layout_marginTop="22dp" android:background="@drawable/place_skeleton_line" />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="100dp"
-                    android:layout_marginTop="34dp" android:orientation="horizontal">
-                    <View android:layout_width="0dp" android:layout_height="match_parent"
-                        android:layout_weight="1" android:background="@drawable/place_skeleton_card" />
-                    <View android:layout_width="0dp" android:layout_height="match_parent"
-                        android:layout_marginStart="12dp" android:layout_weight="1"
-                        android:background="@drawable/place_skeleton_card" />
-                </LinearLayout>
-            </LinearLayout>
-            <TextView android:id="@+id/loadingFooter" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:layout_marginTop="22dp"
-                android:text="Vui lòng chờ, không cần thao tác lại." android:textColor="#7C9086"
-                android:textSize="12sp" />
         </LinearLayout>
 
         <LinearLayout android:id="@+id/lockedContent" android:layout_width="match_parent"

@@ -166,10 +166,13 @@ class JourneyRouteMap(activity: Activity, savedState: Bundle?, private val host:
         else startDot.visibility = View.INVISIBLE
         place(startPin, projection.toScreenLocation(pin), tipAtBottom = true)
         place(destinationBadge, projection.toScreenLocation(to), tipAtBottom = false)
-        val progress = roadRoute?.takeIf { trip.recordedSteps > 0 && trip.status == "IN_PROGRESS" }
-            ?.pointAt(progressFraction(trip))
-        if (progress != null) place(walker, projection.toScreenLocation(progress), tipAtBottom = false)
-        else walker.visibility = View.INVISIBLE
+        val route = roadRoute?.takeIf { trip.recordedSteps > 0 && trip.status == "IN_PROGRESS" }
+        val progress = route?.pointAt(progressFraction(trip))
+        if (progress != null) {
+            place(walker, projection.toScreenLocation(progress), tipAtBottom = false)
+            // The walk icon faces right; mirror it when the road heads west. North/south keeps the last facing.
+            route.headsEastAt(progressFraction(trip))?.let { east -> walker.scaleX = if (east) 1f else -1f }
+        } else walker.visibility = View.INVISIBLE
     }
 
     private fun place(view: View, point: android.graphics.PointF, tipAtBottom: Boolean) {

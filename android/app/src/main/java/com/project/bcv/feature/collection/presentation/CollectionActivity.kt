@@ -20,6 +20,7 @@ import com.project.bcv.core.di.CollectionModule
 import com.project.bcv.core.ui.BottomNav
 import com.project.bcv.core.ui.NavTab
 import com.project.bcv.core.ui.RemoteImages
+import com.project.bcv.core.ui.Skeleton
 import com.project.bcv.databinding.ActivityCollectionBinding
 import com.project.bcv.databinding.ItemCollectionCardBinding
 import com.project.bcv.feature.account.auth.data.local.SessionPreferences
@@ -109,12 +110,10 @@ class CollectionActivity : AppCompatActivity() {
     private fun render(state: CollectionUiState) = with(binding) {
         when (state) {
             CollectionUiState.Loading -> {
-                loadingSkeleton.visibility = View.VISIBLE
-                loadedContent.visibility = View.GONE
-                messageState.visibility = View.GONE
+                Skeleton.show(loadingSkeleton.root, loadedContent, messageState)
             }
             is CollectionUiState.Failed -> {
-                loadingSkeleton.visibility = View.GONE
+                Skeleton.hide(loadingSkeleton.root)
                 loadedContent.visibility = View.GONE
                 showMessage(text = state.message, retry = true)
             }
@@ -136,7 +135,7 @@ class CollectionActivity : AppCompatActivity() {
     private fun showOverview(overview: CollectionOverview) = with(binding) {
         if (overview == shownOverview && loadedContent.visibility == View.VISIBLE) return@with
         shownOverview = overview
-        loadingSkeleton.visibility = View.GONE
+        Skeleton.hide(loadingSkeleton.root)
         loadedContent.visibility = View.VISIBLE
         ownedCount.text = overview.ownedCards.toString()
         ownedTotal.text = "/ ${overview.totalCards} thẻ đã sở hữu"

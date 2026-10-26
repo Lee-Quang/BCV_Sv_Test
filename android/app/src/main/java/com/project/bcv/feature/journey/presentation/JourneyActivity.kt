@@ -1,8 +1,7 @@
 package com.project.bcv.feature.journey.presentation
 
-import android.animation.ObjectAnimator
-import android.animation.ValueAnimator
 import android.content.Intent
+import com.project.bcv.feature.discovery.presentation.PlaceDetailActivity
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
@@ -21,6 +20,7 @@ import com.project.bcv.core.ui.NavTab
 import com.project.bcv.feature.collection.presentation.CollectionActivity
 import com.project.bcv.feature.questitem.quest.presentation.QuestActivity
 import com.project.bcv.core.ui.ScreenMotion
+import com.project.bcv.core.ui.Skeleton
 import com.project.bcv.databinding.ActivityJourneyBinding
 import com.project.bcv.feature.account.auth.data.local.SessionPreferences
 import com.project.bcv.feature.account.auth.presentation.AccountActivity
@@ -36,7 +36,6 @@ class JourneyActivity : AppCompatActivity() {
     private lateinit var routeMap: JourneyRouteMap
     private var resumedOnce = false
     private var shownJourney: ExploreJourney? = null
-    private var skeletonPulse: ObjectAnimator? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -122,7 +121,7 @@ class JourneyActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
         routeMap.onSaveInstanceState(outState)
     }
-    override fun onDestroy() { skeletonPulse?.cancel(); routeMap.onDestroy(); super.onDestroy() }
+    override fun onDestroy() { routeMap.onDestroy(); super.onDestroy() }
 
     private fun render(state: JourneyUiState) = with(binding) {
         when (state) {
@@ -151,29 +150,14 @@ class JourneyActivity : AppCompatActivity() {
 
     /** Skeleton of the destination, progress and map cards while the saved journey loads. */
     private fun showLoading() = with(binding) {
-        journeyContent.visibility = View.GONE
-        messageState.visibility = View.GONE
-        journeyLoading.visibility = View.VISIBLE
+        Skeleton.show(journeyLoading.root, journeyContent, messageState)
         statusChip.visibility = View.VISIBLE
         styleChip(loading = true)
         statusText.text = "Đang tải"
         statusChip.contentDescription = "Trạng thái: đang tải"
-        if (skeletonPulse == null && ValueAnimator.areAnimatorsEnabled()) {
-            skeletonPulse = ObjectAnimator.ofFloat(journeySkeleton, View.ALPHA, 1f, 0.55f).apply {
-                duration = 850L
-                repeatMode = ValueAnimator.REVERSE
-                repeatCount = ValueAnimator.INFINITE
-                start()
-            }
-        }
     }
 
-    private fun hideLoading() {
-        skeletonPulse?.cancel()
-        skeletonPulse = null
-        binding.journeySkeleton.alpha = 1f
-        binding.journeyLoading.visibility = View.GONE
-    }
+    private fun hideLoading() = Skeleton.hide(binding.journeyLoading.root)
 
     /** Blue "Đang tải" chip while loading, green status chip once the journey is known. */
     private fun styleChip(loading: Boolean) = with(binding) {
@@ -201,6 +185,20 @@ class JourneyActivity : AppCompatActivity() {
             if (completed) color(R.color.teal) else 0xFF8FA196.toInt())
         unlockText.text = if (completed) "Đã mở khóa" else "Chưa mở khóa"
         unlockText.setTextColor(if (completed) color(R.color.teal) else 0xFF7C9086.toInt())
+        // An unlocked destination opens its photos and story; a locked one stays a plain card.
+        val placeId = journey.destinationPlaceId?.takeIf { completed }
+        destinationChevron.visibility = if (placeId != null) View.VISIBLE else View.GONE
+        destinationCard.isClickable = placeId != null
+        destinationCard.foreground = if (placeId != null)
+            ContextCompat.getDrawable(this@JourneyActivity, R.drawable.journey_card_ripple) else null
+        destinationCard.contentDescription = if (placeId != null)
+            "Điểm đến ${journey.destinationName}, đã mở khóa. Xem nội dung địa danh" else null
+        destinationCard.setOnClickListener(placeId?.let { id -> View.OnClickListener {
+            startActivity(Intent(this@JourneyActivity, PlaceDetailActivity::class.java)
+                .putExtra(PlaceDetailActivity.EXTRA_PLACE_ID, id)
+                .putExtra(PlaceDetailActivity.EXTRA_PLACE_NAME, journey.destinationName)
+                .putExtra(PlaceDetailActivity.EXTRA_DISCOVERED, true))
+        } })
 
         val remaining = (journey.requiredSteps - journey.recordedSteps).coerceAtLeast(0)
         stepsCount.text = format(journey.recordedSteps)

@@ -24,6 +24,13 @@ public static class ExploreEndpoints
             return user is null ? Results.Unauthorized() :
                 await Execute(() => service.LoadPlaceAsync(user.UserId, placeId, ct), logs);
         });
+        group.MapGet("/recommendations", async (HttpRequest request, ISessionStore sessions,
+            RecommendationService service, ILoggerFactory logs, CancellationToken ct) =>
+        {
+            var user = CurrentUser.Get(request, sessions);
+            return user is null ? Results.Unauthorized() :
+                await Execute(() => service.RecommendAsync(user.UserId, ct), logs);
+        });
     }
 
     private static async Task<IResult> Execute<T>(Func<Task<T>> action, ILoggerFactory logs)

@@ -26,6 +26,10 @@
             android:paddingEnd="20dp"
             android:paddingBottom="24dp">
 
+            <include
+                android:id="@+id/skeleton"
+                layout="@layout/skeleton_profile_account" />
+
             <LinearLayout
                 android:id="@+id/accountCard"
                 android:layout_width="match_parent"

@@ -24,6 +24,7 @@
         android:theme="@style/Theme.BướcChânViệt">
         <activity android:name=".feature.discovery.presentation.ExploreActivity" android:exported="false" />
         <activity android:name=".feature.discovery.presentation.PlaceDetailActivity" android:exported="false" />
+        <activity android:name=".feature.discovery.presentation.RecommendationActivity" android:exported="false" />
         <activity android:name=".feature.journey.presentation.JourneyActivity" android:exported="false" />
         <activity android:name=".feature.collection.presentation.CollectionActivity" android:exported="false" />
         <activity android:name=".feature.collection.presentation.CollectionDetailActivity" android:exported="false" />

@@ -17,6 +17,7 @@ import com.project.bcv.R
 import com.project.bcv.core.di.CollectionModule
 import com.project.bcv.core.ui.RemoteImages
 import com.project.bcv.core.ui.ScreenMotion
+import com.project.bcv.core.ui.Skeleton
 import com.project.bcv.databinding.ActivityCollectionDetailBinding
 import com.project.bcv.databinding.ItemCollectionPlaceCardBinding
 import com.project.bcv.feature.account.auth.data.local.SessionPreferences
@@ -70,8 +71,10 @@ class CollectionDetailActivity : AppCompatActivity() {
     }
 
     private fun render(state: CollectionDetailUiState) = with(binding) {
+        if (state != CollectionDetailUiState.Loading) Skeleton.hide(skeleton.root)
         when (state) {
-            CollectionDetailUiState.Loading -> showMessage("Đang tải thẻ…", loading = true)
+            // A reload over cards already shown keeps them; only the first load shows the placeholder.
+            CollectionDetailUiState.Loading -> if (shown == null) Skeleton.show(skeleton.root, content, messageState)
             is CollectionDetailUiState.Failed -> showMessage(state.message, retry = true)
             CollectionDetailUiState.SessionExpired -> {
                 SessionPreferences(this@CollectionDetailActivity).token = null
@@ -82,11 +85,10 @@ class CollectionDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun showMessage(text: String, loading: Boolean = false, retry: Boolean = false) = with(binding) {
-        if (shown != null && loading) return@with
+    private fun showMessage(text: String, retry: Boolean = false) = with(binding) {
         content.visibility = View.GONE
         messageState.visibility = View.VISIBLE
-        messageProgress.visibility = if (loading) View.VISIBLE else View.GONE
+        messageProgress.visibility = View.GONE
         messageText.text = text
         retryButton.visibility = if (retry) View.VISIBLE else View.GONE
     }

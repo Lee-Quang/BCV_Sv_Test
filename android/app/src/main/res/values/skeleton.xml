@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Building blocks for loading placeholders. Each screen arranges them like its real content. -->
+<resources>
+    <item name="skeleton_pulse" type="id" />
+    <item name="skeleton_detach" type="id" />
+
+    <color name="skeleton_block">#E3EAE3</color>
+
+    <style name="Skeleton" />
+    <!-- A line of text: set layout_width to the expected text length, height to the text size. -->
+    <style name="Skeleton.Line">
+        <item name="android:layout_width">160dp</item>
+        <item name="android:layout_height">12dp</item>
+        <item name="android:background">@drawable/skeleton_line</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+    <!-- An image, icon box, chart or button. -->
+    <style name="Skeleton.Block">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:background">@drawable/skeleton_block</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+    <style name="Skeleton.Circle">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:background">@drawable/skeleton_circle</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+    <!--
+      Text-sized placeholder: a transparent TextView with the real text size and a sample text
+      takes exactly the real row's height (also at large font scales); put a Skeleton.TextBar
+      over it in a FrameLayout.
+    -->
+    <style name="Skeleton.TextRow">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@android:color/transparent</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+    <style name="Skeleton.TextBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_marginTop">3dp</item>
+        <item name="android:layout_marginBottom">3dp</item>
+        <item name="android:background">@drawable/skeleton_line</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+    <!-- Outline of a card, matching the 1dp-stroked cards of the content. -->
+    <style name="Skeleton.Card">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/skeleton_card</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+</resources>

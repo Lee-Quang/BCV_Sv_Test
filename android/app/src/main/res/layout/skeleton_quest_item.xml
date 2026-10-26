@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Same geometry as item_quest: 56dp icon box, name and progress text, 8dp bar, reward and status. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="12dp"
+    android:background="@drawable/journey_card_bg"
+    android:importantForAccessibility="no"
+    android:orientation="vertical"
+    android:padding="14dp">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:gravity="center_vertical" android:orientation="horizontal">
+        <View style="@style/Skeleton.Block" android:layout_width="56dp" android:layout_height="56dp" />
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_marginStart="14dp" android:layout_weight="1" android:orientation="vertical">
+            <View style="@style/Skeleton.Line" android:layout_width="180dp" android:layout_height="15dp" />
+            <View style="@style/Skeleton.Line" android:layout_width="110dp" android:layout_height="12dp"
+                android:layout_marginTop="9dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <View style="@style/Skeleton.Line" android:layout_width="match_parent" android:layout_height="8dp"
+        android:layout_marginTop="18dp" />
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="16dp" android:gravity="center_vertical" android:orientation="horizontal">
+        <View style="@style/Skeleton.Line" android:layout_width="130dp" android:layout_height="11dp" />
+        <Space android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+        <View style="@style/Skeleton.Line" android:layout_width="64dp" android:layout_height="11dp" />
+    </LinearLayout>
+</LinearLayout>

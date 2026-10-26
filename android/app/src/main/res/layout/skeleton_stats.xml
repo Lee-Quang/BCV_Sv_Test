@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Loading placeholder for activity_stats: steps card, two count tiles, quest progress card and history link. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1"
+    android:contentDescription="Đang tải thống kê"
+    android:scrollbars="none"
+    android:visibility="gone">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:paddingStart="20dp" android:paddingTop="8dp"
+        android:paddingEnd="20dp" android:paddingBottom="24dp">
+
+        <!-- Steps card: the dark panel stays, its numbers are placeholders. -->
+        <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:background="@drawable/panel_bg" android:backgroundTint="#17463A" android:padding="18dp">
+            <View style="@style/Skeleton.Block" android:layout_width="34dp" android:layout_height="34dp"
+                android:layout_gravity="top|end" android:alpha="0.25" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <View style="@style/Skeleton.Line" android:layout_width="120dp" android:layout_height="11dp"
+                    android:layout_marginTop="2dp" android:alpha="0.25" />
+                <View style="@style/Skeleton.Line" android:layout_width="150dp" android:layout_height="36dp"
+                    android:layout_marginTop="12dp" android:alpha="0.25" />
+                <View style="@style/Skeleton.Line" android:layout_width="220dp" android:layout_height="13dp"
+                    android:layout_marginTop="10dp" android:alpha="0.25" />
+                <View style="@style/Skeleton.Line" android:layout_width="150dp" android:layout_height="11dp"
+                    android:layout_marginTop="16dp" android:alpha="0.25" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="14dp" android:orientation="horizontal">
+            <include layout="@layout/skeleton_stats_tile" android:layout_width="0dp"
+                android:layout_height="wrap_content" android:layout_weight="1" />
+            <include layout="@layout/skeleton_stats_tile" android:layout_width="0dp"
+                android:layout_height="wrap_content" android:layout_marginStart="12dp"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <View style="@style/Skeleton.Line" android:layout_width="150dp" android:layout_height="17dp"
+            android:layout_marginTop="26dp" />
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:background="@drawable/journey_card_bg"
+            android:orientation="vertical" android:padding="16dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <View style="@style/Skeleton.Line" android:layout_width="78dp" android:layout_height="14dp" />
+                <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+                <View style="@style/Skeleton.Line" android:layout_width="40dp" android:layout_height="14dp" />
+            </LinearLayout>
+            <View style="@style/Skeleton.Line" android:layout_width="match_parent" android:layout_height="5dp"
+                android:layout_marginTop="12dp" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="20dp" android:orientation="horizontal">
+                <View style="@style/Skeleton.Line" android:layout_width="78dp" android:layout_height="14dp" />
+                <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+                <View style="@style/Skeleton.Line" android:layout_width="40dp" android:layout_height="14dp" />
+            </LinearLayout>
+            <View style="@style/Skeleton.Line" android:layout_width="match_parent" android:layout_height="5dp"
+                android:layout_marginTop="12dp" />
+            <View style="@style/Skeleton.Line" android:layout_width="240dp" android:layout_height="11dp"
+                android:layout_marginTop="16dp" />
+        </LinearLayout>
+
+        <!-- item_profile_link row: icon, title, subtitle, chevron. -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" android:background="@drawable/journey_card_bg"
+            android:gravity="center_vertical" android:minHeight="64dp" android:orientation="horizontal"
+            android:padding="12dp">
+            <View style="@style/Skeleton.Block" android:layout_width="40dp" android:layout_height="40dp" />
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_marginStart="14dp" android:layout_weight="1" android:orientation="vertical">
+                <View style="@style/Skeleton.Line" android:layout_width="140dp" android:layout_height="14dp" />
+                <View style="@style/Skeleton.Line" android:layout_width="200dp" android:layout_height="11dp"
+                    android:layout_marginTop="6dp" />
+            </LinearLayout>
+            <View style="@style/Skeleton.Circle" android:layout_width="18dp" android:layout_height="18dp" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

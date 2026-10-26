@@ -6,7 +6,6 @@
     <string name="show_password">Hiện mật khẩu</string>
     <string name="hide_password">Ẩn mật khẩu</string>
     <string name="forgot_password">Quên mật khẩu?</string>
-    <string name="password_reset_unavailable">Chức năng đặt lại mật khẩu chưa khả dụng.</string>
     <string name="register_hero_headline">Hành trình mới,\nbắt đầu từ bạn.</string>
     <string name="login_hero_headline">Trở lại hành trình,\nkhám phá tiếp thôi.</string>
     <string name="register_title">Tạo tài khoản</string>

@@ -14,6 +14,12 @@ interface AccountRepository {
     fun login(email: String, password: String): AccountSession
     fun logout()
 
+    /**
+     * The saved session checked with the server, with its onboarding flags; null when no token is
+     * saved. A rejected token is forgotten and reported as an UNAUTHORIZED [ApiFailure].
+     */
+    fun restore(): AccountSession?
+
     /** Sends a 6-digit code; returns seconds before another code may be requested. */
     fun requestPasswordReset(email: String): Int
     /** Returns a one-time token for [completePasswordReset]. */

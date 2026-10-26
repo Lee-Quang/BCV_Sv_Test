@@ -20,6 +20,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.project.bcv.R
 import com.project.bcv.core.di.InventoryModule
 import com.project.bcv.core.ui.ScreenMotion
+import com.project.bcv.core.ui.Skeleton
 import com.project.bcv.databinding.ActivityInventoryBinding
 import com.project.bcv.databinding.ItemInventoryBinding
 import com.project.bcv.databinding.SheetItemConditionsBinding
@@ -73,13 +74,11 @@ class InventoryActivity : AppCompatActivity() {
         when (state) {
             InventoryUiState.Loading -> {
                 status(EYEBROW_BLUE, "ĐANG KẾT NỐI", "Đang tải kho…", "Số lượng sẽ hiện khi máy chủ xác nhận.")
-                skeleton.visibility = View.VISIBLE
-                errorPanel.visibility = View.GONE
-                content.visibility = View.GONE
+                Skeleton.show(skeleton.root, content, errorPanel)
             }
             is InventoryUiState.Failed -> {
                 statusCard.visibility = View.GONE
-                skeleton.visibility = View.GONE
+                Skeleton.hide(skeleton.root)
                 content.visibility = View.GONE
                 errorPanel.visibility = View.VISIBLE
                 errorMessage.text = "${state.message}\nSố lượng chưa được xác định."
@@ -90,7 +89,7 @@ class InventoryActivity : AppCompatActivity() {
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
             }
             is InventoryUiState.Loaded -> {
-                skeleton.visibility = View.GONE
+                Skeleton.hide(skeleton.root)
                 errorPanel.visibility = View.GONE
                 show(state.overview)
                 when {

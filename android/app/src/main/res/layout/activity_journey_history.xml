@@ -13,6 +13,10 @@
         android:id="@+id/state"
         layout="@layout/view_screen_state" />
 
+    <include
+        android:id="@+id/skeleton"
+        layout="@layout/skeleton_journey_history" />
+
     <ScrollView
         android:id="@+id/content"
         android:layout_width="match_parent"

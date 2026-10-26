@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Loading placeholder for activity_flight_ticket: hero, region picker, place picker, rule panel, two buttons. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1"
+    android:contentDescription="Đang tải khu vực"
+    android:scrollbars="none"
+    android:visibility="gone">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:paddingStart="20dp" android:paddingTop="8dp"
+        android:paddingEnd="20dp" android:paddingBottom="24dp">
+
+        <!-- Hero: label, headline, caption, owned chip; plane icon at the end. -->
+        <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:background="@drawable/skeleton_block" android:padding="18dp">
+            <View style="@style/Skeleton.Circle" android:layout_width="36dp" android:layout_height="36dp"
+                android:layout_gravity="top|end" android:background="@drawable/skeleton_card" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginEnd="44dp" android:orientation="vertical">
+                <View style="@style/Skeleton.Line" android:layout_width="150dp" android:layout_height="10dp"
+                    android:background="@drawable/skeleton_card" />
+                <View style="@style/Skeleton.Line" android:layout_width="190dp" android:layout_height="20dp"
+                    android:layout_marginTop="10dp" android:background="@drawable/skeleton_card" />
+                <View style="@style/Skeleton.Line" android:layout_width="230dp" android:layout_height="11dp"
+                    android:layout_marginTop="10dp" android:background="@drawable/skeleton_card" />
+                <View style="@style/Skeleton.Line" android:layout_width="110dp" android:layout_height="30dp"
+                    android:layout_marginTop="14dp" android:background="@drawable/skeleton_card" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- 01 Chọn khu vực đích + current region line + picker. -->
+        <View style="@style/Skeleton.Line" android:layout_width="160dp" android:layout_height="16dp"
+            android:layout_marginTop="26dp" />
+        <View style="@style/Skeleton.Line" android:layout_width="190dp" android:layout_height="10dp"
+            android:layout_marginTop="8dp" />
+        <include layout="@layout/skeleton_flight_ticket_picker" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="12dp" />
+
+        <!-- 02 Chọn địa danh đến + picker. -->
+        <View style="@style/Skeleton.Line" android:layout_width="160dp" android:layout_height="16dp"
+            android:layout_marginTop="24dp" />
+        <include layout="@layout/skeleton_flight_ticket_picker" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="12dp" />
+
+        <!-- Rule panel: title and one line. -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="18dp" android:background="@drawable/skeleton_block"
+            android:orientation="vertical" android:padding="16dp">
+            <View style="@style/Skeleton.Line" android:layout_width="210dp" android:layout_height="12dp"
+                android:background="@drawable/skeleton_card" />
+            <View style="@style/Skeleton.Line" android:layout_width="240dp" android:layout_height="10dp"
+                android:layout_marginTop="10dp" android:background="@drawable/skeleton_card" />
+        </LinearLayout>
+
+        <View style="@style/Skeleton.Block" android:layout_height="54dp" android:layout_marginTop="24dp" />
+        <View style="@style/Skeleton.Block" android:layout_height="54dp" android:layout_marginTop="10dp" />
+    </LinearLayout>
+</ScrollView>

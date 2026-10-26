@@ -12,11 +12,11 @@ import com.project.bcv.core.di.JourneyModule
 import com.project.bcv.core.presentation.Remote
 import com.project.bcv.core.presentation.viewModelFactory
 import com.project.bcv.core.ui.ScreenMotion
+import com.project.bcv.core.ui.Skeleton
 import com.project.bcv.core.ui.openSignIn
 import com.project.bcv.core.ui.setUpDetailScreen
 import com.project.bcv.core.ui.showContent
 import com.project.bcv.core.ui.showError
-import com.project.bcv.core.ui.showLoading
 import com.project.bcv.databinding.ActivityJourneyHistoryBinding
 import com.project.bcv.databinding.ItemJourneyHistoryBinding
 import com.project.bcv.feature.discovery.presentation.PlaceDetailActivity
@@ -40,8 +40,9 @@ class JourneyHistoryActivity : AppCompatActivity() {
             JourneyHistoryViewModel::class.java]
         binding.state.stateRetry.setOnClickListener { model.load() }
         model.state.observe(this) { state ->
+            if (state != Remote.Loading) Skeleton.hide(binding.skeleton.root)
             when (state) {
-                Remote.Loading -> binding.state.showLoading(binding.content, "Đang tải lịch sử…")
+                Remote.Loading -> Skeleton.show(binding.skeleton.root, binding.content, binding.state.root)
                 is Remote.Failed -> binding.state.showError(binding.content, state.message)
                 Remote.SessionExpired -> openSignIn()
                 is Remote.Ready -> show(state.value)

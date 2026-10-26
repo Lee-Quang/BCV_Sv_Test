@@ -39,48 +39,8 @@
                 android:textSize="32sp"
                 android:textStyle="bold" />
 
-            <LinearLayout
-                android:id="@+id/loadingSkeleton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.progressindicator.CircularProgressIndicator
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:indeterminate="true"
-                        app:indicatorColor="#3B82AA"
-                        app:indicatorSize="20dp"
-                        app:trackColor="@android:color/transparent" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:accessibilityLiveRegion="polite"
-                        android:text="Đang tải bộ sưu tập..."
-                        android:textColor="#3B82AA"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:layout_marginTop="22dp"
-                    android:background="@drawable/collection_loading_summary_bg" />
-
-                <include layout="@layout/item_collection_loading_row" />
-                <include layout="@layout/item_collection_loading_row" />
-                <include layout="@layout/item_collection_loading_row" />
-            </LinearLayout>
+            <!-- First load: shaped like the summary card, header and collection cards. -->
+            <include android:id="@+id/loadingSkeleton" layout="@layout/skeleton_collection" />
 
             <LinearLayout
                 android:id="@+id/loadedContent"

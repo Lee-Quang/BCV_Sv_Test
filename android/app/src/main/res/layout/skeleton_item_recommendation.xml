@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Same geometry as item_recommendation. Each text row is a transparent TextView with the real text
+  size and line count, so the card is exactly as tall as the loaded one at any font scale; a bar is
+  drawn over it.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Skeleton.Card"
+    android:layout_marginBottom="14dp"
+    android:orientation="horizontal"
+    android:padding="12dp">
+
+    <View style="@style/Skeleton.Block" android:layout_width="96dp" android:layout_height="124dp" />
+
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_marginStart="16dp" android:layout_weight="1" android:orientation="vertical">
+
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
+                <TextView style="@style/Skeleton.TextRow" android:text="01" android:textSize="13sp" />
+                <View style="@style/Skeleton.TextBar" />
+            </FrameLayout>
+            <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginStart="12dp">
+                <TextView style="@style/Skeleton.TextRow" android:letterSpacing="0.04"
+                    android:text="CHƯA MỞ KHÓA" android:textSize="11sp" />
+                <View style="@style/Skeleton.TextBar" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <!-- Two-line name: one bar per line. -->
+        <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="6dp">
+            <TextView style="@style/Skeleton.TextRow" android:layout_width="match_parent"
+                android:minLines="2" android:maxLines="2" android:text="Văn Miếu –\nQuốc Tử Giám"
+                android:textSize="18sp" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
+                android:orientation="vertical">
+                <FrameLayout android:layout_width="match_parent" android:layout_height="0dp"
+                    android:layout_weight="1">
+                    <View style="@style/Skeleton.TextBar" android:layout_width="140dp" />
+                </FrameLayout>
+                <FrameLayout android:layout_width="match_parent" android:layout_height="0dp"
+                    android:layout_weight="1">
+                    <View style="@style/Skeleton.TextBar" android:layout_width="104dp" />
+                </FrameLayout>
+            </LinearLayout>
+        </FrameLayout>
+
+        <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="6dp">
+            <TextView style="@style/Skeleton.TextRow" android:drawablePadding="6dp"
+                android:text="2,4 km · ~3.200 bước" android:textSize="13sp" />
+            <View style="@style/Skeleton.TextBar" />
+        </FrameLayout>
+
+        <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="3dp">
+            <TextView style="@style/Skeleton.TextRow" android:text="Hợp sở thích: Thiên nhiên"
+                android:textSize="12sp" />
+            <View style="@style/Skeleton.TextBar" />
+        </FrameLayout>
+
+        <View style="@style/Skeleton.Block" android:layout_height="52dp" android:layout_marginTop="10dp" />
+    </LinearLayout>
+</LinearLayout>

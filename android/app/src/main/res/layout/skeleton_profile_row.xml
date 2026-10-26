@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Same geometry as item_profile_link: 40dp icon box, title and subtitle lines, chevron. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Skeleton.Card"
+    android:layout_marginTop="10dp"
+    android:gravity="center_vertical"
+    android:minHeight="64dp"
+    android:orientation="horizontal"
+    android:padding="12dp">
+    <View style="@style/Skeleton.Block" android:layout_width="40dp" android:layout_height="40dp" />
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_marginStart="14dp" android:layout_weight="1" android:orientation="vertical">
+        <View style="@style/Skeleton.Line" android:layout_width="130dp" android:layout_height="14dp" />
+        <View style="@style/Skeleton.Line" android:layout_width="190dp" android:layout_height="10dp"
+            android:layout_marginTop="6dp" />
+    </LinearLayout>
+    <View style="@style/Skeleton.Line" android:layout_width="16dp" android:layout_height="16dp" />
+</LinearLayout>

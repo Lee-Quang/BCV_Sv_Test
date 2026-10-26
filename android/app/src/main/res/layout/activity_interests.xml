@@ -135,6 +135,8 @@
                 android:id="@+id/loadingContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:contentDescription="Đang tải nhóm địa danh"
                 android:orientation="vertical">
 
                 <!-- Filled with item_place_type_skeleton rows in InterestsActivity. -->
@@ -145,14 +147,6 @@
                     android:layout_marginTop="16dp"
                     android:orientation="vertical" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="18dp"
-                    android:accessibilityLiveRegion="polite"
-                    android:text="Đang tải nhóm địa danh…"
-                    android:textColor="#819785"
-                    android:textSize="14sp" />
             </LinearLayout>
 
             <com.google.android.material.button.MaterialButton

@@ -11,6 +11,7 @@ import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.TooltipCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -26,6 +27,10 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.google.android.material.snackbar.Snackbar
 import com.project.bcv.R
 import com.project.bcv.core.di.ExploreModule
+import com.project.bcv.core.di.ProfileModule
+import com.project.bcv.feature.account.profile.presentation.Avatars
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.project.bcv.core.ui.BottomNav
 import com.project.bcv.core.ui.NavTab
 import com.project.bcv.core.ui.ScreenMotion
@@ -150,7 +155,9 @@ class ExploreActivity : AppCompatActivity() {
         binding.primaryButton.setOnClickListener { primaryAction() }
         binding.secondaryButton.setOnClickListener { secondaryAction() }
         binding.demoStepsButton.setOnClickListener { addDemoSteps() }
-        binding.tertiaryButton.setOnClickListener { unavailable("Gợi ý điểm đến khác") }
+        // Icon only now: long-press shows what it does.
+        TooltipCompat.setTooltipText(binding.demoStepsButton, "+2.000 bước thử")
+        binding.tertiaryButton.setOnClickListener { openRecommendations() }
         binding.notificationsButton.setOnClickListener { startActivity(Intent(this, NotificationsActivity::class.java)) }
         binding.profileButton.setOnClickListener { startActivity(Intent(this, ProfileActivity::class.java)) }
         BottomNav.select(binding.bottomNavigation, NavTab.EXPLORE)
@@ -198,6 +205,8 @@ class ExploreActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         goongMap.onResume()
+        // Refreshed on every return so a photo changed in Hồ sơ shows here at once.
+        loadProfileAvatar()
         if (::model.isInitialized) model.checkPermission()
         if (returningFromTab) {
             returningFromTab = false
@@ -321,7 +330,7 @@ class ExploreActivity : AppCompatActivity() {
             ExploreStage.LOAD_FAILED, ExploreStage.RESTORE_FAILED -> model.load()
             ExploreStage.SYNC_FAILED -> model.syncSteps()
             ExploreStage.PERMISSION_REQUIRED -> requestStepsPermission(openSetupIfUnavailable = true)
-            ExploreStage.EMPTY, ExploreStage.COMPLETED -> unavailable("Gợi ý điểm đến")
+            ExploreStage.EMPTY, ExploreStage.COMPLETED -> openRecommendations()
             ExploreStage.ACTIVE, ExploreStage.NO_NEW_STEPS -> openJourney()
             else -> Unit
         }
@@ -369,6 +378,7 @@ class ExploreActivity : AppCompatActivity() {
         if (journey.status != "IN_PROGRESS") return
         demoWriteInFlight = true
         binding.demoStepsButton.isEnabled = false
+        binding.demoStepsButton.alpha = 0.4f
         lifecycleScope.launch {
             try {
                 val end = Instant.now()
@@ -394,6 +404,7 @@ class ExploreActivity : AppCompatActivity() {
             } finally {
                 demoWriteInFlight = false
                 binding.demoStepsButton.isEnabled = true
+                binding.demoStepsButton.alpha = 1f
             }
         }
     }
@@ -458,6 +469,7 @@ class ExploreActivity : AppCompatActivity() {
         tertiaryButton.isEnabled = state.stage != ExploreStage.SYNCING
         demoStepsButton.visibility = View.VISIBLE
         demoStepsButton.isEnabled = !demoWriteInFlight
+        demoStepsButton.alpha = if (demoWriteInFlight) 0.4f else 1f
         if (renderedStage != state.stage) {
             if (renderedStage != null) {
                 ScreenMotion.reveal(statusCard)
@@ -525,8 +537,23 @@ class ExploreActivity : AppCompatActivity() {
         returningFromTab = true
     }
 
-    private fun unavailable(name: String) {
-        Snackbar.make(binding.root, "$name sẽ được bổ sung ở màn tiếp theo.", Snackbar.LENGTH_SHORT).show()
+    /** Shows the user's avatar on the profile button; without one (or on any error) the person icon stays. */
+    private fun loadProfileAvatar() {
+        lifecycleScope.launch {
+            val avatar = try {
+                withContext(Dispatchers.IO) { ProfileModule.repository(this@ExploreActivity).profile().avatar }
+            } catch (_: Exception) { return@launch }
+            val bitmap = Avatars.immediate(avatar) ?: avatar?.let { Avatars.load(it) }
+            binding.profileAvatar.setImageBitmap(bitmap)
+            binding.profileAvatar.visibility = if (bitmap == null) View.GONE else View.VISIBLE
+            binding.profileIcon.visibility = if (bitmap == null) View.VISIBLE else View.GONE
+        }
+    }
+
+    /** A destination picked there starts a journey; the result reloads this screen like the place detail. */
+    private fun openRecommendations() {
+        placeDetailLauncher.launch(Intent(this, RecommendationActivity::class.java)
+            .putExtra(RecommendationActivity.EXTRA_ADDRESS, model.address.value))
     }
 
     /** Counts the step number up to [steps] after a sync on the same journey; otherwise shows it at once. */

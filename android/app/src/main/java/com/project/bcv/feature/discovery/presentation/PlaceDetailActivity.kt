@@ -1,9 +1,6 @@
 package com.project.bcv.feature.discovery.presentation
 
-import android.animation.ObjectAnimator
-import android.animation.ValueAnimator
 import android.app.Activity
-import android.view.animation.LinearInterpolator
 import android.graphics.BitmapFactory
 import android.graphics.Bitmap
 import android.graphics.RenderEffect
@@ -23,10 +20,11 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.project.bcv.core.ui.confirmReplaceJourney
 import com.google.android.material.snackbar.Snackbar
 import com.project.bcv.core.di.ExploreModule
 import com.project.bcv.core.ui.ScreenMotion
+import com.project.bcv.core.ui.Skeleton
 import com.project.bcv.R
 import com.project.bcv.databinding.ActivityPlaceDetailBinding
 import com.project.bcv.feature.discovery.domain.ExplorePlaceDetail
@@ -50,7 +48,8 @@ class PlaceDetailActivity : AppCompatActivity() {
     private var galleryUrls = emptyList<String>()
     private var galleryIndex = 0
     private var preparingPlaceId: Long? = null
-    private val loadingMotion = mutableListOf<ObjectAnimator>()
+    /** Which placeholder is up: the map's hint first, then what the server says. */
+    private var skeletonDiscovered = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,83 +94,60 @@ class PlaceDetailActivity : AppCompatActivity() {
             }
             if (state.confirmReplace && !replaceDialogShown) {
                 replaceDialogShown = true
-                MaterialAlertDialogBuilder(this)
-                    .setTitle("Đổi điểm đến?")
-                    .setMessage("Hành trình đang thực hiện sẽ được dừng. Tiến độ hiện tại không được chuyển sang hành trình mới.")
-                    .setNegativeButton("Giữ hành trình") { _, _ -> model.dismissReplace() }
-                    .setPositiveButton("Đổi điểm đến") { _, _ -> model.select(replaceActive = true) }
-                    .setOnDismissListener { replaceDialogShown = false; model.dismissReplace() }
-                    .show()
+                confirmReplaceJourney(
+                    onReplace = { replaceDialogShown = false; model.select(replaceActive = true) },
+                    onKeep = { replaceDialogShown = false; model.dismissReplace() })
             }
         }
         val placeId = intent.getLongExtra(EXTRA_PLACE_ID, -1L)
         // What the map already knows is shown at once, so the header is right before the API answers.
         val discoveredHint = intent.getBooleanExtra(EXTRA_DISCOVERED, false)
-        binding.loadingName.text = intent.getStringExtra(EXTRA_PLACE_NAME).orEmpty()
-        binding.loadingChip.visibility = if (discoveredHint) View.VISIBLE else View.GONE
+        showSkeletonFor(intent.getStringExtra(EXTRA_PLACE_NAME).orEmpty(), discoveredHint)
         binding.topTitle.text = if (discoveredHint) "Nội dung địa danh" else "Chọn điểm đến"
         binding.retryButton.setOnClickListener { model.load(placeId) }
         if (placeId <= 0) finish() else if (model.state.value?.place == null) model.load(placeId)
     }
 
-    override fun onDestroy() {
-        stopLoadingMotion()
-        super.onDestroy()
+    /** Fills the placeholder of the page that will open: locked destination or discovered content. */
+    private fun showSkeletonFor(name: String, discovered: Boolean) = with(binding) {
+        skeletonLocked.skeletonName.text = name
+        skeletonUnlocked.skeletonName.text = name
+        skeletonLocked.root.visibility = if (discovered) View.GONE else View.VISIBLE
+        skeletonUnlocked.root.visibility = if (discovered) View.VISIBLE else View.GONE
+        skeletonDiscovered = discovered
     }
 
     private fun showLoading(error: String?) = with(binding) {
         loadingContent.visibility = View.VISIBLE
         lockedContent.visibility = View.GONE
         unlockedContent.visibility = View.GONE
-        bottomBar.visibility = View.GONE
-        val failed = error != null
-        loadingStatus.text = error ?: "Đang tải nội dung…"
-        loadingStatus.setTextColor(if (failed) ContextCompat.getColor(this@PlaceDetailActivity,
-            R.color.error_red) else 0xFF3C7DB0.toInt())
-        loadingIcon.visibility = if (failed) View.GONE else View.VISIBLE
-        retryButton.visibility = if (failed) View.VISIBLE else View.GONE
-        loadingFooter.text = if (failed) "Kiểm tra kết nối rồi nhấn Thử lại."
-            else "Vui lòng chờ, không cần thao tác lại."
-        if (failed) stopLoadingMotion() else startLoadingMotion()
+        if (error != null) {
+            Skeleton.hide(loadingSkeleton)
+            bottomBar.visibility = View.GONE
+            loadingError.visibility = View.VISIBLE
+            loadingStatus.text = "$error\nKiểm tra kết nối rồi nhấn Thử lại."
+        } else {
+            Skeleton.show(loadingSkeleton, loadingError)
+            // The destination picker keeps its (still disabled) button in place while loading.
+            bottomBar.visibility = if (skeletonDiscovered) View.GONE else View.VISIBLE
+        }
     }
 
     /** Keeps the skeleton up until the first photo is decoded, then swaps to the real page once. */
     private fun prepare(place: ExplorePlaceDetail) {
         if (preparingPlaceId == place.id) return
         preparingPlaceId = place.id
+        showSkeletonFor(place.name, place.isDiscovered)
         showLoading(null)
         val firstUrl = (if (place.isDiscovered) place.imageUrls.firstOrNull() else null) ?: place.imageUrl
         lifecycleScope.launch {
             firstUrl?.takeIf { it.startsWith("https://") }?.let { loadBitmap(it, sample = 2) }
             renderedPlaceId = place.id
-            stopLoadingMotion()
+            Skeleton.hide(binding.loadingSkeleton)
             binding.loadingContent.visibility = View.GONE
             model.state.value?.place?.let(::showPlace)
             ScreenMotion.reveal(if (place.isDiscovered) binding.unlockedContent else binding.lockedContent)
         }
-    }
-
-    private fun startLoadingMotion() {
-        if (loadingMotion.isNotEmpty() || !ValueAnimator.areAnimatorsEnabled()) return
-        loadingMotion += ObjectAnimator.ofFloat(binding.loadingIcon, View.ROTATION, 0f, 360f).apply {
-            duration = 1_100L
-            interpolator = LinearInterpolator()
-            repeatCount = ValueAnimator.INFINITE
-            start()
-        }
-        loadingMotion += ObjectAnimator.ofFloat(binding.loadingSkeleton, View.ALPHA, 1f, 0.55f).apply {
-            duration = 850L
-            repeatMode = ValueAnimator.REVERSE
-            repeatCount = ValueAnimator.INFINITE
-            start()
-        }
-    }
-
-    private fun stopLoadingMotion() {
-        loadingMotion.forEach { it.cancel() }
-        loadingMotion.clear()
-        binding.loadingIcon.rotation = 0f
-        binding.loadingSkeleton.alpha = 1f
     }
 
     private fun showPlace(place: ExplorePlaceDetail) = with(binding) {

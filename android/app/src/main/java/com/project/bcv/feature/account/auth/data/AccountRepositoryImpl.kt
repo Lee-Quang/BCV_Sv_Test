@@ -1,6 +1,7 @@
 package com.project.bcv.feature.account.auth.data
 
 import com.project.bcv.feature.account.auth.data.local.SessionPreferences
+import com.project.bcv.core.network.ApiFailure
 import com.project.bcv.core.network.JsonApiClient
 import com.project.bcv.feature.account.auth.domain.AccountRepository
 import com.project.bcv.feature.account.auth.domain.AccountSession
@@ -33,6 +34,18 @@ class AccountRepositoryImpl(
         if (token != null) runCatching {
             remote.post("api/account/logout", JSONObject(), token)
         }
+    }
+
+    override fun restore(): AccountSession? {
+        val token = local.token ?: return null
+        val me = try {
+            remote.get("api/account/me", token)
+        } catch (error: ApiFailure) {
+            if (error.code == "UNAUTHORIZED") local.token = null
+            throw error
+        }
+        return AccountSession(token, me.toAccountUser(), me.getBoolean("needsInterestSelection"),
+            me.getBoolean("needsActivityLevel"), me.getBoolean("needsVirtualLocation"))
     }
 
     override fun requestPasswordReset(email: String): Int = remote.post(

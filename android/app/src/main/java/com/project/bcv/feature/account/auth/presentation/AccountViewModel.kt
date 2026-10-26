@@ -22,7 +22,9 @@ data class AccountUiState(
     val needsActivityLevel: Boolean = false,
     val needsVirtualLocation: Boolean = false,
     val errors: FieldErrors = FieldErrors(),
-    val requestError: String? = null
+    val requestError: String? = null,
+    /** A saved session is being checked; the form stays hidden so it does not flash. */
+    val restoring: Boolean = false
 )
 
 class AccountViewModel(private val repository: AccountRepository) : ViewModel() {
@@ -48,6 +50,37 @@ class AccountViewModel(private val repository: AccountRepository) : ViewModel() 
         }
         if (errors != current.errors || current.requestError != null) {
             mutableState.value = current.copy(errors = errors, requestError = null)
+        }
+    }
+
+    /**
+     * Opening the app with a saved token: continue where the user left off instead of asking to sign
+     * in again. A rejected token shows the form; without a connection the app still opens (Khám phá
+     * shows its own retry), since the token may well be valid.
+     */
+    fun restoreSession() {
+        val current = mutableState.value ?: return
+        if (current.restoring || current.loading) return
+        mutableState.value = current.copy(restoring = true)
+        executor.execute {
+            val next = try {
+                val session = repository.restore()
+                if (session == null) current
+                else current.copy(
+                    completed = !session.needsInterestSelection && !session.needsActivityLevel &&
+                        !session.needsVirtualLocation,
+                    needsInterestSelection = session.needsInterestSelection,
+                    needsActivityLevel = session.needsActivityLevel,
+                    needsVirtualLocation = session.needsVirtualLocation
+                )
+            } catch (_: ApiFailure) {
+                current
+            } catch (_: IOException) {
+                current.copy(completed = true)
+            } catch (_: Exception) {
+                current
+            }
+            mutableState.postValue(next.copy(restoring = false))
         }
     }
 

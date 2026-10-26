@@ -45,12 +45,12 @@ if (-not $R2) {
     Set-Secret 'BCV_SMTP_PASSWORD' 'SMTP App Password (sender configured in backend/local.settings.json)'
 }
 
-# Cloudflare R2 for avatars (dashboard: R2 > bucket > Settings, and R2 > Manage API tokens).
+# Cloudflare R2 for uploaded images: avatars/, places/, cards/ (dashboard: R2 > bucket > Settings, and R2 > Manage API tokens).
 # Paste one value per prompt. In hidden prompts, paste with right-click (Ctrl+V may type nothing).
 Set-Value 'BCV_R2_ACCOUNT_ID' 'Cloudflare Account ID (32 characters)' '^[0-9a-f]{32}$' `
     'Only the 32-character Account ID, without https:// or .r2.cloudflarestorage.com.'
 Set-Value 'BCV_R2_BUCKET' 'R2 bucket name' '^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$' `
-    'Only the bucket name, e.g. bcv-avatars.'
+    'Only the bucket name, e.g. bcv-images.'
 # The S3 API endpoint (<account>.r2.cloudflarestorage.com) needs signed requests, so phones cannot load from it.
 Set-Value 'BCV_R2_PUBLIC_URL' 'R2 public URL (https://pub-....r2.dev)' '^https://(?![^/]*\.r2\.cloudflarestorage\.com)[^\s/]+/?$' `
     'Use the bucket''s public URL (Settings > Public access > R2.dev subdomain or a custom domain), not the S3 API endpoint.'

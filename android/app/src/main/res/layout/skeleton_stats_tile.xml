@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Same geometry as the places/cards tiles of activity_stats: 26dp icon, large count, label. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/panel_bg"
+    android:backgroundTint="#F1F5EF"
+    android:importantForAccessibility="no"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <View style="@style/Skeleton.Block" android:layout_width="26dp" android:layout_height="26dp" />
+    <View style="@style/Skeleton.Line" android:layout_width="44dp" android:layout_height="28dp"
+        android:layout_marginTop="16dp" />
+    <View style="@style/Skeleton.Line" android:layout_width="96dp" android:layout_height="11dp"
+        android:layout_marginTop="8dp" />
+</LinearLayout>

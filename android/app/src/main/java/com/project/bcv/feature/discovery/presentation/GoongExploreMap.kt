@@ -310,9 +310,12 @@ class GoongExploreMap(
         val badgeCenter = BADGE_SIZE * density / 2
         placeMarker(destinationMarker, active.projection.toScreenLocation(destination), badgeCenter)
         val fraction = shownFraction ?: progressFraction(journey)
-        val progress = roadRoute?.takeIf { fraction > 0.0 }?.pointAt(fraction)
-        if (progress != null) placeMarker(progressMarker, active.projection.toScreenLocation(progress), badgeCenter)
-        else progressMarker.visibility = View.GONE
+        val route = roadRoute?.takeIf { fraction > 0.0 }
+        val progress = route?.pointAt(fraction)
+        if (progress != null) {
+            placeMarker(progressMarker, active.projection.toScreenLocation(progress), badgeCenter)
+            // The walk icon faces right; mirror only the icon (not its label) when the road heads west.
+            route.headsEastAt(fraction)?.let { east -> progressMarker.getChildAt(0).scaleX = if (east) 1f else -1f }        } else progressMarker.visibility = View.GONE
     }
 
     /** Puts [view] so the point [anchorY] pixels below its top edge sits on [point]. */

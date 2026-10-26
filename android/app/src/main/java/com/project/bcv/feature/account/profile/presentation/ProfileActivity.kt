@@ -16,6 +16,7 @@ import com.project.bcv.core.di.StatsNotifyModule
 import com.project.bcv.core.presentation.Remote
 import com.project.bcv.core.presentation.viewModelFactory
 import com.project.bcv.core.ui.ScreenMotion
+import com.project.bcv.core.ui.Skeleton
 import com.project.bcv.core.ui.openSignIn
 import com.project.bcv.core.ui.setUpDetailScreen
 import com.project.bcv.databinding.ActivityProfileBinding
@@ -34,6 +35,7 @@ import kotlinx.coroutines.launch
 class ProfileActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProfileBinding
     private lateinit var model: ProfileViewModel
+    private var profileShown = false
 
     // Preferences are edited in two steps, as during sign-up: interests, then activity level.
     private val interestsResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -82,11 +84,16 @@ class ProfileActivity : AppCompatActivity() {
         binding.deleteButton.setOnClickListener { confirmDelete() }
 
         model.profile.observe(this) { state ->
+            // Only the account card comes from the server; the links below are shown at once.
+            if (state != Remote.Loading) {
+                Skeleton.hide(binding.skeleton.root)
+                binding.accountCard.visibility = View.VISIBLE
+            }
             when (state) {
-                is Remote.Ready -> show(state.value)
+                is Remote.Ready -> { profileShown = true; show(state.value) }
                 is Remote.Failed -> binding.email.text = state.message
                 Remote.SessionExpired -> openSignIn()
-                Remote.Loading -> Unit
+                Remote.Loading -> if (!profileShown) Skeleton.show(binding.skeleton.root, binding.accountCard)
             }
         }
         model.unread.observe(this) { unread ->

@@ -9,11 +9,11 @@ import com.project.bcv.core.di.StatsNotifyModule
 import com.project.bcv.core.presentation.Remote
 import com.project.bcv.core.presentation.viewModelFactory
 import com.project.bcv.core.ui.ScreenMotion
+import com.project.bcv.core.ui.Skeleton
 import com.project.bcv.core.ui.openSignIn
 import com.project.bcv.core.ui.setUpDetailScreen
 import com.project.bcv.core.ui.showContent
 import com.project.bcv.core.ui.showError
-import com.project.bcv.core.ui.showLoading
 import com.project.bcv.databinding.ActivityStatsBinding
 import com.project.bcv.feature.statsnotify.stats.domain.ProfileStats
 import com.project.bcv.feature.journey.presentation.JourneyHistoryActivity
@@ -53,8 +53,10 @@ class StatsActivity : AppCompatActivity() {
 
     /** Numbers already shown stay while a refresh runs or fails; only the first load shows its state. */
     private fun render(state: Remote<ProfileStats>) {
+        if (state != Remote.Loading) Skeleton.hide(binding.skeleton.root)
         when (state) {
-            Remote.Loading -> if (shown == null) binding.state.showLoading(binding.content, "Đang tải thống kê…")
+            Remote.Loading -> if (shown == null)
+                Skeleton.show(binding.skeleton.root, binding.content, binding.state.root)
             is Remote.Failed -> if (shown == null) binding.state.showError(binding.content, state.message)
             Remote.SessionExpired -> openSignIn()
             is Remote.Ready -> show(state.value)

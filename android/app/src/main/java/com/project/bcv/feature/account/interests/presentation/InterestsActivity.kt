@@ -86,9 +86,9 @@ class InterestsActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    /** Three rows of two placeholders, mirroring the grid built in showPlaceTypes. */
+    /** Five rows of two placeholders: the ten place types, laid out like the grid built in showPlaceTypes. */
     private fun buildSkeleton() {
-        repeat(3) {
+        repeat(5) {
             val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
             repeat(2) { index ->
                 val card = layoutInflater.inflate(R.layout.item_place_type_skeleton, row, false)

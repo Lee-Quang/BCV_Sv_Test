@@ -3,7 +3,7 @@
 -- Demo email addresses use the non-deliverable .invalid domain. Passwords are random
 -- bcrypt hashes with no retained plaintext, so these accounts are not login fixtures.
 -- Demo image_key values are direct Wikimedia Commons JPEG URLs, not R2 object keys.
--- See 006_set_demo_image_urls.sql for source pages and image attribution.
+-- See README.md (Nguồn ảnh và giấy phép) for source pages and image attribution.
 -- Run once against bcv after 001, 002, and 003. Existing target rows cause an error.
 
 BEGIN;
@@ -128,7 +128,7 @@ WITH routes AS (
     FROM (VALUES
         (900001, 900001, 4, 2, 'COMPLETED', 0,
          '2026-10-20 06:00:00'::timestamp, '2026-10-20 12:00:00'::timestamp),
-        (900002, 900002, 11, 12, 'IN_PROGRESS', 1200,
+        (900002, 900002, 11, 12, 'IN_PROGRESS', 200,
          '2026-10-23 09:00:00'::timestamp, NULL::timestamp),
         (900003, 900003, 2, 3, 'ABANDONED', 600,
          '2026-10-22 08:00:00'::timestamp, NULL::timestamp)
@@ -143,9 +143,9 @@ INSERT INTO public.journey
      status, started_at, completed_at)
 SELECT journey_id, user_id, start_place_id, start_latitude, start_longitude,
        destination_place_id, round(distance_m::numeric, 2),
-       greatest(1, ceil(distance_m / 0.75)::integer),
+       greatest(1, ceil(distance_m * 0.1 / 0.75)::integer),
        CASE WHEN status = 'COMPLETED'
-            THEN greatest(1, ceil(distance_m / 0.75)::integer)
+            THEN greatest(1, ceil(distance_m * 0.1 / 0.75)::integer)
             ELSE sample_recorded_steps END,
        status, started_at, completed_at
 FROM routes;

@@ -2,6 +2,7 @@ using Bcv.Api.Modules.Account.Api;
 using Bcv.Api.Modules.Account.Application;
 using Bcv.Api.Modules.Account.Domain;
 using Npgsql;
+using Bcv.Api.Modules.Shared.Infrastructure;
 
 namespace Bcv.Api.Modules.Admin;
 
@@ -75,8 +76,11 @@ public static class AdminEndpoints
             await repo.Delete(resource, id, ct);
             return Results.NoContent();
         });
-        group.MapPost("/images", async (HttpContext http, IAvatarStorage storage, CancellationToken ct) =>
+        // ?purpose=place|card picks the storage folder (places/, cards/), never the users' avatars/.
+        group.MapPost("/images", async (HttpContext http, string? purpose, IImageStorage storage, CancellationToken ct) =>
         {
+            var folder = ImageFolder.ForAdminPurpose(purpose)
+                ?? throw new AdminValidation("Thiếu mục đích ảnh: place (địa danh) hoặc card (thẻ).");
             const int maxBytes = 5 * 1024 * 1024;
             if (http.Request.ContentType != "image/jpeg") throw new AdminValidation("Chỉ chấp nhận ảnh JPEG.");
             if (http.Request.ContentLength is > maxBytes) throw new AdminValidation("Ảnh không được vượt quá 5 MB.");
@@ -90,7 +94,7 @@ public static class AdminEndpoints
             var bytes = stream.ToArray();
             if (bytes.Length < 4 || bytes[0] != 0xff || bytes[1] != 0xd8 || bytes[2] != 0xff)
                 throw new AdminValidation("Tệp ảnh JPEG không hợp lệ.");
-            var url = await storage.SaveAsync((long)http.Items["AdminId"]!, bytes, ct);
+            var url = await storage.SaveAsync(folder, bytes, ct);
             return Results.Ok(new { url });
         });
     }

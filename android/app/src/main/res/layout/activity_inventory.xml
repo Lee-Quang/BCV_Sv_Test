@@ -117,38 +117,8 @@
                 </LinearLayout>
             </FrameLayout>
 
-            <!-- First load -->
-            <LinearLayout
-                android:id="@+id/skeleton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:importantForAccessibility="noHideDescendants"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <LinearLayout
-                    style="@style/JourneySkeletonCard"
-                    android:layout_height="150dp">
-                    <View style="@style/JourneySkeletonTitle" />
-                    <View style="@style/JourneySkeletonLine" />
-                </LinearLayout>
-
-                <LinearLayout
-                    style="@style/JourneySkeletonCard"
-                    android:layout_height="150dp"
-                    android:layout_marginTop="16dp">
-                    <View style="@style/JourneySkeletonTitle" />
-                    <View style="@style/JourneySkeletonLine" />
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:text="Chưa xác định số lượng vật phẩm."
-                    android:textColor="#7C9086"
-                    android:textSize="13sp" />
-            </LinearLayout>
+            <!-- First load: shaped like the summary, banner and two item cards below. -->
+            <include android:id="@+id/skeleton" layout="@layout/skeleton_inventory" />
 
             <!-- First load failed: never an empty inventory in place of the error. -->
             <LinearLayout

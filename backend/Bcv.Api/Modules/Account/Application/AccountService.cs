@@ -5,6 +5,8 @@ namespace Bcv.Api.Modules.Account.Application;
 
 public sealed record RegisterCommand(string? Email, string? Password, string? ConfirmPassword);
 public sealed record LoginCommand(string? Email, string? Password);
+public sealed record SignedInUser(long UserId, string FullName, string Email, string Role,
+    bool NeedsInterestSelection, bool NeedsActivityLevel, bool NeedsVirtualLocation);
 public sealed record ChangePasswordCommand(string? CurrentPassword, string? NewPassword, string? ConfirmPassword);
 
 public sealed class AccountService(IAccountRepository repository, ISessionStore sessions)
@@ -46,12 +48,18 @@ public sealed class AccountService(IAccountRepository repository, ISessionStore 
         };
     }
 
-    public async Task<PublicAccount?> GetActiveUser(long userId, CancellationToken cancellationToken)
+    /// <summary>
+    /// The signed-in user with the same onboarding flags as login, so the app can resume a saved
+    /// session at the right screen; null when the account is no longer active.
+    /// </summary>
+    public async Task<SignedInUser?> GetActiveUser(long userId, CancellationToken cancellationToken)
     {
         var account = await repository.FindByIdAsync(userId, cancellationToken);
-        return account?.Status == "ACTIVE"
-            ? account.ToPublic()
-            : null;
+        if (account?.Status != "ACTIVE") return null;
+        return new SignedInUser(account.UserId, account.FullName, account.Email, account.Role,
+            !await repository.HasSelectedPlaceTypesAsync(userId, cancellationToken),
+            !await repository.HasActivityLevelAsync(userId, cancellationToken),
+            !await repository.HasVirtualLocationAsync(userId, cancellationToken));
     }
 
     /// <summary>Signed-in change: the current password stands in for the email code of a reset.</summary>

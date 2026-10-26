@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Loading placeholder for activity_journey's journeyContent, in the same order and sizes:
+  destination card (48dp icon, eyebrow, name, lock line), progress card (label, step count, bar,
+  two figures, sync line), "Vị trí trên hành trình" with the 140dp map, legend and note box.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:accessibilityLiveRegion="polite"
+    android:contentDescription="Đang tải điểm đến và tiến độ đã lưu"
+    android:orientation="vertical"
+    android:visibility="gone">
+
+    <LinearLayout style="@style/Skeleton.Card" android:layout_marginTop="20dp"
+        android:gravity="center_vertical" android:orientation="horizontal" android:padding="12dp">
+        <View style="@style/Skeleton.Block" android:layout_width="48dp" android:layout_height="48dp" />
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+            <View style="@style/Skeleton.Line" android:layout_width="60dp" android:layout_height="10dp" />
+            <View style="@style/Skeleton.Line" android:layout_width="170dp" android:layout_height="17dp"
+                android:layout_marginTop="8dp" />
+            <View style="@style/Skeleton.Line" android:layout_width="104dp" android:layout_height="12dp"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout style="@style/Skeleton.Card" android:layout_marginTop="16dp"
+        android:background="@drawable/journey_progress_card_bg"
+        android:orientation="vertical" android:padding="20dp">
+        <View style="@style/Skeleton.Line" android:background="@drawable/skeleton_line_on_dark" android:layout_width="140dp" android:layout_height="11dp" />
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" android:gravity="bottom" android:orientation="horizontal">
+            <View style="@style/Skeleton.Line" android:background="@drawable/skeleton_line_on_dark" android:layout_width="96dp" android:layout_height="34dp" />
+            <View style="@style/Skeleton.Line" android:background="@drawable/skeleton_line_on_dark" android:layout_width="90dp" android:layout_height="14dp"
+                android:layout_marginStart="16dp" />
+        </LinearLayout>
+        <View style="@style/Skeleton.Line" android:background="@drawable/skeleton_line_on_dark" android:layout_width="match_parent" android:layout_height="8dp"
+            android:layout_marginTop="15dp" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="17dp" android:orientation="horizontal">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical">
+                <View style="@style/Skeleton.Line" android:background="@drawable/skeleton_line_on_dark" android:layout_width="56dp" android:layout_height="24dp" />
+                <View style="@style/Skeleton.Line" android:background="@drawable/skeleton_line_on_dark" android:layout_width="90dp" android:layout_height="11dp"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_marginStart="19dp" android:layout_weight="1" android:orientation="vertical">
+                <View style="@style/Skeleton.Line" android:background="@drawable/skeleton_line_on_dark" android:layout_width="72dp" android:layout_height="24dp" />
+                <View style="@style/Skeleton.Line" android:background="@drawable/skeleton_line_on_dark" android:layout_width="84dp" android:layout_height="11dp"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+        </LinearLayout>
+        <View style="@style/Skeleton.Line" android:background="@drawable/skeleton_line_on_dark" android:layout_width="200dp" android:layout_height="12dp"
+            android:layout_marginTop="18dp" />
+    </LinearLayout>
+
+    <View style="@style/Skeleton.Line" android:layout_width="170dp" android:layout_height="16dp"
+        android:layout_marginTop="24dp" />
+    <View style="@style/Skeleton.Block" android:layout_height="140dp" android:layout_marginTop="12dp" />
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="16dp" android:orientation="horizontal">
+        <View style="@style/Skeleton.Line" android:layout_width="0dp" android:layout_height="12dp"
+            android:layout_marginEnd="18dp" android:layout_weight="1" />
+        <View style="@style/Skeleton.Line" android:layout_width="0dp" android:layout_height="12dp"
+            android:layout_marginEnd="18dp" android:layout_weight="1" />
+        <View style="@style/Skeleton.Line" android:layout_width="0dp" android:layout_height="12dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/Skeleton.Card" android:layout_marginTop="18dp"
+        android:orientation="vertical" android:padding="16dp">
+        <View style="@style/Skeleton.Line" android:layout_width="210dp" android:layout_height="12dp" />
+        <View style="@style/Skeleton.Line" android:layout_width="230dp" android:layout_height="12dp"
+            android:layout_marginTop="14dp" />
+    </LinearLayout>
+</LinearLayout>

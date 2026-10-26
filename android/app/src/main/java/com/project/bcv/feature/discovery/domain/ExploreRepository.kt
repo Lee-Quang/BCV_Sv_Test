@@ -13,7 +13,9 @@ data class ExploreJourney(
     val status: String,
     val startedAtEpochSeconds: Long,
     /** Where the journey began; the virtual location moves to the destination once it is completed. */
-    val start: Coordinates? = null
+    val start: Coordinates? = null,
+    /** The destination PLACE, opened from the journey screen once it is unlocked. */
+    val destinationPlaceId: Long? = null
 ) {
     val progressPercent: Int
         get() = if (requiredSteps <= 0) 0 else (recordedSteps.toLong() * 100 / requiredSteps).toInt().coerceIn(0, 100)
@@ -30,9 +32,18 @@ data class ExplorePlaceDetail(val id: Long, val name: String, val placeType: Str
 data class ExploreSnapshot(val location: ExploreLocation?, val journey: ExploreJourney?,
     val places: List<ExploreMapPlace>)
 
+/** One of the (at most three) destinations ranked by the server's P/C/A/R/N score. */
+data class RecommendedPlace(val rank: Int, val id: Long, val name: String, val regionName: String,
+    val imageUrl: String?, val isDiscovered: Boolean, val distanceKm: Double, val requiredSteps: Int,
+    val matchedPreferences: List<String>)
+
+/** [location] is the virtual location, looked up to the same street address the Explore map shows. */
+data class Recommendations(val regionName: String, val location: Coordinates, val places: List<RecommendedPlace>)
+
 interface ExploreRepository {
     fun load(): ExploreSnapshot
     fun loadPlace(placeId: Long): ExplorePlaceDetail
+    fun loadRecommendations(): Recommendations
     fun createJourney(placeId: Long, replaceActive: Boolean): ExploreSnapshot
     fun syncSteps(journeyId: Long, cumulativeSteps: Long): ExploreSnapshot
 }

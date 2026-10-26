@@ -88,65 +88,8 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Loading: what is coming (destination, progress, map) as pulsing placeholders. -->
-                <LinearLayout
-                    android:id="@+id/journeyLoading"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="36dp"
-                        android:accessibilityLiveRegion="polite"
-                        android:lineSpacingExtra="2dp"
-                        android:text="Đang tiếp nối\nhành trình của bạn…"
-                        android:textColor="@color/forest"
-                        android:textSize="26sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="18dp"
-                        android:text="Đang tải lại điểm đến và tiến độ đã lưu."
-                        android:textColor="#6F8579"
-                        android:textSize="14sp" />
-
-                    <LinearLayout
-                        android:id="@+id/journeySkeleton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:importantForAccessibility="noHideDescendants"
-                        android:orientation="vertical">
-
-                        <LinearLayout
-                            style="@style/JourneySkeletonCard"
-                            android:layout_height="64dp"
-                            android:layout_marginTop="30dp">
-                            <View style="@style/JourneySkeletonTitle" />
-                            <View style="@style/JourneySkeletonLine" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            style="@style/JourneySkeletonCard"
-                            android:layout_height="186dp"
-                            android:layout_marginTop="16dp">
-                            <View style="@style/JourneySkeletonTitle" />
-                            <View style="@style/JourneySkeletonLine" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            style="@style/JourneySkeletonCard"
-                            android:layout_height="112dp"
-                            android:layout_marginTop="20dp">
-                            <View style="@style/JourneySkeletonTitle" />
-                            <View style="@style/JourneySkeletonLine" />
-                        </LinearLayout>
-                    </LinearLayout>
-                </LinearLayout>
+                <!-- Loading: the destination, progress and map cards below as pulsing placeholders. -->
+                <include android:id="@+id/journeyLoading" layout="@layout/skeleton_journey_detail" />
 
                 <LinearLayout
                     android:id="@+id/journeyContent"
@@ -157,6 +100,7 @@
 
                     <!-- Destination -->
                     <LinearLayout
+                        android:id="@+id/destinationCard"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="20dp"
@@ -224,6 +168,17 @@
                                     android:textSize="13sp" />
                             </LinearLayout>
                         </LinearLayout>
+
+                        <!-- Shown once the place is unlocked: the card then opens its content. -->
+                        <ImageView
+                            android:id="@+id/destinationChevron"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginStart="8dp"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/ic_chevron_right"
+                            android:visibility="gone"
+                            app:tint="@color/teal" />
                     </LinearLayout>
 
                     <!-- Progress -->

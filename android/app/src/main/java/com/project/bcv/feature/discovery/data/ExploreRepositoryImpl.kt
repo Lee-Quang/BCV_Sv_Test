@@ -9,6 +9,8 @@ import com.project.bcv.feature.discovery.domain.ExploreMapPlace
 import com.project.bcv.feature.discovery.domain.ExplorePlaceDetail
 import com.project.bcv.feature.discovery.domain.ExploreRepository
 import com.project.bcv.feature.discovery.domain.ExploreSnapshot
+import com.project.bcv.feature.discovery.domain.RecommendedPlace
+import com.project.bcv.feature.discovery.domain.Recommendations
 import com.project.bcv.feature.location.startingpoint.domain.Coordinates
 import org.json.JSONObject
 
@@ -31,6 +33,23 @@ class ExploreRepositoryImpl(
                 }.orEmpty())
         }
 
+    override fun loadRecommendations(): Recommendations =
+        remote.get("api/explore/recommendations", token()).let { result ->
+            val places = result.getJSONArray("places")
+            Recommendations(result.getString("regionName"),
+                Coordinates(result.getDouble("latitude"), result.getDouble("longitude")),
+                (0 until places.length()).map { index ->
+                places.getJSONObject(index).let {
+                    RecommendedPlace(it.getInt("rank"), it.getLong("placeId"), it.getString("name"),
+                        it.getString("regionName"), it.optString("imageUrl").takeIf(String::isNotBlank),
+                        it.getBoolean("isDiscovered"), it.getDouble("distanceKm"), it.getInt("requiredSteps"),
+                        it.optJSONArray("matchedPreferences")?.let { array ->
+                            (0 until array.length()).map(array::getString)
+                        }.orEmpty())
+                }
+            })
+        }
+
     override fun createJourney(placeId: Long, replaceActive: Boolean): ExploreSnapshot =
         remote.post("api/explore/journeys", JSONObject().put("placeId", placeId)
             .put("replaceActive", replaceActive), token()).toSnapshot()
@@ -51,7 +70,8 @@ class ExploreRepositoryImpl(
                 it.getInt("requiredSteps"), it.getInt("recordedSteps"),
                 it.getString("status"), it.getLong("startedAtEpochSeconds"),
                 if (it.has("startLatitude") && !it.isNull("startLatitude"))
-                    Coordinates(it.getDouble("startLatitude"), it.getDouble("startLongitude")) else null)
+                    Coordinates(it.getDouble("startLatitude"), it.getDouble("startLongitude")) else null,
+                it.optLong("destinationPlaceId").takeIf { id -> id > 0 })
         }
         val places = optJSONArray("places")?.let { array ->
             (0 until array.length()).map { index ->

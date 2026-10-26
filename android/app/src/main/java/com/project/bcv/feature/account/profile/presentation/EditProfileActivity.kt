@@ -18,11 +18,11 @@ import com.project.bcv.core.di.ProfileModule
 import com.project.bcv.core.presentation.Remote
 import com.project.bcv.core.presentation.viewModelFactory
 import com.project.bcv.core.ui.ScreenMotion
+import com.project.bcv.core.ui.Skeleton
 import com.project.bcv.core.ui.openSignIn
 import com.project.bcv.core.ui.setUpDetailScreen
 import com.project.bcv.core.ui.showContent
 import com.project.bcv.core.ui.showError
-import com.project.bcv.core.ui.showLoading
 import com.project.bcv.databinding.ActivityEditProfileBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -86,8 +86,9 @@ class EditProfileActivity : AppCompatActivity() {
         }
         binding.saveButton.setOnClickListener { save() }
         model.state.observe(this) { state ->
+            if (state != Remote.Loading) Skeleton.hide(binding.skeleton.root)
             when (state) {
-                Remote.Loading -> if (!shown) binding.state.showLoading(binding.content, "Đang tải hồ sơ…")
+                Remote.Loading -> if (!shown) Skeleton.show(binding.skeleton.root, binding.content, binding.state.root)
                 is Remote.Failed -> if (!shown) binding.state.showError(binding.content, state.message)
                 Remote.SessionExpired -> openSignIn()
                 is Remote.Ready -> if (!shown) {

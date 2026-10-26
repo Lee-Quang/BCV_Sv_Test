@@ -1,87 +1,30 @@
-# PostgreSQL BCV
+# Database Bước Chân Việt (*db*)
 
-Tài liệu nguồn: [Đồ án Bước Chân Việt](https://docs.google.com/document/d/1GAQdAqCcwr_IivfHzInilF0LhbWyniN6AONmzqEHWjo/edit?tab=t.0), mục 3.1.2 và 3.1.5.
+Schema 25 bảng, dữ liệu 311 địa danh và các migration cho database `bcv` (PostgreSQL 18 + PostGIS 3.6).
 
-## Instance trên máy này
+Thiết kế theo mục 3.1.2 và 3.1.5 của [tài liệu đồ án](https://docs.google.com/document/d/1GAQdAqCcwr_IivfHzInilF0LhbWyniN6AONmzqEHWjo/edit?tab=t.0). Mỗi file SQL chạy trong một giao dịch, kiểm tra trạng thái trước và sau, và (trừ `001`) chạy lại được an toàn.
 
-- PostgreSQL 18, cluster dữ liệu: `D:\PostgreSQL\BCV\data`
-- Tên server đã đăng ký trong pgAdmin 4 (nhóm `Servers`): **BCV**. DBeaver cũng có kết nối cùng tên.
-- Host: `127.0.0.1`, port: `5433`, database: `bcv`, user: `postgres`
-- PostGIS 3.6 được bật trong database `bcv`.
-- Scheduled Task `BCV PostgreSQL` khởi động cluster khi người dùng Windows đăng nhập. Dữ liệu và log nằm ngoài thư mục dự án. Instance chỉ lắng nghe trên `localhost`.
-- Mật khẩu không được lưu trong repository hoặc cấu hình DBeaver; nhập mật khẩu khi DBeaver hỏi.
+## Mục lục
 
-PostgreSQL hiện có trên cổng 5432 là một cluster khác. Cluster BCV dùng cổng 5433 để tránh xung đột.
+- [Cài đặt](#cài-đặt)
+- [Sử dụng](#sử-dụng)
+- [Các file](#các-file)
+- [Loại địa danh](#loại-địa-danh)
+- [Trạng thái nội dung](#trạng-thái-nội-dung)
+- [Dữ liệu mẫu](#dữ-liệu-mẫu)
+- [Máy phát triển hiện tại](#máy-phát-triển-hiện-tại)
+- [Ghi công](#ghi-công)
+- [Đóng góp](#đóng-góp)
+- [Giấy phép](#giấy-phép)
 
-## Schema
+## Cài đặt
 
-`001_schema.sql` tạo 25 bảng theo bản đặc tả chi tiết, gồm khóa chính, 32 khóa ngoại, ràng buộc duy nhất, kiểm tra dữ liệu, các chỉ mục tra cứu và 2 chỉ mục không gian PostGIS. Tên `USER` trong tài liệu được triển khai thành `app_user` để tránh trùng từ khóa SQL. Tên cột dùng `snake_case` để thuận tiện cho truy vấn PostgreSQL.
+### Tạo database mới
 
-Tài liệu có chỗ ghi 28 bảng ở mục 4.1.3, nhưng mục 3.1.2 và 3.1.5 liệt kê đúng 25 quan hệ. Schema này bám theo danh sách và đặc tả 25 quan hệ đó. Script schema chỉ tạo cấu trúc, chưa tạo tài khoản ứng dụng.
-
-`002_seed_reference.sql` là dữ liệu danh mục đã được nhập vào database `bcv`: 10 loại địa danh trong `place_type` và 40 tiêu chí trong `recommendation_criterion` (35 nhãn đặc trưng cùng 5 tiêu chí chấm điểm). Có thể chạy lại script này; các dòng đã tồn tại được bỏ qua bằng `ON CONFLICT DO NOTHING`.
-
-`003_import_places.sql` là query đã chuyển bộ dữ liệu địa danh người dùng cung cấp sang đúng schema 25 bảng hiện có. Query nhập 63 vùng, 311 địa danh, 1 cấu hình gợi ý, 311 cụm/địa danh, 10.885 giá trị đặc trưng và 5 trọng số. 345 lượt gán loại địa danh được bảo toàn qua loại chính trong `place` và các nhãn `kind__*` trong `place_feature_value`. Query yêu cầu các bảng đích đang trống, kiểm tra số dòng trước khi `COMMIT`, và không tạo bảng hoặc cột mới. Đã chạy thành công vào database `bcv` ngày 24/10/2026 và kiểm tra lại số dòng trực tiếp từ PostgreSQL.
-
-Các URL nguồn, mã băm, bí danh nguồn và metadata mô hình không có cột tương ứng trong schema 25 bảng, nên chưa được ghi vào database; chúng vẫn còn trong file dữ liệu gốc. Giá trị `rating_count` bị thiếu được chuyển thành `0`, còn `rating` giữ `NULL`.
-
-`004_seed_demo_remaining.sql` đã được nhập vào `bcv` ngày 24/10/2026 để bổ sung dữ liệu mẫu cho 17 bảng còn lại. Script có 3 người dùng giả (`example.invalid`), sở thích, bước chân, vị trí, hành trình, thẻ, bộ sưu tập, vật phẩm, nhiệm vụ, tiến độ và thông báo; các khóa ngoại và số dòng được kiểm tra trong cùng giao dịch. ID mẫu bắt đầu từ `900001` để dễ nhận biết. Mật khẩu là hash bcrypt của chuỗi ngẫu nhiên đã bỏ, nên các tài khoản này không dùng để đăng nhập. Bản script hiện dùng URL ảnh demo cho `place_image.image_key` và `card.image_key`. Sau khi nhập, cả 25/25 bảng ứng dụng đều có dữ liệu.
-
-`005_correct_demo_items.sql` đã được áp dụng vào `bcv` để sửa dữ liệu mẫu `item` theo đồ án: chỉ còn **Giày tăng tốc** (`SPEED_SHOES`) và **Vé máy bay** (`FLIGHT_TICKET`). Giày tăng tốc có hệ số mẫu `2.00`, hiệu lực `5.000` bước và giới hạn một lần dùng; vé máy bay không có hệ số hay phạm vi bước. Script chuyển liên kết `user_item` và `quest` từ vật phẩm mẫu thứ ba sang vé máy bay trước khi xóa vật phẩm thừa. Bản `004_seed_demo_remaining.sql` cũng đã được cập nhật để database mới tạo nhận đúng hai vật phẩm ngay từ đầu. Cả hai vật phẩm mẫu vẫn ở trạng thái `DRAFT`.
-
-`006_set_demo_image_urls.sql` đã thay ba khóa ảnh placeholder trong database đang chạy bằng URL JPEG trực tiếp từ Wikimedia Commons và điền cùng URL vào thẻ tương ứng. Bản `004_seed_demo_remaining.sql` cũng đã được cập nhật cho lần dựng database mới. Đây là URL ngoài để thử hiển thị ảnh, không phải khóa đối tượng Cloudflare R2. Khi hiển thị hoặc phân phối ảnh, giữ thông tin tác giả và giấy phép:
-
-| Địa danh | Ảnh nguồn | Tác giả và giấy phép |
-| --- | --- | --- |
-| Tháp Bà Ponagar | [Po Nagar Cham Towers](https://commons.wikimedia.org/wiki/File:Po_Nagar_Cham_Towers.jpeg) | 4pf3154f7, CC BY-SA 3.0 |
-| VinWonders Nha Trang | [Vinpearl Land Nha Trang Ferris wheel](https://commons.wikimedia.org/wiki/File:Vinpearl_Land_Nha_Trang_Ferris_wheel.jpg) | 유자차, CC BY-SA 4.0 |
-| Nhà Thờ Gỗ Kon Tum | [Kontum wooden catholic church](https://commons.wikimedia.org/wiki/File:Kontum_wooden_catholic_church.jpg) | Rdavout, CC BY-SA 3.0 |
-
-`007_more_demo_images_and_quests.sql` đã được áp dụng vào `bcv` ngày 24/10/2026: thêm 12 ảnh JPEG cỡ 960 px cho 12 địa danh khác nhau (tổng 15 ảnh/15 địa danh) và 8 nhiệm vụ ngày/tuần (tổng 11 nhiệm vụ). Nhiệm vụ mẫu hoàn thành hành trình được đổi từ chu kỳ một lần sang hàng tuần; bản ghi tiến độ cũ được chuyển sang khóa tuần `2026-W43`. Các nhiệm vụ dùng ba điều kiện `STEP_COUNT`, `DISCOVER_PLACE`, `COMPLETE_JOURNEY`, chỉ thưởng hai vật phẩm hiện có và vẫn ở trạng thái `DRAFT`. Script kiểm tra trạng thái trước/sau trong cùng giao dịch. Bản `004_seed_demo_remaining.sql` hiện đã chứa toàn bộ dữ liệu cuối cùng để dựng database mới từ đầu; các script `005`–`007` là migration dành cho database mẫu được tạo trước khi sửa dữ liệu.
-
-Nguồn ảnh thêm trong `007` (URL ảnh trực tiếp nằm trong SQL):
-
-| Địa danh | Trang ảnh nguồn | Tác giả và giấy phép |
-| --- | --- | --- |
-| Phố cổ Hội An | [Hoi An Ancient Town](https://commons.wikimedia.org/wiki/File:Hoi_An_Ancient_Town.jpg) | Andre Hospers, CC BY 4.0 |
-| Vịnh Hạ Long | [Halong Bay in Vietnam](https://commons.wikimedia.org/wiki/File:Halong_Bay_in_Vietnam.jpg) | Thomas Hirsch / User:Ravn, CC BY-SA 3.0 |
-| Thác Bản Giốc | [Ban Gioc](https://commons.wikimedia.org/wiki/File:Ban_Gioc.jpg) | Caobangpro, CC BY 3.0 |
-| Hồ Gươm | [Ho Hoan Kiem](https://commons.wikimedia.org/wiki/File:Ho_Hoan_Kiem.jpg) | Trung geo, phạm vi công cộng |
-| Đỉnh Núi Fansipan | [Fansipan summit new](https://commons.wikimedia.org/wiki/File:Fansipan_summit_new.jpg) | Thái Nhi, phạm vi công cộng |
-| Nhà thờ Đức Bà Sài Gòn | [Saigon Notre-Dame Basilica](https://commons.wikimedia.org/wiki/File:Saigon_Notre-Dame_Basilica.jpg) | Ngô Trung, CC BY-SA 3.0 |
-| Tràng An | [Trang An Landscape Complex](https://commons.wikimedia.org/wiki/File:Trang_An_Landscape_Complex,_Ninh_Binh_Province,_Vietnam,_20240202_1524_5364.jpg) | Jakub Hałun, CC BY 4.0 |
-| Đảo Phú Quốc | [Phu Quoc Beach](https://commons.wikimedia.org/wiki/File:Phu_Quoc_Beach.jpg) | FrogsLegs71, CC BY-SA 3.0 |
-| Hồ Xuân Hương | [Xuan Huong Lake in Da Lat](https://commons.wikimedia.org/wiki/File:Xuan_Huong_Lake_in_Da_Lat_(28219543381).jpg) | Le Anh Tuan, phạm vi công cộng |
-| Bà Nà Hills | [The Golden Bridge](https://commons.wikimedia.org/wiki/File:The_Golden_Bridge,_Ba_Na_Hills,_Vietnam.jpg) | Ray in Manila, CC BY 2.0 |
-| Động Phong Nha | [Phong Nha cave entrance](https://commons.wikimedia.org/wiki/File:Phong_Nha_cave_entrance.jpg) | Tycho, CC BY-SA 3.0 |
-| Đại Nội Huế | [Imperial City, Hue](https://commons.wikimedia.org/wiki/File:Imperial_City,_Hue,_Vietnam_(49575145062).jpg) | flowcomm, CC BY 2.0 |
-
-`008_add_demo_cards.sql` đã được áp dụng vào `bcv` để tạo thêm 12 card cho 12 địa danh vừa có ảnh (tổng 15 card). Mỗi card dùng đúng URL trong `place_image`, tên và phần giới thiệu từ `place`; mỗi card được gắn vào một trong hai bộ sưu tập hiện có. Script kiểm tra không có địa danh bị trùng card hoặc card thiếu bộ sưu tập. Bản `004_seed_demo_remaining.sql` cũng đã được cập nhật để lần dựng database mới có đủ 15 card. Không có bảng mới và không tự cấp card cho người dùng mẫu.
-
-`009_describe_regions.sql` đã được áp dụng vào `bcv` để điền mô tả riêng cho toàn bộ 63 dòng `region` dựa trên các địa danh của bộ dữ liệu đã nhập. Sau khi chạy, 63/63 mô tả đều có nội dung và không trùng nhau; schema vẫn có 25 bảng ứng dụng. Với database mới tạo từ `001`–`004`, chạy thêm script `009` sau khi nhập `003_import_places.sql` để có các mô tả này. Script kiểm tra các mô tả cũ đang trống trước khi cập nhật, nhằm tránh ghi đè nội dung người dùng đã sửa.
-
-`010_place_fun_facts.sql` đã được áp dụng vào `bcv` để điền `place.highlights` cho toàn bộ 311 địa danh. Có 37 fun fact viết riêng cho các địa danh tiêu biểu hoặc dễ nhầm tên; các dòng còn lại lấy một ý ngắn từ `place.introduction` đã nhập, giúp nội dung bám dữ liệu gốc. `011_refine_place_fun_facts.sql` đã sửa 7 highlight được tạo trước khi bổ sung các fun fact viết riêng, loại bỏ ghi chú về bộ dữ liệu và làm rõ các địa danh trùng tên. Với database mới, chạy `010` sau `003`; bản `010` hiện đã chứa 7 nội dung sửa nên không cần chạy `011`. Sau cập nhật, 311/311 highlight có nội dung riêng, không trùng nhau, và không có bảng mới.
-
-`012_northern_place_images.sql` đã được áp dụng vào `bcv` ngày 25/10/2026: thêm 46 URL ảnh Wikimedia Commons đã kiểm tra truy cập, gắn với 29 địa danh miền Bắc. Script đối chiếu cả ID và tên địa danh, chỉ thêm URL chưa tồn tại nên có thể chạy lại. Tổng số ảnh trong `place_image` tăng từ 15 lên 61; 31/125 địa danh thuộc 25 tỉnh miền Bắc hiện có ảnh. Các địa danh chưa tìm được ảnh đúng nguồn vẫn để trống, tránh gán ảnh sai. Danh sách từng tệp nguồn nằm trong [012_northern_place_images_sources.md](012_northern_place_images_sources.md); ứng dụng cần hiển thị ghi công tác giả và giấy phép theo trang tệp khi sử dụng ảnh.
-
-`013_northern_cards_collections.sql` đã được áp dụng vào `bcv` ngày 25/10/2026: tạo thêm 120 thẻ để đủ 125/125 địa danh miền Bắc có thẻ, giữ nguyên 5 thẻ đã tồn tại, và gắn mỗi thẻ vào đúng một trong 5 bộ sưu tập khu vực (Hà Nội và Kinh Bắc 20, đồng bằng Bắc Bộ 30, biển đảo Bắc Bộ 10, Đông Bắc 30, Tây Bắc 35). Có 31 thẻ miền Bắc dùng ảnh đã nhập; 94 thẻ còn lại giữ `image_key` trống cho tới khi có ảnh đúng địa danh. Script có kiểm tra số lượng và chạy lại không tạo bản ghi trùng. Tổng database hiện có 135 thẻ và 7 bộ sưu tập, kể cả dữ liệu mẫu trước đó.
-
-## Lệnh quản trị theo từng máy
-
-Chạy từ thư mục gốc `BCV-main` bằng PowerShell 7. Tạo `backend/local.settings.json` từ file mẫu nếu chưa có; điền `DbHost`, `DbPort`, `DbName`, `DbUser` và `PsqlPath` của máy hiện tại. Nếu `psql` đã có trong PATH thì để `PsqlPath` trống. Ví dụ đường dẫn trên Windows là `C:/Program Files/PostgreSQL/18/bin/psql.exe`; chọn đúng thư mục cài thực tế của bạn.
-
-```powershell
-. .\backend\local-config.ps1
-$config = Get-BcvLocalConfig
-$psql = Resolve-BcvPsql $config
-
-# -W hỏi mật khẩu PostgreSQL; không lưu mật khẩu trong file SQL.
-& $psql -X -W -h $config.DbHost -p $config.DbPort -U $config.DbUser -d $config.DbName
-```
-
-Với máy mới chưa có database, tạo database có tên khớp `DbName` bằng pgAdmin hoặc `createdb` đi kèm PostgreSQL. Cần cài PostGIS cho đúng phiên bản PostgreSQL trước khi chạy schema. Nếu khôi phục từ backup đầy đủ thì không chạy các lệnh tạo schema bên dưới.
-
-Với database **mới và trống**, nạp schema và dữ liệu theo thứ tự sau từ thư mục gốc:
+1. Cài PostgreSQL 18 và PostGIS 3.6.
+2. Tạo database trống tên `bcv` (bằng pgAdmin hoặc `createdb`).
+3. Tạo `backend/local.settings.json` với host, cổng, tên database, user của máy ([backend/README.md](../backend/README.md#cấu-hình)).
+4. Từ thư mục gốc kho mã, nạp các file theo thứ tự:
 
 ```powershell
 . .\backend\local-config.ps1
@@ -98,7 +41,9 @@ try {
         '009_describe_regions.sql',
         '010_place_fun_facts.sql',
         '012_northern_place_images.sql',
-        '013_northern_cards_collections.sql'
+        '013_northern_cards_collections.sql',
+        '014_standard_place_types.sql',
+        '015_tune_recommendation_weights.sql'
     )) {
         & $psql -X -w -v ON_ERROR_STOP=1 -h $config.DbHost -p $config.DbPort -U $config.DbUser -d $config.DbName -f (Join-Path db $file)
         if ($LASTEXITCODE -ne 0) { throw "Import failed: $file" }
@@ -108,6 +53,138 @@ try {
 }
 ```
 
-Bản `004` đã gồm nội dung cuối cùng của migration `005`–`008`; bản `010` đã gồm sửa nội dung của `011`, nên database mới không cần chạy lại các migration đó. Các migration cũ vẫn được giữ cho database được tạo trước khi sửa dữ liệu. Không chạy lại `001` trên database đã có bảng. Nếu nạp bị dừng giữa chừng, kiểm tra script đã hoàn tất trước khi tiếp tục; không chạy lại toàn bộ lên dữ liệu đang có.
+5. Kích hoạt nội dung mẫu ([Trạng thái nội dung](#trạng-thái-nội-dung)).
+6. Tạo tài khoản quản trị: `.\backend\create-admin.ps1` ([web/README.md](../web/README.md#tài-khoản-quản-trị)).
 
-Sau khi nạp, tạo tài khoản quản trị bằng `backend/create-admin.ps1`; tài khoản và mật khẩu admin không tự xuất hiện chỉ từ việc sao chép mã nguồn. Xem [hướng dẫn chạy và cấu hình máy](../web/README.md).
+Lưu ý:
+
+- Không chạy lại `001` trên database đã có bảng.
+- Nếu đang nạp mà bị lỗi, kiểm tra file nào đã xong rồi tiếp tục từ file kế tiếp.
+- Nếu khôi phục từ bản backup đầy đủ thì bỏ qua các bước nạp.
+
+## Sử dụng
+
+Mở psql với cấu hình của máy:
+
+```powershell
+. .\backend\local-config.ps1
+$config = Get-BcvLocalConfig
+& (Resolve-BcvPsql $config) -X -W -h $config.DbHost -p $config.DbPort -U $config.DbUser -d $config.DbName
+```
+
+Thay đổi dữ liệu nghiệp vụ hằng ngày nên làm qua web quản trị. Thay đổi cấu trúc hoặc dữ liệu hàng loạt viết thành file SQL mới, đánh số tiếp theo.
+
+## Các file
+
+| File | Nội dung |
+| --- | --- |
+| `001_schema.sql` | 25 bảng, khóa, ràng buộc, chỉ mục (gồm 2 chỉ mục không gian PostGIS) |
+| `002_seed_reference.sql` | 10 loại địa danh gốc (được `014` thay thế), 40 tiêu chí gợi ý |
+| `003_import_places.sql` | 63 khu vực, 311 địa danh, đặc trưng và nhãn cụm của mô hình, cấu hình gợi ý |
+| `004_seed_demo_remaining.sql` | Dữ liệu mẫu cho 17 bảng còn lại (người dùng giả, hành trình, 15 thẻ đầu, nhiệm vụ, vật phẩm…) |
+| `009_describe_regions.sql` | Mô tả cho 63 khu vực |
+| `010_place_fun_facts.sql` | Fun fact cho 311 địa danh |
+| `012_northern_place_images.sql` | 46 ảnh cho 29 địa danh miền Bắc |
+| `013_northern_cards_collections.sql` | 120 thẻ miền Bắc, gán vào 5 bộ sưu tập |
+| `014_standard_place_types.sql` | Thay 10 loại gốc bằng 12 loại chuẩn (ID 101–112), gán lại loại cho 311 địa danh, chuyển sở thích đã lưu |
+| `015_tune_recommendation_weights.sql` | Trọng số gợi ý sau khi chỉnh (P 0,35 · C 0,15 · A 0,3 · R 0,1 · N 0,1) và kích hoạt cấu hình gợi ý |
+| `012_northern_place_images_sources.md` | Nguồn của từng ảnh trong `012` |
+
+Số thứ tự bị nhảy (`005`–`008`, `011`) vì các migration sửa dữ liệu cũ đã được gộp vào `004` và `010` rồi xóa.
+
+Ghi chú về schema:
+
+- Bảng `USER` trong tài liệu được đặt tên `app_user` để tránh trùng từ khóa SQL; tên cột dùng `snake_case`.
+- Mục 4.1.3 của tài liệu ghi 28 bảng, nhưng mục 3.1.2 và 3.1.5 liệt kê 25 quan hệ; schema theo 25 quan hệ này.
+
+## Loại địa danh
+
+12 loại chuẩn do `014` tạo. Mỗi loại ứng với một nhóm đặc trưng của mô hình gợi ý; địa danh **khớp** một loại khi có **ít nhất một** đặc trưng trong nhóm, nên có thể khớp nhiều loại. Cột `place.place_type_id` chỉ lưu loại chính.
+
+| ID | Loại | Đặc trưng | Số địa danh (loại chính) |
+| --- | --- | --- | --- |
+| 101 | Di tích và bảo tàng | `kind__heritage`, `kind__museum` | 42 |
+| 102 | Đền, chùa và nhà thờ | `kind__religious` | 51 |
+| 103 | Công trình kiến trúc | `kind__structure` | 15 |
+| 104 | Phố cổ và làng nghề | `kind__community`, `kind__craft` | 17 |
+| 105 | Chợ và ẩm thực | `kind__market`, `theme__cuisine` | 13 |
+| 106 | Vui chơi và nghỉ dưỡng | `kind__recreation` | 16 |
+| 107 | Đồng quê và nông nghiệp | `kind__agriculture` | 12 |
+| 108 | Biển và đảo | `landform__coast`, `landform__island`, `landform__lagoon`, `landform__dunes` | 44 |
+| 109 | Sông, hồ và thác | `landform__river`, `landform__lake`, `landform__waterfall`, `landform__stream` | 46 |
+| 110 | Núi và đèo | `landform__mountain`, `landform__valley` | 18 |
+| 111 | Hang động | `landform__cave` | 22 |
+| 112 | Rừng và khu bảo tồn | `ecosystem__forest`, `ecosystem__flooded_habitat`, `ecosystem__grassland` | 15 |
+
+Cùng bảng ánh xạ nằm trong backend (`RecommendationScoring.PlaceTypeFeatures`), tra theo **ID**, nên đổi tên loại trên web quản trị không ảnh hưởng gợi ý. Khi thêm loại mới ứng với đặc trưng có sẵn, chỉ cần thêm một dòng ánh xạ, không phải train lại mô hình; loại chưa có trong bảng vẫn hiện ở màn chọn sở thích nhưng không được tính điểm P.
+
+`014` tách 145 địa danh "Thiên nhiên" cũ theo địa hình (hang động → biển → sông/hồ/thác → núi → rừng). Sở thích "Thiên nhiên" đã lưu bị bỏ vì nay ứng với 5 loại trong khi mỗi người chọn tối đa 3; người dùng không còn sở thích nào sẽ được app hỏi chọn lại.
+
+## Trạng thái nội dung
+
+Các bảng `place`, `card`, `collection`, `quest`, `item`, `region`, `recommendation_config` có cột `status`: `DRAFT`, `ACTIVE` hoặc `INACTIVE`. **App chỉ dùng nội dung `ACTIVE`**; gợi ý điểm đến dùng cấu hình `ACTIVE` (bản nháp mới nhất nếu chưa có).
+
+Dữ liệu mẫu được nhập ở trạng thái `DRAFT` (riêng cấu hình gợi ý được `015` kích hoạt). Khi còn `DRAFT`, app không có điểm xuất phát đề xuất, báo mọi vị trí "chưa nằm trong vùng hỗ trợ", và bộ sưu tập, nhiệm vụ đều trống.
+
+Kích hoạt từng mục qua web quản trị (địa danh trước, rồi thẻ và bộ sưu tập), hoặc toàn bộ dữ liệu mẫu trong psql:
+
+```sql
+BEGIN;
+UPDATE place      SET status = 'ACTIVE' WHERE status = 'DRAFT';
+UPDATE card       SET status = 'ACTIVE' WHERE status = 'DRAFT';
+UPDATE collection SET status = 'ACTIVE' WHERE status = 'DRAFT';
+UPDATE quest      SET status = 'ACTIVE' WHERE status = 'DRAFT';
+UPDATE item       SET status = 'ACTIVE' WHERE status = 'DRAFT';
+COMMIT;
+```
+
+## Dữ liệu mẫu
+
+- **Người dùng mẫu** (ID từ `900001`, email `example.invalid`): mật khẩu là hash bcrypt của chuỗi ngẫu nhiên đã bỏ, nên **không đăng nhập được**; hãy đăng ký tài khoản mới qua app.
+- **Vật phẩm:** Giày tăng tốc (`SPEED_SHOES`, hệ số 2,00, hiệu lực 5.000 bước) và Vé máy bay (`FLIGHT_TICKET`).
+- **Nhiệm vụ:** 11 nhiệm vụ ngày/tuần với điều kiện `STEP_COUNT`, `DISCOVER_PLACE`, `COMPLETE_JOURNEY`.
+- **Thẻ và bộ sưu tập:** 135 thẻ, 7 bộ sưu tập; toàn bộ 125 địa danh miền Bắc có thẻ, 94 thẻ chưa có ảnh.
+- **Ảnh:** 61 ảnh địa danh là URL trực tiếp từ Wikimedia Commons.
+- **Hành trình mẫu** tính số bước theo κ = 0,1 như Backend.
+- Trường dữ liệu gốc không có cột tương ứng (URL nguồn, mã băm, metadata mô hình) không được nhập; `rating_count` bị thiếu đặt `0`, `rating` để `NULL`.
+
+## Máy phát triển hiện tại
+
+| Thông số | Giá trị |
+| --- | --- |
+| Host / cổng | `127.0.0.1:5433` |
+| Database / user | `bcv` / `postgres` |
+| Thư mục dữ liệu | `D:\PostgreSQL\BCV\data` |
+| Khởi động | Scheduled Task `BCV PostgreSQL`, tự chạy khi đăng nhập Windows |
+
+Cổng 5432 trên máy này là một cluster PostgreSQL **khác**, dự án không dùng; đặt `"DbPort": 5433` trong `backend/local.settings.json`. Máy khác dùng cổng và đường dẫn của riêng mình.
+
+## Ghi công
+
+Ảnh địa danh lấy từ Wikimedia Commons. Khi hiển thị hoặc phân phối, phải ghi tên tác giả và giấy phép theo từng tệp. Ảnh miền Bắc (`012`): xem [012_northern_place_images_sources.md](012_northern_place_images_sources.md). Ảnh trong `004`:
+
+| Địa danh | Ảnh nguồn | Tác giả, giấy phép |
+| --- | --- | --- |
+| Tháp Bà Ponagar | [Po Nagar Cham Towers](https://commons.wikimedia.org/wiki/File:Po_Nagar_Cham_Towers.jpeg) | 4pf3154f7, CC BY-SA 3.0 |
+| VinWonders Nha Trang | [Vinpearl Land Nha Trang Ferris wheel](https://commons.wikimedia.org/wiki/File:Vinpearl_Land_Nha_Trang_Ferris_wheel.jpg) | 유자차, CC BY-SA 4.0 |
+| Nhà Thờ Gỗ Kon Tum | [Kontum wooden catholic church](https://commons.wikimedia.org/wiki/File:Kontum_wooden_catholic_church.jpg) | Rdavout, CC BY-SA 3.0 |
+| Phố cổ Hội An | [Hoi An Ancient Town](https://commons.wikimedia.org/wiki/File:Hoi_An_Ancient_Town.jpg) | Andre Hospers, CC BY 4.0 |
+| Vịnh Hạ Long | [Halong Bay in Vietnam](https://commons.wikimedia.org/wiki/File:Halong_Bay_in_Vietnam.jpg) | Thomas Hirsch / User:Ravn, CC BY-SA 3.0 |
+| Thác Bản Giốc | [Ban Gioc](https://commons.wikimedia.org/wiki/File:Ban_Gioc.jpg) | Caobangpro, CC BY 3.0 |
+| Hồ Gươm | [Ho Hoan Kiem](https://commons.wikimedia.org/wiki/File:Ho_Hoan_Kiem.jpg) | Trung geo, phạm vi công cộng |
+| Đỉnh Núi Fansipan | [Fansipan summit new](https://commons.wikimedia.org/wiki/File:Fansipan_summit_new.jpg) | Thái Nhi, phạm vi công cộng |
+| Nhà thờ Đức Bà Sài Gòn | [Saigon Notre-Dame Basilica](https://commons.wikimedia.org/wiki/File:Saigon_Notre-Dame_Basilica.jpg) | Ngô Trung, CC BY-SA 3.0 |
+| Tràng An | [Trang An Landscape Complex](https://commons.wikimedia.org/wiki/File:Trang_An_Landscape_Complex,_Ninh_Binh_Province,_Vietnam,_20240202_1524_5364.jpg) | Jakub Hałun, CC BY 4.0 |
+| Đảo Phú Quốc | [Phu Quoc Beach](https://commons.wikimedia.org/wiki/File:Phu_Quoc_Beach.jpg) | FrogsLegs71, CC BY-SA 3.0 |
+| Hồ Xuân Hương | [Xuan Huong Lake in Da Lat](https://commons.wikimedia.org/wiki/File:Xuan_Huong_Lake_in_Da_Lat_(28219543381).jpg) | Le Anh Tuan, phạm vi công cộng |
+| Bà Nà Hills | [The Golden Bridge](https://commons.wikimedia.org/wiki/File:The_Golden_Bridge,_Ba_Na_Hills,_Vietnam.jpg) | Ray in Manila, CC BY 2.0 |
+| Động Phong Nha | [Phong Nha cave entrance](https://commons.wikimedia.org/wiki/File:Phong_Nha_cave_entrance.jpg) | Tycho, CC BY-SA 3.0 |
+| Đại Nội Huế | [Imperial City, Hue](https://commons.wikimedia.org/wiki/File:Imperial_City,_Hue,_Vietnam_(49575145062).jpg) | flowcomm, CC BY 2.0 |
+
+## Đóng góp
+
+Xem [Đóng góp](../README.md#đóng-góp) ở README gốc. Migration mới: đánh số tiếp theo, chạy trong một giao dịch, kiểm tra trạng thái trước và sau, chạy lại được an toàn, và thêm vào danh sách nạp ở mục [Cài đặt](#cài-đặt).
+
+## Giấy phép
+
+UNLICENSED © 2026 Nhóm ĐAHK1262703 cho schema và script. Ảnh địa danh giữ giấy phép riêng theo từng tệp (xem [Ghi công](#ghi-công)).
