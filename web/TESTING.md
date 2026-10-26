@@ -1,5 +1,7 @@
 # Kết quả kiểm tra web quản trị
 
+Chi tiết đối tượng: đã kiểm tra trên trình duyệt thao tác bấm dòng/nút xem chi tiết ở cả 8 nhóm người dùng, khu vực, địa danh, loại địa danh, thẻ, bộ sưu tập, nhiệm vụ và vật phẩm. Phần chi tiết chỉ đọc; có thể mở địa danh liên quan từ khu vực và chuyển sang biểu mẫu chỉnh sửa. Các thao tác xem không gửi yêu cầu lưu dữ liệu. React build thành công sau khi bổ sung chức năng.
+
 Cập nhật sắp xếp và cấu hình máy: đã kiểm tra ID khu vực tăng dần `1, 2, 3, 4, 5` trên API danh sách, dashboard và danh mục chọn. React build thành công, backend build 0 lỗi/0 cảnh báo. Script đọc được file cấu hình máy, biến môi trường ghi đè file, từ chối cổng ngoài phạm vi và bảo toàn mật khẩu có dấu chấm phẩy trong chuỗi kết nối. Vite đã chạy thử bằng `WEB_PORT=5174`, trả HTTP 200 và proxy `/health` thành công; server kiểm thử đã dừng.
 
 Đã build thành công React/Vite và backend .NET 10. Backend build cuối: 0 lỗi, 0 cảnh báo. Bộ kiểm tra tích hợp đã chạy thành công trên backend cổng 5081 sau khi kiểm tra trên server riêng.
@@ -32,3 +34,5 @@ Chạy lại kiểm tra API từ thư mục gốc:
 ```
 
 Xem [README](README.md) để chuẩn bị backend, tài khoản quản trị và biến môi trường database dùng dọn bản ghi thử.
+
+Kiểm tra bổ sung chức năng xóa (26/10/2026): build React và .NET thành công. Kiểm thử tích hợp trên cổng riêng 5089 đã xác nhận: xóa bộ sưu tập có thẻ, thẻ, nhiệm vụ, địa danh có ảnh và khu vực bằng bản ghi thử; GET/DELETE bản ghi đã xóa trả 404; chặn xóa quản trị viên và dữ liệu có liên kết; giao dịch xóa thất bại giữ nguyên ảnh. Dữ liệu thử đã được dọn. Hộp thoại trình duyệt chưa được kiểm thử trực tiếp trong lượt này.

@@ -70,6 +70,11 @@ public static class AdminEndpoints
             repo.Save(resource, null, body, (long)http.Items["AdminId"]!, ct));
         group.MapPut("/data/{resource}/{id:long}", (string resource, long id, System.Text.Json.JsonElement body, HttpContext http, AdminRepository repo, CancellationToken ct) =>
             repo.Save(resource, id, body, (long)http.Items["AdminId"]!, ct));
+        group.MapDelete("/data/{resource}/{id:long}", async (string resource, long id, AdminRepository repo, CancellationToken ct) =>
+        {
+            await repo.Delete(resource, id, ct);
+            return Results.NoContent();
+        });
         group.MapPost("/images", async (HttpContext http, IAvatarStorage storage, CancellationToken ct) =>
         {
             const int maxBytes = 5 * 1024 * 1024;

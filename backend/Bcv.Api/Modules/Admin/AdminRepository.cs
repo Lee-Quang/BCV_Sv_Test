@@ -19,6 +19,43 @@ public sealed class AdminRepository(NpgsqlDataSource db, ISessionStore sessions)
     private static AdminResource Resource(string key) => AdminCatalog.Resources.TryGetValue(key, out var r) ? r : throw new AdminValidation("Chức năng không tồn tại.");
     private static JsonElement Json(string json) => JsonSerializer.Deserialize<JsonElement>(json);
 
+    public async Task Delete(string key, long id, CancellationToken ct)
+    {
+        var r = Resource(key);
+        await using var conn = await db.OpenConnectionAsync(ct);
+        await using var tx = await conn.BeginTransactionAsync(ct);
+        await using var check = new NpgsqlCommand($"SELECT {(key == "users" ? "role" : r.Id)} FROM {r.Table} WHERE {r.Id}=$1 FOR UPDATE", conn, tx);
+        check.Parameters.AddWithValue(id);
+        var existing = await check.ExecuteScalarAsync(ct);
+        if (existing is null) throw new KeyNotFoundException("Bản ghi đã bị xóa hoặc không tồn tại.");
+        if (key == "users" && existing is "ADMIN") throw new AdminValidation("Không được xóa tài khoản quản trị.");
+        // Only remove owned media/membership rows. Other references preserve business history.
+        var ownedSql = key switch
+        {
+            "places" => "DELETE FROM place_image WHERE place_id=$1",
+            "collections" => "DELETE FROM collection_card WHERE collection_id=$1",
+            _ => null
+        };
+        if (ownedSql is not null)
+        {
+            await using var owned = new NpgsqlCommand(ownedSql, conn, tx);
+            owned.Parameters.AddWithValue(id);
+            await owned.ExecuteNonQueryAsync(ct);
+        }
+        try
+        {
+            await using var command = new NpgsqlCommand($"DELETE FROM {r.Table} WHERE {r.Id}=$1", conn, tx);
+            command.Parameters.AddWithValue(id);
+            await command.ExecuteNonQueryAsync(ct);
+            await tx.CommitAsync(ct);
+        }
+        catch (PostgresException ex) when (ex.SqlState == "23503")
+        {
+            throw new AdminValidation("Không thể xóa vì bản ghi đang được sử dụng hoặc có lịch sử liên quan. Hãy gỡ liên kết trước hoặc dùng trạng thái Tạm ngưng.");
+        }
+        if (key == "users") sessions.RevokeAll(id);
+    }
+
     public async Task<object> List(string key, string? q, string? status, long? regionId, long? typeId, int page, int pageSize, CancellationToken ct)
     {
         var r = Resource(key);

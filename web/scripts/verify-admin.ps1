@@ -72,6 +72,19 @@ try {
     ExpectError 400 PUT "/data/users/$($auth.user.userId)" @{ status='BLOCKED' }
     $searched=Call GET ("/data/places?q="+[Uri]::EscapeDataString($prefix)+'&status=ACTIVE')
     Assert ($searched.total -eq 1) 'Combined keyword and status search'
+    ExpectError 400 DELETE "/data/users/$($auth.user.userId)" $null
+    ExpectError 400 DELETE "/data/regions/$($region.id)" $null
+    ExpectError 400 DELETE "/data/places/$($place.id)" $null
+    Assert ((Call GET "/data/places/$($place.id)").images.Count -eq 1) 'Rejected delete rolls back owned images'
+    $collectionBody.card_ids=@($card.id);$null=Call PUT "/data/collections/$($collection.id)" $collectionBody
+    ExpectError 400 DELETE "/data/cards/$($card.id)" $null
+    foreach ($entry in @(@('collections',$collection.id),@('cards',$card.id),@('quests',$quest.id),@('places',$place.id),@('regions',$region.id))) {
+        $path="/data/$($entry[0])/$($entry[1])"
+        $null=Call DELETE $path
+        ExpectError 404 GET $path $null
+        ExpectError 404 DELETE $path $null
+    }
+    Assert $true 'Delete disposable content and protect referenced records/admin account'
     Write-Output 'All admin integration checks passed.'
 } finally {
     $env:PGPASSWORD=$dbPassword

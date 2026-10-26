@@ -21,6 +21,7 @@ db.zip
 backend/**/bin/
 backend/**/obj/
 backend/**/backend-build-out/
+/backend-build-out/
 backend/**/appsettings.Development.json
 android/.gradle/
 android/.kotlin/

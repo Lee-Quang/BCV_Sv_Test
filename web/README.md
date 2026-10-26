@@ -1,6 +1,16 @@
-# Bước Chân Việt Admin
+# Bước Chân Việt Admin — web_v2
 
 Website quản trị React, dùng dữ liệu PostgreSQL thật thông qua module `/api/admin` của backend ASP.NET Core. Phạm vi bám theo tài liệu **ĐAHK1262703 – Đồ án tốt nghiệp HK1 2026**, mục 2.3.8–2.3.11, chức năng F33–F50.
+
+## Cập nhật web_v2
+
+- Xem chi tiết đối tượng và chuyển đến các thông tin liên quan.
+- Hiển thị ảnh phía trên thông tin, thêm hiệu ứng chuyển động và hỗ trợ giảm chuyển động.
+- Xóa có hộp thoại xác nhận; bảo vệ quản trị viên và dữ liệu đang được sử dụng.
+- Đặt Chỉnh sửa / Xóa cạnh nhau, căn giữa cột Thao tác.
+- Gỡ phần Phạm vi theo tài liệu đồ án khỏi trang Thông tin hệ thống.
+
+Xem [nhật ký thay đổi](CHANGELOG.md) và [kết quả kiểm thử](TESTING.md).
 
 ## Vai trò React, Vite và Node.js
 
@@ -136,7 +146,7 @@ Tài khoản trong database của máy thiết lập ban đầu: **`admin@bcv.lo
 2. Nhập email quản trị và mật khẩu, chọn **Đăng nhập quản trị**.
 3. Dùng thanh điều hướng bên trái để chuyển nhóm chức năng. Trên màn hình nhỏ, chọn biểu tượng menu ở góc trên bên trái.
 4. Nhập từ khóa hoặc chọn bộ lọc; dùng **Trang trước / Trang sau** để phân trang và **Xuất CSV** để lấy toàn bộ kết quả đang lọc.
-5. Chọn **Thêm** hoặc **Chỉnh sửa**, nhập dữ liệu và chọn **Lưu thay đổi**. Các thay đổi trạng thái cần xác nhận thêm; lỗi lưu giữ lại biểu mẫu để sửa.
+5. Bấm vào một dòng hoặc tên/mã đối tượng để mở **Chi tiết** ở chế độ xem. Chi tiết hiển thị đầy đủ thông tin, ảnh và các liên kết liên quan; bấm địa danh trong khu vực hoặc thẻ trong bộ sưu tập để xem tiếp đối tượng đó. Chọn **Chỉnh sửa** trong phần chi tiết hoặc ở cột thao tác để cập nhật. Chọn **Thêm** để tạo mới, nhập dữ liệu và chọn **Lưu thay đổi**. Các thay đổi trạng thái cần xác nhận thêm; lỗi lưu giữ lại biểu mẫu để sửa.
 6. Với dữ liệu mẫu ở **Bản nháp**, kiểm tra nội dung trước khi chuyển **Đang hoạt động**. Kích hoạt địa danh trước, sau đó thẻ và bộ sưu tập liên quan. Thẻ hoạt động bắt buộc có ảnh. Nhiệm vụ/vật phẩm chỉ được sử dụng trên app khi đang hoạt động.
 7. Với bộ sưu tập, tìm và tích/bỏ tích các thẻ rồi lưu. Với bản đồ, bật **Chọn tọa độ trên bản đồ**, đặt hoặc kéo ghim, mở biểu mẫu và xác nhận lưu tọa độ.
 8. Chọn biểu tượng đăng xuất cạnh tài khoản ở cuối thanh điều hướng để kết thúc phiên.
@@ -169,6 +179,8 @@ Goong Maptiles Key được đọc từ `../android/dev.properties` (`bcvGoongMa
 | Thông tin hệ thống | Kiểm tra kết nối và bảng đối chiếu chức năng đồ án |
 
 Các danh sách có tìm kiếm, phân trang và xuất CSV toàn bộ kết quả đang lọc. Khu vực được sắp theo ID tăng dần (1, 2, 3, …), thống nhất giữa danh sách, dashboard và các ô chọn khu vực; ID được hiển thị để đối chiếu. Trường bắt buộc, kiểu dữ liệu, tọa độ, trạng thái và khóa ngoại đều được kiểm tra ở backend.
+
+Trong chi tiết địa danh và thẻ, hình ảnh hiển thị trước các thông tin mô tả; ảnh đầu tiên được ưu tiên tải và hiển thị lớn. Chuyển trang, mở/đóng bảng chi tiết/chỉnh sửa, nút và danh sách dùng hiệu ứng ngắn bằng opacity/transform. Khi hệ điều hành hoặc trình duyệt bật giảm chuyển động (`prefers-reduced-motion`), hiệu ứng được tắt và bảng đóng ngay.
 
 Nội dung được ngưng sử dụng bằng trạng thái `INACTIVE`, không xóa cứng dữ liệu đang liên quan đến lịch sử người dùng. Một nhiệm vụ đã có tiến độ chỉ được đổi tên/trạng thái; tạo nhiệm vụ mới để thay đổi điều kiện và phần thưởng. Thao tác lưu địa danh/ảnh và bộ sưu tập/thẻ thực hiện trong giao dịch.
 
@@ -213,3 +225,9 @@ Sau khi backend chạy và đã có tài khoản quản trị:
 ```
 
 Chạy lệnh từ thư mục gốc, nhập mật khẩu quản trị khi được hỏi. Tham số `-ApiBase`, `-Email`, `-Psql`, `-ConfigPath` cho phép đổi backend, email, đường dẫn psql và file cấu hình. Mặc định script đọc thông tin backend và database từ cùng `backend/local.settings.json`, không cố định ổ đĩa PostgreSQL. Biến `BCV_DB_PASSWORD` trong terminal hoặc môi trường người dùng phải được thiết lập để dọn dữ liệu thử. Script tạo bản ghi có tiền tố ngẫu nhiên riêng rồi chỉ xóa đúng các ID đã tạo, có đối chiếu tên; không sửa dữ liệu nghiệp vụ có sẵn. Các kiểm tra bao gồm phân trang, không lộ mã băm, tọa độ, ảnh địa danh, chống trùng thẻ, gán/bỏ thẻ, giao dịch khi lưu lỗi, nhiệm vụ và bảo vệ tài khoản quản trị.
+
+### Xóa đối tượng
+
+Trong mỗi danh sách hoặc màn hình chi tiết, bấm **Xóa**, kiểm tra tên và mã đối tượng trong hộp thoại, rồi chọn **Xác nhận xóa**. Chọn **Hủy**, nhấn Escape hoặc bấm bên ngoài để đóng trước khi gửi yêu cầu. Khi đang xóa, các nút bị khóa để tránh gửi lặp. Xóa thành công sẽ tải lại danh sách và số liệu; nếu trang cuối hết dữ liệu, danh sách chuyển về trang hợp lệ.
+
+API chỉ cho quản trị viên xóa. Tài khoản quản trị không được phép xóa. Bản ghi đang có liên kết hoặc lịch sử sử dụng bị chặn; gỡ liên kết hoặc dùng Tạm ngưng. Ảnh địa danh và liên kết thẻ trong bộ sưu tập được dọn trong cùng giao dịch; nếu xóa thất bại, các liên kết này được giữ nguyên. Không xóa tệp vật lý trên R2.
