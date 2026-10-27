@@ -48,7 +48,14 @@ interface ExploreRepository {
     fun syncSteps(journeyId: Long, cumulativeSteps: Long): ExploreSnapshot
 }
 
+/** Health Connect first; the Recording API only when no app records steps there. */
 interface StepSource {
+    /** Steps can be read: Health Connect access, or the Recording API allowed as fallback. */
     suspend fun hasPermission(): Boolean
-    suspend fun totalStepsSince(startedAtEpochSeconds: Long): Long
+    /** No app records steps in Health Connect and the Recording API still needs physical-activity access. */
+    suspend fun needsActivityPermission(): Boolean
+    /** Starts recording for this journey when the Recording API is its source; stops it when no longer needed. */
+    suspend fun capture(journeyId: Long)
+    /** Steps since the journey started, cumulative, from the journey's source. */
+    suspend fun totalStepsSince(journeyId: Long, startedAtEpochSeconds: Long): Long
 }

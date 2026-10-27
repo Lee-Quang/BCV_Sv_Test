@@ -143,9 +143,9 @@ INSERT INTO public.journey
      status, started_at, completed_at)
 SELECT journey_id, user_id, start_place_id, start_latitude, start_longitude,
        destination_place_id, round(distance_m::numeric, 2),
-       greatest(1, ceil(distance_m * 0.1 / 0.75)::integer),
+       greatest(1, ceil(distance_m * 1.0 / 0.75)::integer),
        CASE WHEN status = 'COMPLETED'
-            THEN greatest(1, ceil(distance_m * 0.1 / 0.75)::integer)
+            THEN greatest(1, ceil(distance_m * 1.0 / 0.75)::integer)
             ELSE sample_recorded_steps END,
        status, started_at, completed_at
 FROM routes;

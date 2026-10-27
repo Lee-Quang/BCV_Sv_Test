@@ -145,7 +145,7 @@ COMMIT;
 - **Nhiệm vụ:** 11 nhiệm vụ ngày/tuần với điều kiện `STEP_COUNT`, `DISCOVER_PLACE`, `COMPLETE_JOURNEY`.
 - **Thẻ và bộ sưu tập:** 135 thẻ, 7 bộ sưu tập; toàn bộ 125 địa danh miền Bắc có thẻ, 94 thẻ chưa có ảnh.
 - **Ảnh:** 61 ảnh địa danh là URL trực tiếp từ Wikimedia Commons.
-- **Hành trình mẫu** tính số bước theo κ = 0,1 như Backend.
+- **Hành trình mẫu** tính số bước theo κ = 1 như Backend.
 - Trường dữ liệu gốc không có cột tương ứng (URL nguồn, mã băm, metadata mô hình) không được nhập; `rating_count` bị thiếu đặt `0`, `rating` để `NULL`.
 
 ## Máy phát triển hiện tại

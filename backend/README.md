@@ -100,9 +100,9 @@ Khi chưa cấu hình R2, ảnh được lưu thẳng trong cột ảnh của da
 
 ## Quy đổi khoảng cách thành số bước
 
-Theo mục 3.5.1.2 của tài liệu: **S = max(1, ⌈1000 · D · κ / L⌉)**, với D là khoảng cách (km) từ vị trí ảo tới điểm đến, L = 0,75 m/bước, **κ = 0,1**. Ví dụ 50 km cần 6.667 bước, 100 km cần 13.334 bước.
+Theo mục 3.5.1.2 của tài liệu: **S = max(1, ⌈1000 · D · κ / L⌉)**, với D là khoảng cách (km) từ vị trí ảo tới điểm đến, L = 0,75 m/bước, **κ = 1**. Ví dụ 10 km cần 13.334 bước, 50 km cần 66.667 bước.
 
-κ thu nhỏ quãng đường thật để hành trình vừa sức đi bộ hằng ngày. Tài liệu ví dụ κ = 0,01; giá trị 0,1 được chọn sau khi đo trên dữ liệu thật: địa danh gần thứ 3 cách trung vị khoảng 23 km, gần thứ 10 khoảng 70 km, nên với 0,1 các hành trình đó mất khoảng 1–4 ngày đi bộ ở mức Trung bình. Mã: `Modules/StepLocation/Domain/StepConversion.cs`. Số bước được lưu khi tạo hành trình, nên đổi κ chỉ áp dụng cho hành trình mới.
+κ là hệ số tỉ lệ (0 < κ ≤ 1). κ = 1 giữ nguyên quãng đường thật; κ nhỏ hơn thu nhỏ hành trình (tài liệu ví dụ κ = 0,01). Mã: `Modules/StepLocation/Domain/StepConversion.cs`. Số bước được lưu khi tạo hành trình, nên đổi κ chỉ áp dụng cho hành trình mới.
 
 ## Gợi ý điểm đến
 
@@ -118,7 +118,7 @@ Theo mục 3.5.1.2 của tài liệu: **S = max(1, ⌈1000 · D · κ / L⌉)**,
 3. **Điểm tổng** theo `recommendation_weight`: **P 0,35 · C 0,15 · A 0,3 · R 0,1 · N 0,1**. Tiêu chí thiếu dữ liệu bị bỏ và trọng số còn lại được chuẩn hóa lại.
 4. Sắp xếp giảm dần, hòa điểm thì xét mã địa danh, lấy 3 kết quả đầu.
 
-Trọng số khởi tạo của tài liệu (0,4 / 0,2 / 0,2 / 0,1 / 0,1) để nơi xa nhưng nổi tiếng đứng đầu với người Ít vận động (ví dụ ở Châu Đốc: Bửu Long 190 km, khoảng 8 ngày đi bộ). `db/015_tune_recommendation_weights.sql` tăng trọng số A; sau khi chỉnh, nơi gần (Hồ Soài So 33 km, Rừng Tràm Trà Sư 11 km) lên đầu, còn điểm xa rất hợp sở thích vẫn trong top 3.
+Trọng số khởi tạo của tài liệu (0,4 / 0,2 / 0,2 / 0,1 / 0,1) để nơi xa nhưng nổi tiếng đứng đầu với người Ít vận động (ví dụ ở Châu Đốc: Bửu Long cách 190 km). `db/015_tune_recommendation_weights.sql` tăng trọng số A; sau khi chỉnh, nơi gần (Hồ Soài So 33 km, Rừng Tràm Trà Sư 11 km) lên đầu, còn điểm xa rất hợp sở thích vẫn trong top 3.
 
 Cấu hình `ACTIVE` được ưu tiên, nếu chưa có thì dùng bản nháp mới nhất. Kết quả kèm điểm từng tiêu chí, tiêu chí đã dùng, tiêu chí bị thiếu và phiên bản cấu hình để truy vết. Cụm và đặc trưng đã lưu trong database, nên API không cần gọi dịch vụ Python trong [`recommendation/`](../recommendation/).
 

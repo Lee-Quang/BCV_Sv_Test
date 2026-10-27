@@ -3,6 +3,8 @@ package com.project.bcv.feature.discovery.presentation
 import android.animation.ValueAnimator
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -22,7 +24,10 @@ import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.request.ReadRecordsRequest
+import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.google.android.material.snackbar.Snackbar
 import com.project.bcv.R
@@ -84,6 +89,7 @@ class ExploreActivity : AppCompatActivity() {
         PermissionController.createRequestPermissionResultContract()
     ) { granted ->
         model.checkPermission()
+        requestActivityPermissionIfNeeded()
         if (readStepsPermission !in granted) {
             // Health Connect stops showing its dialog after repeated refusals; settings is the way back.
             Snackbar.make(binding.root, "Cần quyền đọc bước chân để cập nhật tiến độ hành trình.",
@@ -91,6 +97,14 @@ class ExploreActivity : AppCompatActivity() {
                 .setAction("Mở cài đặt") { startActivity(Intent(this, HealthConnectActivity::class.java)) }
                 .show()
         }
+    }
+    private val activityPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) {
+            model.checkPermission()
+            model.captureDeviceSteps()
+        }
+        else Snackbar.make(binding.root, "Cần quyền Hoạt động thể chất để đếm bước khi đi bộ.",
+            Snackbar.LENGTH_LONG).show()
     }
     private val placeDetailLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) model.load()
@@ -191,13 +205,28 @@ class ExploreActivity : AppCompatActivity() {
                 if (openSetupIfUnavailable) {
                     startActivity(Intent(this@ExploreActivity, HealthConnectActivity::class.java))
                 }
+                requestActivityPermissionIfNeeded()
                 return@launch
             }
             val granted = runCatching {
                 HealthConnectClient.getOrCreate(this@ExploreActivity).permissionController.getGrantedPermissions()
             }.getOrDefault(emptySet())
             if (readStepsPermission !in granted) stepsPermissionLauncher.launch(setOf(readStepsPermission))
-            else model.checkPermission()
+            else {
+                model.checkPermission()
+                requestActivityPermissionIfNeeded()
+            }
+        }
+    }
+
+    /**
+     * Asks for Android's "physical activity" permission only when no app records steps in Health
+     * Connect, so the Recording API is the only way to count real walking (see RecordingStepCounter).
+     */
+    private fun requestActivityPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
+        model.whenActivityPermissionNeeded {
+            activityPermissionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
         }
     }
 
@@ -207,7 +236,12 @@ class ExploreActivity : AppCompatActivity() {
         goongMap.onResume()
         // Refreshed on every return so a photo changed in Hồ sơ shows here at once.
         loadProfileAvatar()
-        if (::model.isInitialized) model.checkPermission()
+        if (::model.isInitialized) {
+            model.checkPermission()
+            model.captureDeviceSteps()
+        }
+        handler.removeCallbacks(autoSync)
+        handler.post(autoSync)
         if (returningFromTab) {
             returningFromTab = false
             BottomNav.enter(BottomNav.contentOf(binding.root, binding.bottomNavigation), fromRight = false)
@@ -220,7 +254,7 @@ class ExploreActivity : AppCompatActivity() {
             binding.root.post { goongMap.recenter() }
         }
     }
-    override fun onPause() { goongMap.onPause(); super.onPause() }
+    override fun onPause() { handler.removeCallbacks(autoSync); goongMap.onPause(); super.onPause() }
     override fun onStop() { goongMap.onStop(); super.onStop() }
     override fun onLowMemory() { super.onLowMemory(); goongMap.onLowMemory() }
     override fun onSaveInstanceState(outState: Bundle) {
@@ -230,6 +264,14 @@ class ExploreActivity : AppCompatActivity() {
         goongMap.onSaveInstanceState(outState)
     }
     override fun onDestroy() { handler.removeCallbacksAndMessages(null); stepsAnimator?.cancel(); goongMap.onDestroy(); super.onDestroy() }
+
+    /** Sends new steps on its own every minute while this screen shows (see ExploreViewModel.autoSyncSteps). */
+    private val autoSync = object : Runnable {
+        override fun run() {
+            if (::model.isInitialized) model.autoSyncSteps()
+            handler.postDelayed(this, AUTO_SYNC_INTERVAL_MS)
+        }
+    }
 
     private fun scheduleMapTimeout() {
         handler.postDelayed({
@@ -331,7 +373,7 @@ class ExploreActivity : AppCompatActivity() {
             ExploreStage.SYNC_FAILED -> model.syncSteps()
             ExploreStage.PERMISSION_REQUIRED -> requestStepsPermission(openSetupIfUnavailable = true)
             ExploreStage.EMPTY, ExploreStage.COMPLETED -> openRecommendations()
-            ExploreStage.ACTIVE, ExploreStage.NO_NEW_STEPS -> openJourney()
+            ExploreStage.ACTIVE, ExploreStage.NO_NEW_STEPS, ExploreStage.SYNCING -> openJourney()
             else -> Unit
         }
     }
@@ -342,6 +384,16 @@ class ExploreActivity : AppCompatActivity() {
             ExploreStage.PERMISSION_REQUIRED -> openJourney()
             else -> Unit
         }
+    }
+
+
+    private fun renderLocationName(state: ExploreUiState) {
+        val location = state.snapshot?.location
+        val fallback = if (state.snapshot?.journey?.status == "COMPLETED")
+            location?.placeName ?: location?.regionName
+        else location?.regionName
+        binding.locationName.text = (if (location != null) model.address.value else null)
+            ?: fallback ?: "Chưa có vị trí ảo"
     }
 
     private fun addDemoSteps() {
@@ -381,14 +433,23 @@ class ExploreActivity : AppCompatActivity() {
         binding.demoStepsButton.alpha = 0.4f
         lifecycleScope.launch {
             try {
+                val client = HealthConnectClient.getOrCreate(this@ExploreActivity)
+                val journeyStart = Instant.ofEpochSecond(journey.startedAtEpochSeconds)
                 val end = Instant.now()
-                val start = maxOf(Instant.ofEpochSecond(journey.startedAtEpochSeconds), end.minusSeconds(30))
+                // Health Connect does not count overlapping step records twice, so a sample overlapping an
+                // earlier one only added part of its 2,000 steps (or none). Each sample starts where this
+                // app's last one for the journey ended, so every tap adds the full 2,000.
+                val lastSampleEnd = client.readRecords(ReadRecordsRequest(StepsRecord::class,
+                    TimeRangeFilter.between(journeyStart, end),
+                    dataOriginFilter = setOf(DataOrigin(packageName))))
+                    .records.maxOfOrNull { it.endTime }
+                val start = listOfNotNull(journeyStart, end.minusSeconds(30), lastSampleEnd).max()
                 if (!start.isBefore(end)) {
                     Snackbar.make(binding.root, "Chờ vài giây rồi thử lại.", Snackbar.LENGTH_SHORT).show()
                     return@launch
                 }
                 val zone = ZoneId.systemDefault().rules
-                HealthConnectClient.getOrCreate(this@ExploreActivity).insertRecords(listOf(
+                client.insertRecords(listOf(
                     StepsRecord(
                         count = 2_000,
                         startTime = start,
@@ -407,15 +468,6 @@ class ExploreActivity : AppCompatActivity() {
                 binding.demoStepsButton.alpha = 1f
             }
         }
-    }
-
-    private fun renderLocationName(state: ExploreUiState) {
-        val location = state.snapshot?.location
-        val fallback = if (state.snapshot?.journey?.status == "COMPLETED")
-            location?.placeName ?: location?.regionName
-        else location?.regionName
-        binding.locationName.text = (if (location != null) model.address.value else null)
-            ?: fallback ?: "Chưa có vị trí ảo"
     }
 
     private fun render(state: ExploreUiState) = with(binding) {
@@ -437,6 +489,8 @@ class ExploreActivity : AppCompatActivity() {
         statusCard.backgroundTintList = ColorStateList.valueOf(copy.noticeBackground)
         statusTitle.setTextColor(copy.noticeColor)
         statusDetail.setTextColor(copy.noticeColor)
+        // Revealed only when it changes: syncing keeps the destination name still.
+        val titleChanged = sheetTitle.text.toString() != copy.title
         sheetTitle.text = copy.title
         sheetDescription.text = copy.description
         primaryButton.text = copy.primary
@@ -473,7 +527,7 @@ class ExploreActivity : AppCompatActivity() {
         if (renderedStage != state.stage) {
             if (renderedStage != null) {
                 ScreenMotion.reveal(statusCard)
-                ScreenMotion.reveal(sheetTitle)
+                if (titleChanged) ScreenMotion.reveal(sheetTitle)
             }
             renderedStage = state.stage
         }
@@ -509,9 +563,10 @@ class ExploreActivity : AppCompatActivity() {
                 journey?.destinationName.orEmpty(), "Tiếp tục hành trình khám phá của bạn.",
                 "Xem hành trình", secondary = "Đồng bộ", footer = "Vị trí ảo cập nhật khi hoàn thành hành trình.",
                 noticeBackground = 0xFFEAF2F9.toInt(), noticeColor = 0xFF4B88AD.toInt())
+            // Same buttons as ACTIVE so nothing moves; Đồng bộ is disabled while it runs.
             ExploreStage.SYNCING -> ScreenCopy("Đang đồng bộ bước chân", "Đang gửi tiến độ đã xác nhận.",
                 journey?.destinationName.orEmpty(), "Vui lòng chờ kết quả từ máy chủ.",
-                "Đang xử lý...", footer = "Không gửi yêu cầu trùng trong lúc đồng bộ.", primaryEnabled = false,
+                "Xem hành trình", secondary = "Đồng bộ", footer = "Không gửi yêu cầu trùng trong lúc đồng bộ.",
                 noticeBackground = 0xFFEAF2F9.toInt(), noticeColor = 0xFF4B88AD.toInt())
             ExploreStage.SYNC_FAILED -> ScreenCopy("Đồng bộ chưa thành công", "Tiến độ vẫn giữ ở trạng thái đã lưu.",
                 journey?.destinationName.orEmpty(), state.message.orEmpty(), "Thử lại",
@@ -616,5 +671,6 @@ class ExploreActivity : AppCompatActivity() {
     private companion object {
         const val SHEET_STATE_KEY = "explore_sheet_state"
         const val STEPS_PERMISSION_ASKED_KEY = "explore_steps_permission_asked"
+        const val AUTO_SYNC_INTERVAL_MS = 60_000L
     }
 }

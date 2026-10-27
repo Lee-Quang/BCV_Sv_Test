@@ -39,6 +39,9 @@ class ExploreViewModel(
     /** Street address of the virtual location; kept apart because states are rebuilt often. */
     val address: LiveData<String?> = mutableAddress
     private var addressFor: Coordinates? = null
+    private var autoSyncing = false
+    /** Last cumulative total sent automatically, per journey, so unchanged totals are not sent again. */
+    private var autoSentTotal: Pair<Long, Long>? = null
 
     private companion object { const val TAG = "ExploreViewModel" }
 
@@ -53,8 +56,10 @@ class ExploreViewModel(
             try {
                 val snapshot = withContext(Dispatchers.IO) { repository.load() }
                 mutableState.value = ExploreUiState(snapshot.stage(), snapshot)
+                captureDeviceSteps()
                 lookupAddress(snapshot)
                 checkPermission()
+                autoSyncSteps()
             } catch (error: ApiFailure) {
                 if (error.code == "UNAUTHORIZED") sessionExpired() else failLoad(error.message)
             } catch (error: IOException) {
@@ -65,6 +70,20 @@ class ExploreViewModel(
                 failLoad("Chưa tải được dữ liệu khám phá. Vui lòng thử lại.")
             }
         }
+    }
+
+    /**
+     * Starts the Recording API whenever the screen shows, when the current journey uses it
+     * (no app records steps in Health Connect); steps are recorded only from then on.
+     */
+    fun captureDeviceSteps() {
+        val journey = mutableState.value?.snapshot?.journey?.takeIf { it.status == "IN_PROGRESS" } ?: return
+        viewModelScope.launch { runCatching { steps.capture(journey.id) } }
+    }
+
+    /** Calls [ask] when the Recording API is the only way to count walking and still needs permission. */
+    fun whenActivityPermissionNeeded(ask: () -> Unit) {
+        viewModelScope.launch { if (runCatching { steps.needsActivityPermission() }.getOrDefault(false)) ask() }
     }
 
     fun checkPermission() {
@@ -93,8 +112,9 @@ class ExploreViewModel(
                     mutableState.value = current.copy(stage = ExploreStage.PERMISSION_REQUIRED)
                     return@launch
                 }
-                val total = steps.totalStepsSince(journey.startedAtEpochSeconds)
+                val total = steps.totalStepsSince(journey.id, journey.startedAtEpochSeconds)
                 val snapshot = withContext(Dispatchers.IO) { repository.syncSteps(journey.id, total) }
+                autoSentTotal = journey.id to total
                 val newJourney = snapshot.journey
                 mutableState.value = ExploreUiState(
                     if (newJourney?.status == "COMPLETED") ExploreStage.COMPLETED
@@ -109,6 +129,47 @@ class ExploreViewModel(
             } catch (_: Exception) {
                 mutableState.value = current.copy(stage = ExploreStage.SYNC_FAILED,
                     message = "Chưa đồng bộ được bước chân. Vui lòng thử lại.")
+            }
+        }
+    }
+
+    /**
+     * Sends new steps without a tap, while the screen shows. Quiet: no syncing state, and a failure
+     * keeps the saved progress on screen; the next run (or the Đồng bộ button) tries again.
+     */
+    fun autoSyncSteps() {
+        val current = mutableState.value ?: return
+        val journey = current.snapshot?.journey ?: return
+        if (autoSyncing || journey.status != "IN_PROGRESS" || current.stage !in
+            setOf(ExploreStage.ACTIVE, ExploreStage.NO_NEW_STEPS, ExploreStage.SYNC_FAILED)) return
+        autoSyncing = true
+        viewModelScope.launch {
+            try {
+                if (!steps.hasPermission()) return@launch
+                val total = steps.totalStepsSince(journey.id, journey.startedAtEpochSeconds)
+                val sent = autoSentTotal?.takeIf { it.first == journey.id }?.second
+                if (sent != null && total <= sent) return@launch
+                val snapshot = withContext(Dispatchers.IO) { repository.syncSteps(journey.id, total) }
+                autoSentTotal = journey.id to total
+                val latest = mutableState.value ?: return@launch
+                // A manual sync, reload or new journey since then has the newer state.
+                if (latest.snapshot?.journey != journey || latest.stage !in
+                    setOf(ExploreStage.ACTIVE, ExploreStage.NO_NEW_STEPS, ExploreStage.SYNC_FAILED)) return@launch
+                val newJourney = snapshot.journey
+                mutableState.value = ExploreUiState(
+                    if (newJourney?.status == "COMPLETED") ExploreStage.COMPLETED
+                    else if (newJourney?.recordedSteps == journey.recordedSteps) latest.stage
+                    else ExploreStage.ACTIVE,
+                    snapshot
+                )
+                lookupAddress(snapshot)
+            } catch (error: ApiFailure) {
+                if (error.code == "UNAUTHORIZED") sessionExpired()
+                else Log.w(TAG, "Automatic step sync was refused: ${error.message}")
+            } catch (error: Exception) {
+                Log.w(TAG, "Automatic step sync failed", error)
+            } finally {
+                autoSyncing = false
             }
         }
     }
