@@ -1,0 +1,142 @@
+{
+  "status": "valid",
+  "modelVersion": "35_features_4_groups_no_activity",
+  "sourceRows": 315,
+  "canonicalPlaces": 311,
+  "trainingWeightSum": 311.0,
+  "featureCount": 35,
+  "featureOrder": [
+    "kind__nature",
+    "kind__heritage",
+    "kind__religious",
+    "kind__museum",
+    "kind__structure",
+    "kind__market",
+    "kind__craft",
+    "kind__agriculture",
+    "kind__community",
+    "kind__recreation",
+    "landform__coast",
+    "landform__island",
+    "landform__mountain",
+    "landform__cave",
+    "landform__river",
+    "landform__lake",
+    "landform__waterfall",
+    "landform__stream",
+    "landform__lagoon",
+    "landform__dunes",
+    "landform__valley",
+    "ecosystem__forest",
+    "ecosystem__flooded_habitat",
+    "ecosystem__grassland",
+    "theme__history",
+    "theme__culture",
+    "theme__architecture",
+    "theme__spirituality",
+    "theme__ecology",
+    "theme__geology",
+    "theme__craft",
+    "theme__cuisine",
+    "theme__games",
+    "theme__relaxation",
+    "theme__agriculture"
+  ],
+  "groups": {
+    "KindTags": 10,
+    "LandformTags": 11,
+    "EcosystemTags": 3,
+    "ThemeTags": 11
+  },
+  "duplicates": [
+    {
+      "canonical": "VN-0098",
+      "sources": [
+        "VN-0098",
+        "VN-0304"
+      ],
+      "weightPerSource": 0.5
+    },
+    {
+      "canonical": "VN-0108",
+      "sources": [
+        "VN-0108",
+        "VN-0183"
+      ],
+      "weightPerSource": 0.5
+    },
+    {
+      "canonical": "VN-0132",
+      "sources": [
+        "VN-0132",
+        "VN-0228"
+      ],
+      "weightPerSource": 0.5
+    },
+    {
+      "canonical": "VN-0156",
+      "sources": [
+        "VN-0060",
+        "VN-0156"
+      ],
+      "weightPerSource": 0.5
+    }
+  ],
+  "ratings": {
+    "sourcePresent": 280,
+    "sourceMissing": 35,
+    "canonicalPresent": 276,
+    "canonicalMissing": 35,
+    "canonicalCountMissing": 35
+  },
+  "canonicalMissingGroups": {
+    "KindTags": 0,
+    "LandformTags": 145,
+    "EcosystemTags": 277,
+    "ThemeTags": 32
+  },
+  "featureOccurrences": {
+    "kind__nature": 147,
+    "kind__heritage": 48,
+    "kind__religious": 59,
+    "kind__museum": 4,
+    "kind__structure": 16,
+    "kind__market": 13,
+    "kind__craft": 6,
+    "kind__agriculture": 18,
+    "kind__community": 17,
+    "kind__recreation": 17,
+    "landform__coast": 40,
+    "landform__island": 21,
+    "landform__mountain": 51,
+    "landform__cave": 22,
+    "landform__river": 19,
+    "landform__lake": 29,
+    "landform__waterfall": 17,
+    "landform__stream": 8,
+    "landform__lagoon": 2,
+    "landform__dunes": 1,
+    "landform__valley": 2,
+    "ecosystem__forest": 33,
+    "ecosystem__flooded_habitat": 8,
+    "ecosystem__grassland": 1,
+    "theme__history": 73,
+    "theme__culture": 102,
+    "theme__architecture": 78,
+    "theme__spirituality": 61,
+    "theme__ecology": 47,
+    "theme__geology": 27,
+    "theme__craft": 9,
+    "theme__cuisine": 21,
+    "theme__games": 10,
+    "theme__relaxation": 61,
+    "theme__agriculture": 18
+  },
+  "sourceSha256": {
+    "places.csv": "63fd28080797eaee821937277f5647614a5bd3bb57e7e5a4923e9f2f1001eaba",
+    "features.csv": "395831e1dc978171c5f8d2615b98668b8dd112b61ae267f550be6a08ad1d4cc0"
+  },
+  "warnings": [],
+  "scope": "Structural consistency and provenance fields; no new external source verification or human relabelling",
+  "missingLabels": "Zero means unrecorded, not evidence of absence; missing ratings stay blank/null"
+}

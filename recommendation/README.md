@@ -8,6 +8,7 @@ Ba tệp trong `service/data` là bản sao nguyên vẹn của mô hình (`mode
 
 - [Cài đặt](#cài-đặt)
 - [Sử dụng](#sử-dụng)
+- [Rà soát dữ liệu và kiểm chứng huấn luyện](#rà-soát-dữ-liệu-và-kiểm-chứng-huấn-luyện)
 - [Mô hình](#mô-hình)
 - [API](#api)
 - [Đóng góp](#đóng-góp)
@@ -15,28 +16,30 @@ Ba tệp trong `service/data` là bản sao nguyên vẹn của mô hình (`mode
 
 ## Cài đặt
 
-Cần Python 3.12. Phiên bản scikit-learn và NumPy được khóa theo môi trường đã tạo artifact; dịch vụ từ chối mô hình không tương thích hoặc CSV sai.
+Cần Python 3.12. Phiên bản scikit-learn và NumPy được khóa theo môi trường đã tạo artifact; dịch vụ từ chối mô hình không tương thích hoặc CSV sai. Ví dụ trên Windows dùng `uv` và đặt môi trường trong thư mục tạm có đường dẫn ASCII, để thư viện native không gặp lỗi đường dẫn tiếng Việt khi huấn luyện:
 
 ```powershell
 cd recommendation
-py -3.12 -m venv .venv
-.venv\Scripts\python -m pip install -r requirements-test.txt
+$aiEnv = Join-Path $env:TEMP 'bcv-ai-py312'
+uv venv --python 3.12 $aiEnv
+$aiPython = Join-Path $aiEnv 'Scripts\python.exe'
+uv pip install --python $aiPython -r requirements-test.txt
 ```
 
-Trên Linux/macOS dùng `python3.12 -m venv .venv` và `.venv/bin/python`. Thư mục `.venv` không được commit.
+Trên Linux/macOS dùng `python3.12 -m venv .venv`, cài `requirements-test.txt` bằng pip và thay `$aiPython` bằng `.venv/bin/python` trong các lệnh dưới. Thư mục `.venv` không được commit.
 
 ## Sử dụng
 
-Chạy kiểm thử (10 test: nạp mô hình, chuẩn hóa, lân cận, API):
+Chạy 26 kiểm thử về dữ liệu, bản ghi trùng, dữ liệu thiếu, đặc trưng, tái huấn luyện, chuẩn hóa, lân cận và API:
 
 ```powershell
-.venv\Scripts\python -m unittest discover -s tests -v
+& $aiPython -m unittest discover -s tests -v
 ```
 
 Chạy dịch vụ cục bộ:
 
 ```powershell
-.venv\Scripts\python -m uvicorn service.app:app --host 127.0.0.1 --port 8090
+& $aiPython -m uvicorn service.app:app --host 127.0.0.1 --port 8090
 ```
 
 Hoặc bằng Docker (bind ra loopback):
@@ -47,6 +50,37 @@ docker run --rm -p 127.0.0.1:8090:8090 bcv-recommendation
 ```
 
 Biến `BV_MODEL_DATA_DIR` chọn thư mục dữ liệu tin cậy khác khi triển khai; chỉ người vận hành cấu hình đường dẫn này, API không nhận upload mô hình. Dịch vụ chỉ dành cho mạng nội bộ; app Android và web quản trị không gọi trực tiếp.
+
+## Rà soát dữ liệu và kiểm chứng huấn luyện
+
+Từ thư mục `recommendation`, chạy:
+
+```powershell
+& $aiPython -m service.review audit
+& $aiPython -m service.review verify
+```
+
+`audit` đối chiếu CSV nguồn với đủ 35 cột, nhãn mô tả, tọa độ, mã chính/mã trùng, trọng số theo số bản ghi của mỗi địa danh và thông tin đánh giá. Bản xuất chỉ chứa 311 địa danh phân biệt; 35 địa danh thiếu điểm và số lượt đánh giá vẫn để trống. Nhãn 0 có nghĩa chưa được ghi nhận. Kiểm tra URL xác nhận trường nguồn có mặt và đúng dạng, không thay thế việc kiểm chứng lại từng trang nguồn hoặc gán nhãn thủ công.
+
+`verify` chạy K = 2–15, mỗi K dùng ba seed 42, 7, 2026, với k-means++, `n_init=20`, `max_iter=500`, `tol=0.0001`, Lloyd. Huấn luyện dùng 315 bản ghi và trọng số 0,5 cho mỗi bản ghi trong cặp trùng. Silhouette và ARI được đánh giá trên **311 địa danh phân biệt**, tránh tính lặp địa danh. Chỉ xét cấu hình có ít nhất ba địa danh phân biệt trong mỗi cụm ở cả ba seed; ưu tiên Silhouette trung bình, rồi ARI trung bình, rồi K nhỏ hơn khi hòa. Trong K được chọn, giữ lần chạy có Silhouette cao nhất.
+
+Kết quả kiểm chứng hiện tại: **K = 15, seed = 42**, Silhouette **0,418647**, Silhouette trung bình **0,413841**, ARI trung bình **0,909102**; nhãn tái huấn luyện có ARI = 1 với artifact và tâm cụm khớp hoàn toàn. Đây là kết quả phân cụm nội dung, chưa phải chất lượng gợi ý cá nhân hóa.
+
+Các kết quả có thể xem và tạo lại bằng các lệnh trên:
+
+| Tệp | Nội dung |
+| --- | --- |
+| [reports/data-audit.json](reports/data-audit.json) | Tình trạng dữ liệu, bốn cặp trùng, thiếu đánh giá/nhãn và SHA-256 nguồn |
+| [reports/canonical-places.csv](reports/canonical-places.csv) | 311 địa danh, mã database, 35 đặc trưng và dữ liệu đánh giá giữ nguyên trạng thái thiếu |
+| [reports/model-verification.json](reports/model-verification.json) | Đủ 42 lần huấn luyện, quy tắc chọn, phiên bản thư viện và đối chiếu artifact |
+| [reports/model-search.csv](reports/model-search.csv) | Bảng số liệu các lần huấn luyện |
+| [reports/clusters.json](reports/clusters.json) | Phân bố, đặc trưng thường gặp và danh sách địa danh trong 15 cụm |
+
+Tham số `--data-dir` và `--output` chọn dữ liệu/đầu ra khác. `verify --model-output <đường-dẫn-model.joblib>` lưu thêm artifact sau khi mọi kiểm chứng đạt; không ghi đè artifact đã rà soát trong `service/data`. Mỗi lần phục vụ vẫn chỉ nạp mô hình có sẵn.
+
+Sở thích hiện tại của app là 12 loại chuẩn ID 101–112, được ánh xạ ở Backend và kiểm tra khớp từ vựng 35 cột. Bản thiết kế mô tả sáu nhóm sở thích; lần triển khai này giữ nguyên 12 loại của app. Khi thống nhất lại danh mục với báo cáo phải cập nhật ánh xạ và dữ liệu sở thích đồng bộ.
+
+Tài liệu phương pháp: [K-Means và sample_weight](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html), [Silhouette](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.silhouette_score.html), [Adjusted Rand Index](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.adjusted_rand_score.html).
 
 ## Mô hình
 

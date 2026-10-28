@@ -1,0 +1,1822 @@
+[
+  {
+    "cluster": 0,
+    "canonicalPlaces": 32,
+    "commonFeatures": [
+      {
+        "code": "kind__nature",
+        "share": 1.0
+      },
+      {
+        "code": "theme__relaxation",
+        "share": 0.96875
+      },
+      {
+        "code": "landform__coast",
+        "share": 0.875
+      },
+      {
+        "code": "landform__island",
+        "share": 0.15625
+      },
+      {
+        "code": "landform__stream",
+        "share": 0.125
+      },
+      {
+        "code": "theme__ecology",
+        "share": 0.09375
+      },
+      {
+        "code": "kind__heritage",
+        "share": 0.03125
+      },
+      {
+        "code": "landform__lagoon",
+        "share": 0.03125
+      }
+    ],
+    "places": [
+      {
+        "code": "VN-0001",
+        "name": "Bãi Dài Cam Ranh"
+      },
+      {
+        "code": "VN-0006",
+        "name": "Đảo Phú Quốc"
+      },
+      {
+        "code": "VN-0007",
+        "name": "Biển Mũi Nai"
+      },
+      {
+        "code": "VN-0047",
+        "name": "Bãi biển Cửa Lò"
+      },
+      {
+        "code": "VN-0056",
+        "name": "Vịnh Vĩnh Hy"
+      },
+      {
+        "code": "VN-0065",
+        "name": "Suối nước nóng Thanh Thủy"
+      },
+      {
+        "code": "VN-0069",
+        "name": "Suối nước nóng Triêm Đức"
+      },
+      {
+        "code": "VN-0072",
+        "name": "Bãi Đá Nhảy"
+      },
+      {
+        "code": "VN-0077",
+        "name": "Bãi biển An Bàng"
+      },
+      {
+        "code": "VN-0082",
+        "name": "Bãi biển Mỹ Khê (Quảng Ngãi)"
+      },
+      {
+        "code": "VN-0087",
+        "name": "Biển Bãi Cháy"
+      },
+      {
+        "code": "VN-0093",
+        "name": "Bãi biển Cửa Tùng"
+      },
+      {
+        "code": "VN-0099",
+        "name": "Biển Hồ Bể"
+      },
+      {
+        "code": "VN-0112",
+        "name": "Bãi biển Đồng Châu"
+      },
+      {
+        "code": "VN-0131",
+        "name": "Biển Tân Thành"
+      },
+      {
+        "code": "VN-0147",
+        "name": "Bãi Sau"
+      },
+      {
+        "code": "VN-0148",
+        "name": "Hồ Tràm"
+      },
+      {
+        "code": "VN-0149",
+        "name": "Suối Ồ"
+      },
+      {
+        "code": "VN-0150",
+        "name": "Côn Đảo Vũng Tàu"
+      },
+      {
+        "code": "VN-0162",
+        "name": "Biển Bạc Liêu"
+      },
+      {
+        "code": "VN-0176",
+        "name": "Bãi tắm Quy Nhơn"
+      },
+      {
+        "code": "VN-0177",
+        "name": "Biển Kỳ Co"
+      },
+      {
+        "code": "VN-0178",
+        "name": "Cù Lao Xanh"
+      },
+      {
+        "code": "VN-0179",
+        "name": "Đầm Thị Nại"
+      },
+      {
+        "code": "VN-0180",
+        "name": "Hòn Khô"
+      },
+      {
+        "code": "VN-0195",
+        "name": "Hòn Rơm"
+      },
+      {
+        "code": "VN-0214",
+        "name": "Bãi biển Mỹ Khê (Đà Nẵng)"
+      },
+      {
+        "code": "VN-0218",
+        "name": "Bãi biển Ba Động"
+      },
+      {
+        "code": "VN-0224",
+        "name": "Suối khoáng Mỹ Lâm"
+      },
+      {
+        "code": "VN-0288",
+        "name": "Biển Thiên Cầm"
+      },
+      {
+        "code": "VN-0296",
+        "name": "Đồ Sơn"
+      },
+      {
+        "code": "VN-0297",
+        "name": "Cát Bà"
+      }
+    ]
+  },
+  {
+    "cluster": 1,
+    "canonicalPlaces": 56,
+    "commonFeatures": [
+      {
+        "code": "kind__religious",
+        "share": 1.0
+      },
+      {
+        "code": "theme__spirituality",
+        "share": 1.0
+      },
+      {
+        "code": "theme__architecture",
+        "share": 0.6964285714285714
+      },
+      {
+        "code": "theme__culture",
+        "share": 0.5892857142857143
+      },
+      {
+        "code": "theme__history",
+        "share": 0.4107142857142857
+      },
+      {
+        "code": "kind__heritage",
+        "share": 0.10714285714285714
+      },
+      {
+        "code": "landform__mountain",
+        "share": 0.07142857142857142
+      },
+      {
+        "code": "ecosystem__forest",
+        "share": 0.017857142857142856
+      }
+    ],
+    "places": [
+      {
+        "code": "VN-0002",
+        "name": "Tháp Bà Ponagar"
+      },
+      {
+        "code": "VN-0008",
+        "name": "Chùa Láng Cát"
+      },
+      {
+        "code": "VN-0011",
+        "name": "Nhà Thờ Gỗ Kon Tum"
+      },
+      {
+        "code": "VN-0022",
+        "name": "Thiền viện Trúc Lâm Đà Lạt"
+      },
+      {
+        "code": "VN-0030",
+        "name": "Chùa Tiên (Lạng Sơn)"
+      },
+      {
+        "code": "VN-0035",
+        "name": "Đền Thượng"
+      },
+      {
+        "code": "VN-0038",
+        "name": "Chùa Tôn Thạnh"
+      },
+      {
+        "code": "VN-0041",
+        "name": "Nhà thờ Phú Nhai"
+      },
+      {
+        "code": "VN-0042",
+        "name": "Đền Trần"
+      },
+      {
+        "code": "VN-0058",
+        "name": "Tháp Po Klong Garai"
+      },
+      {
+        "code": "VN-0061",
+        "name": "Đền Hùng"
+      },
+      {
+        "code": "VN-0070",
+        "name": "Tháp Nhạn"
+      },
+      {
+        "code": "VN-0073",
+        "name": "Đền Thánh Mẫu Liễu Hạnh"
+      },
+      {
+        "code": "VN-0080",
+        "name": "Thánh Địa Mỹ Sơn"
+      },
+      {
+        "code": "VN-0097",
+        "name": "Chùa Dơi"
+      },
+      {
+        "code": "VN-0100",
+        "name": "Chùa Som Rong"
+      },
+      {
+        "code": "VN-0107",
+        "name": "Tòa thánh Tây Ninh"
+      },
+      {
+        "code": "VN-0111",
+        "name": "Chùa Keo"
+      },
+      {
+        "code": "VN-0114",
+        "name": "Nhà thờ Bác Trạch"
+      },
+      {
+        "code": "VN-0127",
+        "name": "Chùa Thiên Mụ"
+      },
+      {
+        "code": "VN-0133",
+        "name": "Nhà Thờ Cái Bè"
+      },
+      {
+        "code": "VN-0134",
+        "name": "Chùa Linh Thứu"
+      },
+      {
+        "code": "VN-0135",
+        "name": "Nhà thờ chính tòa Mỹ Tho"
+      },
+      {
+        "code": "VN-0138",
+        "name": "Nhà thờ Đức Bà Sài Gòn"
+      },
+      {
+        "code": "VN-0143",
+        "name": "Chùa Lầu"
+      },
+      {
+        "code": "VN-0144",
+        "name": "Miếu Bà Chúa Xứ"
+      },
+      {
+        "code": "VN-0145",
+        "name": "Thiền viện Trúc Lâm An Giang"
+      },
+      {
+        "code": "VN-0151",
+        "name": "Chùa Bổ Đà"
+      },
+      {
+        "code": "VN-0154",
+        "name": "Đền Trung"
+      },
+      {
+        "code": "VN-0161",
+        "name": "Chùa Quan Đế"
+      },
+      {
+        "code": "VN-0166",
+        "name": "Chùa Phật Tích"
+      },
+      {
+        "code": "VN-0167",
+        "name": "Chùa Bút Tháp"
+      },
+      {
+        "code": "VN-0169",
+        "name": "Đền bà Chúa Kho"
+      },
+      {
+        "code": "VN-0173",
+        "name": "Chùa Tuyên Linh"
+      },
+      {
+        "code": "VN-0174",
+        "name": "Nhà thờ La Mã"
+      },
+      {
+        "code": "VN-0181",
+        "name": "Chùa Tây Tạng"
+      },
+      {
+        "code": "VN-0185",
+        "name": "Chùa Châu Thới"
+      },
+      {
+        "code": "VN-0200",
+        "name": "Đền Thờ Bác Hồ"
+      },
+      {
+        "code": "VN-0204",
+        "name": "Chùa Ông"
+      },
+      {
+        "code": "VN-0217",
+        "name": "Chùa Hang"
+      },
+      {
+        "code": "VN-0220",
+        "name": "Chùa Vàm Rây"
+      },
+      {
+        "code": "VN-0223",
+        "name": "Đền Hạ (Tuyên Quang)"
+      },
+      {
+        "code": "VN-0227",
+        "name": "Chùa Tiên Châu"
+      },
+      {
+        "code": "VN-0230",
+        "name": "Văn Thánh Miếu"
+      },
+      {
+        "code": "VN-0268",
+        "name": "Chùa Minh Thành"
+      },
+      {
+        "code": "VN-0276",
+        "name": "Chùa Tam Chúc"
+      },
+      {
+        "code": "VN-0277",
+        "name": "Đền Trần Thương"
+      },
+      {
+        "code": "VN-0279",
+        "name": "Đền Lảnh Giang"
+      },
+      {
+        "code": "VN-0283",
+        "name": "Văn Miếu - Quốc Tử Giám"
+      },
+      {
+        "code": "VN-0287",
+        "name": "Chùa Hương Tích (Hà Tĩnh)"
+      },
+      {
+        "code": "VN-0292",
+        "name": "Chùa Côn Sơn"
+      },
+      {
+        "code": "VN-0294",
+        "name": "Đền Kiếp Bạc"
+      },
+      {
+        "code": "VN-0310",
+        "name": "Đền Thác Bờ"
+      },
+      {
+        "code": "VN-0312",
+        "name": "Chùa Chuông"
+      },
+      {
+        "code": "VN-0314",
+        "name": "Đền Phù Ủng"
+      },
+      {
+        "code": "VN-0315",
+        "name": "Đình làng Nôm"
+      }
+    ]
+  },
+  {
+    "cluster": 2,
+    "canonicalPlaces": 40,
+    "commonFeatures": [
+      {
+        "code": "theme__history",
+        "share": 1.0
+      },
+      {
+        "code": "kind__heritage",
+        "share": 0.925
+      },
+      {
+        "code": "theme__architecture",
+        "share": 0.5
+      },
+      {
+        "code": "theme__culture",
+        "share": 0.475
+      },
+      {
+        "code": "kind__community",
+        "share": 0.075
+      },
+      {
+        "code": "kind__museum",
+        "share": 0.075
+      },
+      {
+        "code": "ecosystem__forest",
+        "share": 0.05
+      },
+      {
+        "code": "kind__structure",
+        "share": 0.05
+      }
+    ],
+    "places": [
+      {
+        "code": "VN-0003",
+        "name": "Thành cổ Diên Khánh"
+      },
+      {
+        "code": "VN-0010",
+        "name": "Mộ chị Sứ"
+      },
+      {
+        "code": "VN-0024",
+        "name": "Dinh III Bảo Đại (Đà Lạt)"
+      },
+      {
+        "code": "VN-0037",
+        "name": "Nhà cổ Trăm Cột"
+      },
+      {
+        "code": "VN-0046",
+        "name": "Làng Sen"
+      },
+      {
+        "code": "VN-0048",
+        "name": "Khu di tích Truông Bồn"
+      },
+      {
+        "code": "VN-0053",
+        "name": "Cố đô Hoa Lư"
+      },
+      {
+        "code": "VN-0074",
+        "name": "Nhà lưu niệm Đại tướng Võ Nguyên Giáp"
+      },
+      {
+        "code": "VN-0076",
+        "name": "Phố cổ Hội An"
+      },
+      {
+        "code": "VN-0078",
+        "name": "Tháp Chiên Đàn"
+      },
+      {
+        "code": "VN-0091",
+        "name": "Nghĩa trang Liệt sĩ Quốc gia Trường Sơn"
+      },
+      {
+        "code": "VN-0092",
+        "name": "Địa đạo Vịnh Mốc"
+      },
+      {
+        "code": "VN-0109",
+        "name": "Tháp Chót Mạt"
+      },
+      {
+        "code": "VN-0126",
+        "name": "Đại Nội Huế"
+      },
+      {
+        "code": "VN-0128",
+        "name": "Lăng Khải Định"
+      },
+      {
+        "code": "VN-0129",
+        "name": "Lăng Minh Mạng"
+      },
+      {
+        "code": "VN-0137",
+        "name": "Dinh Độc Lập"
+      },
+      {
+        "code": "VN-0139",
+        "name": "Bảo tàng Lịch sử Thành phố Hồ Chí Minh"
+      },
+      {
+        "code": "VN-0140",
+        "name": "Địa đạo Củ Chi"
+      },
+      {
+        "code": "VN-0164",
+        "name": "Nhà Công tử Bạc Liêu"
+      },
+      {
+        "code": "VN-0165",
+        "name": "Đồng hồ Thái Dương (Bạc Liêu)"
+      },
+      {
+        "code": "VN-0172",
+        "name": "Khu lăng mộ cụ Nguyễn Đình Chiểu"
+      },
+      {
+        "code": "VN-0188",
+        "name": "Khu di tích Tà Thiết"
+      },
+      {
+        "code": "VN-0191",
+        "name": "Tháp Chàm Poshanư"
+      },
+      {
+        "code": "VN-0209",
+        "name": "Di tích rừng Trần Hưng Đạo"
+      },
+      {
+        "code": "VN-0219",
+        "name": "Bảo tàng Văn hóa Khmer"
+      },
+      {
+        "code": "VN-0251",
+        "name": "Đồi A1"
+      },
+      {
+        "code": "VN-0252",
+        "name": "Hầm De Castries"
+      },
+      {
+        "code": "VN-0253",
+        "name": "Bảo tàng chiến thắng Điện Biên Phủ"
+      },
+      {
+        "code": "VN-0255",
+        "name": "Tượng đài chiến thắng Điện Biên Phủ"
+      },
+      {
+        "code": "VN-0263",
+        "name": "Khu di tích Xẻo Quýt"
+      },
+      {
+        "code": "VN-0264",
+        "name": "Lăng cụ Nguyễn Sinh Sắc"
+      },
+      {
+        "code": "VN-0273",
+        "name": "Phố cổ Đồng Văn"
+      },
+      {
+        "code": "VN-0275",
+        "name": "Dinh Vua Mèo"
+      },
+      {
+        "code": "VN-0281",
+        "name": "Lăng Chủ tịch Hồ Chí Minh"
+      },
+      {
+        "code": "VN-0284",
+        "name": "Hoàng thành Thăng Long"
+      },
+      {
+        "code": "VN-0286",
+        "name": "Ngã ba Đồng Lộc"
+      },
+      {
+        "code": "VN-0289",
+        "name": "Khu di tích Nguyễn Du"
+      },
+      {
+        "code": "VN-0298",
+        "name": "Bến K15 (Đồ Sơn)"
+      },
+      {
+        "code": "VN-0311",
+        "name": "Phố Hiến"
+      }
+    ]
+  },
+  {
+    "cluster": 3,
+    "canonicalPlaces": 13,
+    "commonFeatures": [
+      {
+        "code": "kind__recreation",
+        "share": 1.0
+      },
+      {
+        "code": "theme__games",
+        "share": 0.6923076923076923
+      },
+      {
+        "code": "theme__relaxation",
+        "share": 0.38461538461538464
+      },
+      {
+        "code": "theme__ecology",
+        "share": 0.23076923076923078
+      },
+      {
+        "code": "landform__island",
+        "share": 0.15384615384615385
+      },
+      {
+        "code": "landform__mountain",
+        "share": 0.15384615384615385
+      },
+      {
+        "code": "theme__cuisine",
+        "share": 0.15384615384615385
+      },
+      {
+        "code": "theme__culture",
+        "share": 0.15384615384615385
+      }
+    ],
+    "places": [
+      {
+        "code": "VN-0004",
+        "name": "VinWonders Nha Trang"
+      },
+      {
+        "code": "VN-0063",
+        "name": "Đảo Ngọc Xanh"
+      },
+      {
+        "code": "VN-0088",
+        "name": "Sun World Hạ Long"
+      },
+      {
+        "code": "VN-0175",
+        "name": "Khu du lịch sinh thái vườn Ba Ngói"
+      },
+      {
+        "code": "VN-0182",
+        "name": "Khu du lịch Đại Nam"
+      },
+      {
+        "code": "VN-0184",
+        "name": "Công viên Thành Phố mới Bình Dương"
+      },
+      {
+        "code": "VN-0203",
+        "name": "Làng Du Lịch Sinh Thái Ông Đề"
+      },
+      {
+        "code": "VN-0211",
+        "name": "Bà Nà Hills"
+      },
+      {
+        "code": "VN-0229",
+        "name": "Khu du lịch Vinh Sang"
+      },
+      {
+        "code": "VN-0234",
+        "name": "Khu du lịch FLC Vĩnh Thịnh"
+      },
+      {
+        "code": "VN-0245",
+        "name": "Khu du lịch Ko Tam"
+      },
+      {
+        "code": "VN-0257",
+        "name": "Khu du lịch Bửu Long"
+      },
+      {
+        "code": "VN-0303",
+        "name": "Công viên giải trí Ti & Ni (Kittyd & Minnied)"
+      }
+    ]
+  },
+  {
+    "cluster": 4,
+    "canonicalPlaces": 19,
+    "commonFeatures": [
+      {
+        "code": "kind__nature",
+        "share": 1.0
+      },
+      {
+        "code": "landform__lake",
+        "share": 1.0
+      },
+      {
+        "code": "theme__relaxation",
+        "share": 0.7368421052631579
+      },
+      {
+        "code": "landform__mountain",
+        "share": 0.21052631578947367
+      },
+      {
+        "code": "landform__island",
+        "share": 0.15789473684210525
+      },
+      {
+        "code": "kind__recreation",
+        "share": 0.10526315789473684
+      },
+      {
+        "code": "theme__culture",
+        "share": 0.10526315789473684
+      },
+      {
+        "code": "theme__ecology",
+        "share": 0.10526315789473684
+      }
+    ],
+    "places": [
+      {
+        "code": "VN-0005",
+        "name": "Suối Ba Hồ"
+      },
+      {
+        "code": "VN-0019",
+        "name": "Hồ Thủy Điện Lai Châu"
+      },
+      {
+        "code": "VN-0021",
+        "name": "Hồ Xuân Hương"
+      },
+      {
+        "code": "VN-0045",
+        "name": "Hồ Vị Xuyên"
+      },
+      {
+        "code": "VN-0108",
+        "name": "Hồ Dầu Tiếng"
+      },
+      {
+        "code": "VN-0116",
+        "name": "Hồ Núi Cốc"
+      },
+      {
+        "code": "VN-0118",
+        "name": "Hồ Vai Miếu"
+      },
+      {
+        "code": "VN-0142",
+        "name": "Hồ Soài So"
+      },
+      {
+        "code": "VN-0153",
+        "name": "Hồ Cấm Sơn"
+      },
+      {
+        "code": "VN-0155",
+        "name": "Hồ Khuôn Thần"
+      },
+      {
+        "code": "VN-0189",
+        "name": "Hồ Thác Mơ"
+      },
+      {
+        "code": "VN-0216",
+        "name": "Ao bà om"
+      },
+      {
+        "code": "VN-0235",
+        "name": "Khu du lịch sinh thái Đầm Vạc"
+      },
+      {
+        "code": "VN-0237",
+        "name": "Hồ Thác Bà"
+      },
+      {
+        "code": "VN-0249",
+        "name": "Hồ Ea Snô"
+      },
+      {
+        "code": "VN-0258",
+        "name": "Hồ Trị An"
+      },
+      {
+        "code": "VN-0259",
+        "name": "Đảo Ó"
+      },
+      {
+        "code": "VN-0282",
+        "name": "Hồ Gươm"
+      },
+      {
+        "code": "VN-0306",
+        "name": "Thung Nai"
+      }
+    ]
+  },
+  {
+    "cluster": 5,
+    "canonicalPlaces": 28,
+    "commonFeatures": [
+      {
+        "code": "kind__nature",
+        "share": 1.0
+      },
+      {
+        "code": "theme__ecology",
+        "share": 1.0
+      },
+      {
+        "code": "ecosystem__forest",
+        "share": 0.9285714285714286
+      },
+      {
+        "code": "ecosystem__flooded_habitat",
+        "share": 0.2857142857142857
+      },
+      {
+        "code": "landform__mountain",
+        "share": 0.25
+      },
+      {
+        "code": "theme__relaxation",
+        "share": 0.21428571428571427
+      },
+      {
+        "code": "landform__lake",
+        "share": 0.17857142857142858
+      },
+      {
+        "code": "landform__waterfall",
+        "share": 0.14285714285714285
+      }
+    ],
+    "places": [
+      {
+        "code": "VN-0009",
+        "name": "Vườn quốc gia U Minh Thượng"
+      },
+      {
+        "code": "VN-0013",
+        "name": "Vườn Quốc Gia Chư Mom Ray"
+      },
+      {
+        "code": "VN-0036",
+        "name": "Làng nổi Tân Lập"
+      },
+      {
+        "code": "VN-0043",
+        "name": "Vườn quốc gia Xuân Thủy"
+      },
+      {
+        "code": "VN-0055",
+        "name": "Hồ Đồng Chương"
+      },
+      {
+        "code": "VN-0057",
+        "name": "Vườn quốc gia Núi Chúa"
+      },
+      {
+        "code": "VN-0064",
+        "name": "Vườn quốc gia Xuân Sơn"
+      },
+      {
+        "code": "VN-0098",
+        "name": "Vườn cò Tân Long"
+      },
+      {
+        "code": "VN-0103",
+        "name": "Rừng thông bản Áng"
+      },
+      {
+        "code": "VN-0110",
+        "name": "Vườn quốc gia Lò Gò - Xa Mát"
+      },
+      {
+        "code": "VN-0113",
+        "name": "Bãi biển Cồn Đen"
+      },
+      {
+        "code": "VN-0120",
+        "name": "Thác Đát Đắng"
+      },
+      {
+        "code": "VN-0121",
+        "name": "Suối Hiêu"
+      },
+      {
+        "code": "VN-0124",
+        "name": "Vườn quốc gia Bến En"
+      },
+      {
+        "code": "VN-0141",
+        "name": "Rừng Tràm Trà Sư"
+      },
+      {
+        "code": "VN-0156",
+        "name": "Hồ Ba Bể"
+      },
+      {
+        "code": "VN-0187",
+        "name": "Trảng cỏ Bù Lạch"
+      },
+      {
+        "code": "VN-0190",
+        "name": "Vườn quốc gia Bù Gia Mập"
+      },
+      {
+        "code": "VN-0196",
+        "name": "Mũi Cà Mau"
+      },
+      {
+        "code": "VN-0197",
+        "name": "Vườn Quốc Gia U Minh Hạ"
+      },
+      {
+        "code": "VN-0221",
+        "name": "Thác Bản Ba"
+      },
+      {
+        "code": "VN-0222",
+        "name": "Hồ Thủy Điện Tuyên Quang"
+      },
+      {
+        "code": "VN-0232",
+        "name": "Hồ Đại Lải"
+      },
+      {
+        "code": "VN-0250",
+        "name": "Khu bảo tồn thiên nhiên Nâm Nung"
+      },
+      {
+        "code": "VN-0256",
+        "name": "Vườn quốc gia Cát Tiên"
+      },
+      {
+        "code": "VN-0260",
+        "name": "Thác Giang Điền"
+      },
+      {
+        "code": "VN-0261",
+        "name": "Vườn quốc gia Tràm Chim"
+      },
+      {
+        "code": "VN-0301",
+        "name": "Khu du lịch Lung Ngọc Hoàng"
+      }
+    ]
+  },
+  {
+    "cluster": 6,
+    "canonicalPlaces": 14,
+    "commonFeatures": [
+      {
+        "code": "kind__structure",
+        "share": 1.0
+      },
+      {
+        "code": "theme__architecture",
+        "share": 1.0
+      },
+      {
+        "code": "landform__river",
+        "share": 0.5
+      },
+      {
+        "code": "theme__history",
+        "share": 0.21428571428571427
+      },
+      {
+        "code": "landform__coast",
+        "share": 0.14285714285714285
+      },
+      {
+        "code": "landform__island",
+        "share": 0.14285714285714285
+      },
+      {
+        "code": "theme__culture",
+        "share": 0.14285714285714285
+      },
+      {
+        "code": "kind__heritage",
+        "share": 0.07142857142857142
+      }
+    ],
+    "places": [
+      {
+        "code": "VN-0012",
+        "name": "Cầu Treo Kon Klor"
+      },
+      {
+        "code": "VN-0028",
+        "name": "Cửa khẩu Hữu Nghị"
+      },
+      {
+        "code": "VN-0068",
+        "name": "Hải đăng Đại Lãnh"
+      },
+      {
+        "code": "VN-0130",
+        "name": "Cầu Tràng Tiền"
+      },
+      {
+        "code": "VN-0132",
+        "name": "Cầu Mỹ Thuận"
+      },
+      {
+        "code": "VN-0192",
+        "name": "Hải đăng Kê Gà"
+      },
+      {
+        "code": "VN-0202",
+        "name": "Cầu Cần Thơ"
+      },
+      {
+        "code": "VN-0212",
+        "name": "Cầu Rồng"
+      },
+      {
+        "code": "VN-0215",
+        "name": "Cầu Tình Yêu"
+      },
+      {
+        "code": "VN-0269",
+        "name": "Quảng trường Đại Đoàn Kết"
+      },
+      {
+        "code": "VN-0271",
+        "name": "Cột cờ Lũng Cú"
+      },
+      {
+        "code": "VN-0285",
+        "name": "Cầu Long Biên"
+      },
+      {
+        "code": "VN-0299",
+        "name": "Hải đăng Hòn Dấu"
+      },
+      {
+        "code": "VN-0300",
+        "name": "Cầu Hoàng Văn Thụ"
+      }
+    ]
+  },
+  {
+    "cluster": 7,
+    "canonicalPlaces": 17,
+    "commonFeatures": [
+      {
+        "code": "kind__nature",
+        "share": 1.0
+      },
+      {
+        "code": "landform__mountain",
+        "share": 1.0
+      },
+      {
+        "code": "theme__ecology",
+        "share": 0.058823529411764705
+      },
+      {
+        "code": "theme__geology",
+        "share": 0.058823529411764705
+      },
+      {
+        "code": "theme__history",
+        "share": 0.058823529411764705
+      }
+    ],
+    "places": [
+      {
+        "code": "VN-0014",
+        "name": "Đỉnh Ngọc Linh"
+      },
+      {
+        "code": "VN-0016",
+        "name": "Đèo Ô Quy Hồ"
+      },
+      {
+        "code": "VN-0017",
+        "name": "Đỉnh Pu Ta Leng"
+      },
+      {
+        "code": "VN-0029",
+        "name": "Đèo Bông Lau"
+      },
+      {
+        "code": "VN-0031",
+        "name": "Đỉnh Núi Fansipan"
+      },
+      {
+        "code": "VN-0032",
+        "name": "Cổng Trời Ô Quy Hồ"
+      },
+      {
+        "code": "VN-0079",
+        "name": "Đỉnh Quế"
+      },
+      {
+        "code": "VN-0081",
+        "name": "Núi Thiên Ấn"
+      },
+      {
+        "code": "VN-0085",
+        "name": "Đèo Vi Ô Lắc"
+      },
+      {
+        "code": "VN-0095",
+        "name": "Đỉnh Cu Vơ"
+      },
+      {
+        "code": "VN-0105",
+        "name": "Đỉnh Tà Xùa"
+      },
+      {
+        "code": "VN-0106",
+        "name": "Núi Bà Đen"
+      },
+      {
+        "code": "VN-0146",
+        "name": "Núi Dinh Vũng Tàu"
+      },
+      {
+        "code": "VN-0186",
+        "name": "Núi Bà Rá"
+      },
+      {
+        "code": "VN-0208",
+        "name": "Núi Mắt Thần"
+      },
+      {
+        "code": "VN-0272",
+        "name": "Đèo Mã Pí Lèng"
+      },
+      {
+        "code": "VN-0290",
+        "name": "Đèo Ngang"
+      }
+    ]
+  },
+  {
+    "cluster": 8,
+    "canonicalPlaces": 15,
+    "commonFeatures": [
+      {
+        "code": "kind__nature",
+        "share": 1.0
+      },
+      {
+        "code": "landform__waterfall",
+        "share": 0.8666666666666667
+      },
+      {
+        "code": "ecosystem__forest",
+        "share": 0.2
+      },
+      {
+        "code": "landform__river",
+        "share": 0.13333333333333333
+      },
+      {
+        "code": "landform__lagoon",
+        "share": 0.06666666666666667
+      },
+      {
+        "code": "landform__stream",
+        "share": 0.06666666666666667
+      },
+      {
+        "code": "theme__culture",
+        "share": 0.06666666666666667
+      }
+    ],
+    "places": [
+      {
+        "code": "VN-0015",
+        "name": "Thác Đăk Sing"
+      },
+      {
+        "code": "VN-0025",
+        "name": "Thác Voi"
+      },
+      {
+        "code": "VN-0034",
+        "name": "Thác Tình Yêu"
+      },
+      {
+        "code": "VN-0039",
+        "name": "Sông Vàm Cỏ"
+      },
+      {
+        "code": "VN-0084",
+        "name": "Thác Trắng"
+      },
+      {
+        "code": "VN-0104",
+        "name": "Thác Dải Yếm"
+      },
+      {
+        "code": "VN-0152",
+        "name": "Thác Thùm Thùm"
+      },
+      {
+        "code": "VN-0158",
+        "name": "Thác Đầu Đẳng"
+      },
+      {
+        "code": "VN-0199",
+        "name": "Đầm Thị Tường"
+      },
+      {
+        "code": "VN-0206",
+        "name": "Thác Bản Giốc"
+      },
+      {
+        "code": "VN-0225",
+        "name": "Thác Khuổi Nhi"
+      },
+      {
+        "code": "VN-0243",
+        "name": "Thác Dray Nur"
+      },
+      {
+        "code": "VN-0247",
+        "name": "Thác Dray Sap"
+      },
+      {
+        "code": "VN-0267",
+        "name": "Thác Phú Cường"
+      },
+      {
+        "code": "VN-0309",
+        "name": "Cửu thác Tú Sơn"
+      }
+    ]
+  },
+  {
+    "cluster": 9,
+    "canonicalPlaces": 14,
+    "commonFeatures": [
+      {
+        "code": "kind__agriculture",
+        "share": 1.0
+      },
+      {
+        "code": "theme__agriculture",
+        "share": 1.0
+      },
+      {
+        "code": "theme__culture",
+        "share": 0.42857142857142855
+      },
+      {
+        "code": "landform__mountain",
+        "share": 0.35714285714285715
+      },
+      {
+        "code": "kind__community",
+        "share": 0.14285714285714285
+      },
+      {
+        "code": "theme__cuisine",
+        "share": 0.14285714285714285
+      },
+      {
+        "code": "theme__relaxation",
+        "share": 0.14285714285714285
+      },
+      {
+        "code": "kind__nature",
+        "share": 0.07142857142857142
+      }
+    ],
+    "places": [
+      {
+        "code": "VN-0018",
+        "name": "Cánh đồng Mường Than"
+      },
+      {
+        "code": "VN-0049",
+        "name": "Đồi chè Thanh Chương"
+      },
+      {
+        "code": "VN-0052",
+        "name": "Tam Cốc"
+      },
+      {
+        "code": "VN-0059",
+        "name": "Vườn nho Thái An Quán"
+      },
+      {
+        "code": "VN-0083",
+        "name": "Đồng muối Sa Huỳnh"
+      },
+      {
+        "code": "VN-0094",
+        "name": "Đồi hoa Miền Viên Thảo"
+      },
+      {
+        "code": "VN-0117",
+        "name": "Đồi chè Tân Cương"
+      },
+      {
+        "code": "VN-0122",
+        "name": "Ruộng bậc thang Pù Luông"
+      },
+      {
+        "code": "VN-0236",
+        "name": "Ruộng bậc thang Mù Cang Chải"
+      },
+      {
+        "code": "VN-0238",
+        "name": "Suối Giàng"
+      },
+      {
+        "code": "VN-0239",
+        "name": "Bản Lìm Mông"
+      },
+      {
+        "code": "VN-0254",
+        "name": "Cánh đồng Mường Thanh"
+      },
+      {
+        "code": "VN-0262",
+        "name": "Làng hoa Sa Đéc"
+      },
+      {
+        "code": "VN-0270",
+        "name": "Đồi chè Bàu Cạn"
+      }
+    ]
+  },
+  {
+    "cluster": 10,
+    "canonicalPlaces": 14,
+    "commonFeatures": [
+      {
+        "code": "kind__market",
+        "share": 0.9285714285714286
+      },
+      {
+        "code": "theme__culture",
+        "share": 0.8571428571428571
+      },
+      {
+        "code": "theme__cuisine",
+        "share": 0.6428571428571429
+      },
+      {
+        "code": "landform__river",
+        "share": 0.21428571428571427
+      },
+      {
+        "code": "kind__museum",
+        "share": 0.07142857142857142
+      },
+      {
+        "code": "theme__spirituality",
+        "share": 0.07142857142857142
+      }
+    ],
+    "places": [
+      {
+        "code": "VN-0020",
+        "name": "Chợ phiên Sìn Hồ"
+      },
+      {
+        "code": "VN-0023",
+        "name": "Chợ Đêm Đà Lạt"
+      },
+      {
+        "code": "VN-0027",
+        "name": "Chợ Đông Kinh"
+      },
+      {
+        "code": "VN-0033",
+        "name": "Chợ phiên Bắc Hà"
+      },
+      {
+        "code": "VN-0040",
+        "name": "Chợ đêm Tân An"
+      },
+      {
+        "code": "VN-0044",
+        "name": "Chợ Viềng"
+      },
+      {
+        "code": "VN-0096",
+        "name": "Chợ nổi Ngã Năm"
+      },
+      {
+        "code": "VN-0136",
+        "name": "Chợ Bến Thành"
+      },
+      {
+        "code": "VN-0170",
+        "name": "Chợ Ninh Hiệp"
+      },
+      {
+        "code": "VN-0201",
+        "name": "Chợ Nổi Cái Răng"
+      },
+      {
+        "code": "VN-0244",
+        "name": "Bảo tàng cà phê Thế giới"
+      },
+      {
+        "code": "VN-0265",
+        "name": "Chợ Cao Lãnh"
+      },
+      {
+        "code": "VN-0295",
+        "name": "Chợ Đông Ngô Quyền"
+      },
+      {
+        "code": "VN-0302",
+        "name": "Chợ nổi Ngã Bảy"
+      }
+    ]
+  },
+  {
+    "cluster": 11,
+    "canonicalPlaces": 24,
+    "commonFeatures": [
+      {
+        "code": "kind__nature",
+        "share": 1.0
+      },
+      {
+        "code": "theme__geology",
+        "share": 1.0
+      },
+      {
+        "code": "landform__cave",
+        "share": 0.8333333333333334
+      },
+      {
+        "code": "landform__mountain",
+        "share": 0.25
+      },
+      {
+        "code": "kind__religious",
+        "share": 0.125
+      },
+      {
+        "code": "theme__culture",
+        "share": 0.125
+      },
+      {
+        "code": "theme__history",
+        "share": 0.125
+      },
+      {
+        "code": "theme__spirituality",
+        "share": 0.125
+      }
+    ],
+    "places": [
+      {
+        "code": "VN-0026",
+        "name": "Động Tam Thanh"
+      },
+      {
+        "code": "VN-0050",
+        "name": "Hang Thẩm Ồm"
+      },
+      {
+        "code": "VN-0051",
+        "name": "Tràng An"
+      },
+      {
+        "code": "VN-0054",
+        "name": "Vườn quốc gia Cúc Phương"
+      },
+      {
+        "code": "VN-0066",
+        "name": "Gành Đá Đĩa"
+      },
+      {
+        "code": "VN-0071",
+        "name": "Động Phong Nha"
+      },
+      {
+        "code": "VN-0075",
+        "name": "Sông Chày"
+      },
+      {
+        "code": "VN-0086",
+        "name": "Vịnh Hạ Long"
+      },
+      {
+        "code": "VN-0090",
+        "name": "Động Thiên Cung (Hạ Long)"
+      },
+      {
+        "code": "VN-0102",
+        "name": "Ngũ động Bản Ôn"
+      },
+      {
+        "code": "VN-0119",
+        "name": "Động Linh Sơn"
+      },
+      {
+        "code": "VN-0125",
+        "name": "Động Từ Thức"
+      },
+      {
+        "code": "VN-0157",
+        "name": "Động Puông"
+      },
+      {
+        "code": "VN-0160",
+        "name": "Động Nàng Tiên"
+      },
+      {
+        "code": "VN-0193",
+        "name": "Bàu Trắng"
+      },
+      {
+        "code": "VN-0207",
+        "name": "Động Ngườm Ngao"
+      },
+      {
+        "code": "VN-0213",
+        "name": "Ngũ Hành Sơn"
+      },
+      {
+        "code": "VN-0240",
+        "name": "Động Thiên Cung Suối Giàng"
+      },
+      {
+        "code": "VN-0246",
+        "name": "Công viên địa chất Đắk Nông"
+      },
+      {
+        "code": "VN-0248",
+        "name": "Hang động Chư Bluk"
+      },
+      {
+        "code": "VN-0266",
+        "name": "Biển Hồ (T'Nưng)"
+      },
+      {
+        "code": "VN-0274",
+        "name": "Hẻm Tu Sản"
+      },
+      {
+        "code": "VN-0278",
+        "name": "Hang Luồn – Ao Dong (Hà Nam)"
+      },
+      {
+        "code": "VN-0308",
+        "name": "Động Đá Bạc"
+      }
+    ]
+  },
+  {
+    "cluster": 12,
+    "canonicalPlaces": 6,
+    "commonFeatures": [
+      {
+        "code": "kind__craft",
+        "share": 1.0
+      },
+      {
+        "code": "theme__craft",
+        "share": 1.0
+      },
+      {
+        "code": "theme__culture",
+        "share": 1.0
+      },
+      {
+        "code": "kind__community",
+        "share": 0.16666666666666666
+      },
+      {
+        "code": "kind__heritage",
+        "share": 0.16666666666666666
+      },
+      {
+        "code": "theme__architecture",
+        "share": 0.16666666666666666
+      },
+      {
+        "code": "theme__cuisine",
+        "share": 0.16666666666666666
+      },
+      {
+        "code": "theme__history",
+        "share": 0.16666666666666666
+      }
+    ],
+    "places": [
+      {
+        "code": "VN-0062",
+        "name": "Làng cổ Hùng Lô"
+      },
+      {
+        "code": "VN-0115",
+        "name": "Làng dệt chiếu Hới"
+      },
+      {
+        "code": "VN-0168",
+        "name": "Làng tranh Đông Hồ"
+      },
+      {
+        "code": "VN-0210",
+        "name": "Làng rèn Phúc Sen"
+      },
+      {
+        "code": "VN-0233",
+        "name": "Làng gốm Hương Canh"
+      },
+      {
+        "code": "VN-0313",
+        "name": "Làng nghề đúc đồng Lộng Thượng"
+      }
+    ]
+  },
+  {
+    "cluster": 13,
+    "canonicalPlaces": 7,
+    "commonFeatures": [
+      {
+        "code": "kind__nature",
+        "share": 1.0
+      },
+      {
+        "code": "theme__ecology",
+        "share": 1.0
+      },
+      {
+        "code": "landform__island",
+        "share": 0.8571428571428571
+      },
+      {
+        "code": "kind__agriculture",
+        "share": 0.42857142857142855
+      },
+      {
+        "code": "landform__river",
+        "share": 0.42857142857142855
+      },
+      {
+        "code": "theme__agriculture",
+        "share": 0.42857142857142855
+      },
+      {
+        "code": "theme__culture",
+        "share": 0.42857142857142855
+      },
+      {
+        "code": "landform__coast",
+        "share": 0.2857142857142857
+      }
+    ],
+    "places": [
+      {
+        "code": "VN-0067",
+        "name": "Hòn Yến"
+      },
+      {
+        "code": "VN-0123",
+        "name": "Suối cá Thần Cẩm Thủy"
+      },
+      {
+        "code": "VN-0171",
+        "name": "khu du lịch Cồn Phụng"
+      },
+      {
+        "code": "VN-0198",
+        "name": "Hòn Đá Bạc"
+      },
+      {
+        "code": "VN-0205",
+        "name": "Cồn Sơn"
+      },
+      {
+        "code": "VN-0226",
+        "name": "Cù Lao An Bình"
+      },
+      {
+        "code": "VN-0291",
+        "name": "Đảo Cò Chi Lăng Nam"
+      }
+    ]
+  },
+  {
+    "cluster": 14,
+    "canonicalPlaces": 12,
+    "commonFeatures": [
+      {
+        "code": "theme__culture",
+        "share": 1.0
+      },
+      {
+        "code": "kind__community",
+        "share": 0.8333333333333334
+      },
+      {
+        "code": "kind__nature",
+        "share": 0.3333333333333333
+      },
+      {
+        "code": "landform__coast",
+        "share": 0.16666666666666666
+      },
+      {
+        "code": "landform__mountain",
+        "share": 0.16666666666666666
+      },
+      {
+        "code": "theme__cuisine",
+        "share": 0.16666666666666666
+      },
+      {
+        "code": "theme__relaxation",
+        "share": 0.16666666666666666
+      },
+      {
+        "code": "kind__recreation",
+        "share": 0.08333333333333333
+      }
+    ],
+    "places": [
+      {
+        "code": "VN-0089",
+        "name": "Làng chài Cửa Vạn"
+      },
+      {
+        "code": "VN-0101",
+        "name": "Mộc Châu"
+      },
+      {
+        "code": "VN-0159",
+        "name": "Bản Pác Ngòi"
+      },
+      {
+        "code": "VN-0163",
+        "name": "Cây Xoài Cổ Thụ"
+      },
+      {
+        "code": "VN-0194",
+        "name": "Làng Chài Mũi Né"
+      },
+      {
+        "code": "VN-0231",
+        "name": "Tam Đảo"
+      },
+      {
+        "code": "VN-0241",
+        "name": "Buôn Đôn"
+      },
+      {
+        "code": "VN-0242",
+        "name": "Hồ Lắk"
+      },
+      {
+        "code": "VN-0280",
+        "name": "Làng Vũ Đại"
+      },
+      {
+        "code": "VN-0293",
+        "name": "Làng rối nước Thanh Hải"
+      },
+      {
+        "code": "VN-0305",
+        "name": "Sông Cái Lớn"
+      },
+      {
+        "code": "VN-0307",
+        "name": "Mai Châu"
+      }
+    ]
+  }
+]

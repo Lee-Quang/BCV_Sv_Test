@@ -49,12 +49,13 @@ public sealed class PostgresRecommendationRepository(NpgsqlDataSource db) : IRec
             }
         }
 
-        // The ACTIVE configuration wins; the seeded draft is used until an administrator activates one.
+        // Only an activated configuration may affect user-facing recommendations.
         RecommendationConfig? config = null;
         await using (var command = new NpgsqlCommand("""
             SELECT recommendation_config_id, version, distance_limit
             FROM public.recommendation_config
-            ORDER BY (status = 'ACTIVE') DESC, updated_at DESC, recommendation_config_id DESC
+            WHERE status = 'ACTIVE'
+            ORDER BY updated_at DESC, recommendation_config_id DESC
             LIMIT 1
             """, connection))
         await using (var reader = await command.ExecuteReaderAsync(ct))

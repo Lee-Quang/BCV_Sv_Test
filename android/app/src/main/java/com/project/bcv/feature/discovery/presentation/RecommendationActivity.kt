@@ -107,10 +107,14 @@ class RecommendationActivity : AppCompatActivity() {
             item.status.setTextColor(accent)
             item.name.text = place.name
             item.distance.text = "${distanceText(place.distanceKm)} · ~${stepsText(place.requiredSteps)} bước"
-            item.matched.text = if (place.matchedPreferences.isEmpty()) "" else
-                "Hợp sở thích: ${place.matchedPreferences.joinToString(", ")}"
+            val reasons = place.reasons.ifEmpty {
+                if (place.matchedPreferences.isEmpty()) emptyList() else
+                    listOf("Hợp sở thích: ${place.matchedPreferences.joinToString(", ")}")
+            }
+            item.matched.text = reasons.take(2).joinToString(" · ")
+            item.matched.contentDescription = reasons.joinToString(". ")
             // Keeps its line when empty so every card has the skeleton's height.
-            item.matched.visibility = if (place.matchedPreferences.isEmpty()) View.INVISIBLE else View.VISIBLE
+            item.matched.visibility = if (reasons.isEmpty()) View.INVISIBLE else View.VISIBLE
             item.selectButton.backgroundTintList = ColorStateList.valueOf(
                 if (best) 0xFF07836D.toInt() else 0xFFEFF2EA.toInt())
             item.selectButton.setTextColor(if (best) 0xFFFFFFFF.toInt() else 0xFF07836D.toInt())

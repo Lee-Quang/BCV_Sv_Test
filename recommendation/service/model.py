@@ -5,7 +5,6 @@ data never contains a model path, pickle, or instructions to train a model.
 """
 from __future__ import annotations
 
-import csv
 import hashlib
 import os
 from pathlib import Path
@@ -18,23 +17,14 @@ import joblib
 import numpy as np
 import sklearn
 from sklearn.exceptions import InconsistentVersionWarning
-
-
-GROUPS = ("KindTags", "LandformTags", "EcosystemTags", "ThemeTags")
-PREFIXES = ("kind", "landform", "ecosystem", "theme")
-
-
-def read_csv(path: Path) -> tuple[list[str], list[dict[str, str]]]:
-    with path.open(encoding="utf-8-sig", newline="") as source:
-        reader = csv.DictReader(source)
-        rows = list(reader)
-        return list(reader.fieldnames or []), rows
+from .dataset import FEATURE_NAMES, GROUPS, PREFIXES, VOCABULARIES, load_dataset
 
 
 def normalize_blocks(binary: np.ndarray, lengths: list[int]) -> np.ndarray:
     """L2 per group, weight 0.5; preserve empty groups without global L2."""
     binary = np.asarray(binary, dtype=np.float64)
-    if binary.ndim != 2 or sum(lengths) != binary.shape[1] or len(lengths) != 4:
+    if (binary.ndim != 2 or sum(lengths) != binary.shape[1] or len(lengths) != 4
+            or any(length <= 0 for length in lengths)):
         raise ValueError("Expected four groups covering every feature column")
     if not np.isin(binary, [0, 1]).all():
         raise ValueError("Feature values must be binary")
@@ -53,6 +43,7 @@ def normalize_blocks(binary: np.ndarray, lengths: list[int]) -> np.ndarray:
 class ContentModel:
     def __init__(self, data_dir: Path):
         self.data_dir = Path(data_dir)
+        self.dataset = load_dataset(self.data_dir)
         artifact = self.data_dir / "model.joblib"
         with warnings.catch_warnings():
             warnings.simplefilter("error", InconsistentVersionWarning)
@@ -69,6 +60,10 @@ class ContentModel:
             or self.model.n_features_in_ != 35
             or set(self.cluster_mapping) != set(range(15))
             or set(self.cluster_mapping.values()) != set(range(15))
+            or self.features != list(FEATURE_NAMES)
+            or self.blocks != [(name, list(tags)) for name, tags in VOCABULARIES.items()]
+            or self.model.n_init != 20 or self.model.max_iter != 500
+            or self.model.algorithm != "lloyd" or self.model.tol != 0.0001
         ):
             raise ValueError("Artifact does not match the reviewed 35-feature K15 seed42 model")
         expected_features = [
@@ -76,23 +71,12 @@ class ContentModel:
         ]
         if expected_features != self.features:
             raise ValueError("Artifact feature order differs from its vocabularies")
-        columns, feature_rows = read_csv(self.data_dir / "features.csv")
-        _, place_rows = read_csv(self.data_dir / "places.csv")
-        if columns != ["PlaceID", "CanonicalPlaceID", "TrainingWeight", "ClusterID", *self.features]:
-            raise ValueError("Feature CSV columns must match the artifact exactly and in order")
-        if len(feature_rows) != 315 or len(place_rows) != 315:
-            raise ValueError("Expected the reviewed 315 source rows")
-        source_codes = [row["PlaceID"] for row in feature_rows]
-        if len(set(source_codes)) != 315 or source_codes != [row["PlaceID"] for row in place_rows]:
-            raise ValueError("Source IDs are duplicated or metadata order differs")
-        self.aliases = {row["PlaceID"]: row["CanonicalPlaceID"] for row in feature_rows}
-        if len(set(self.aliases.values())) != 311:
-            raise ValueError("Expected 311 canonical places after source deduplication")
+        feature_rows, place_rows = self.dataset.features, self.dataset.places
+        self.aliases = self.dataset.aliases
         self.lengths = [len(vocab) for _, vocab in self.blocks]
         self.binary = np.array([[float(row[name]) for name in self.features] for row in feature_rows])
         self.vectors = normalize_blocks(self.binary, self.lengths)
-        if np.any(np.count_nonzero(self.binary, axis=1) == 0):
-            raise ValueError("A place cannot have an empty content vector")
+        self.training_weights = np.array([float(row["TrainingWeight"]) for row in feature_rows])
         # Lloyd K-Means predicts the nearest fitted centroid. This vectorized
         # calculation avoids threadpoolctl's ANSI Windows DLL-path inspection,
         # which fails when a virtualenv lives under a Vietnamese folder name.
@@ -106,29 +90,16 @@ class ContentModel:
         self.clusters = np.array([self.cluster_mapping[int(label)] for label in self.raw_clusters])
         if not np.array_equal(self.clusters, [int(row["ClusterID"]) for row in feature_rows]):
             raise ValueError("CSV cluster labels do not match the fitted artifact")
-        self.canonical_indices = []
+        self.canonical_indices = self.dataset.canonical_indices
         self.by_code = {}
-        indices = {code: index for index, code in enumerate(source_codes)}
-        for index, (feature, place) in enumerate(zip(feature_rows, place_rows)):
-            code = feature["CanonicalPlaceID"]
-            if place["CanonicalPlaceID"] != code or code not in indices or self.aliases[code] != code:
-                raise ValueError("Invalid canonical-place mapping")
-            canonical_index = indices[code]
-            if not np.array_equal(self.binary[index], self.binary[canonical_index]):
-                raise ValueError("Duplicate source rows disagree on canonical features")
+        for index in self.canonical_indices:
+            place = place_rows[index]
+            code = place["CanonicalPlaceID"]
             latitude, longitude = float(place["Latitude"]), float(place["Longitude"])
-            if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
-                raise ValueError("Invalid place coordinates")
-            if feature["PlaceID"] == code:
-                self.canonical_indices.append(index)
-                self.by_code[code] = {
-                    "index": index,
-                    "code": code,
-                    "name": place["Name"],
-                    "latitude": latitude,
-                    "longitude": longitude,
-                    "cluster": int(self.clusters[index]),
-                }
+            self.by_code[code] = {
+                "index": index, "code": code, "name": place["Name"],
+                "latitude": latitude, "longitude": longitude, "cluster": int(self.clusters[index]),
+            }
         self.metadata = {
             "modelVersion": "35_features_4_groups_no_activity",
             "featureCount": 35,
@@ -142,6 +113,8 @@ class ContentModel:
             "groups": [{"name": name, "columns": len(vocab)} for name, vocab in self.blocks],
             "scikitLearnVersion": sklearn.__version__,
             "artifactSha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
+            "sourceSha256": self.dataset.report["sourceSha256"],
+            "missingRatings": self.dataset.report["ratings"]["canonicalMissing"],
             "purpose": "Content similarity within a fitted cluster, not personalized recommendation accuracy",
         }
 

@@ -45,6 +45,9 @@ class ExploreRepositoryImpl(
                         it.getBoolean("isDiscovered"), it.getDouble("distanceKm"), it.getInt("requiredSteps"),
                         it.optJSONArray("matchedPreferences")?.let { array ->
                             (0 until array.length()).map(array::getString)
+                        }.orEmpty(),
+                        it.optJSONArray("reasons")?.let { array ->
+                            (0 until array.length()).map(array::getString)
                         }.orEmpty())
                 }
             })

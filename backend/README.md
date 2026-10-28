@@ -118,9 +118,17 @@ Theo mục 3.5.1.2 của tài liệu: **S = max(1, ⌈1000 · D · κ / L⌉)**,
 3. **Điểm tổng** theo `recommendation_weight`: **P 0,35 · C 0,15 · A 0,3 · R 0,1 · N 0,1**. Tiêu chí thiếu dữ liệu bị bỏ và trọng số còn lại được chuẩn hóa lại.
 4. Sắp xếp giảm dần, hòa điểm thì xét mã địa danh, lấy 3 kết quả đầu.
 
-Trọng số khởi tạo của tài liệu (0,4 / 0,2 / 0,2 / 0,1 / 0,1) để nơi xa nhưng nổi tiếng đứng đầu với người Ít vận động (ví dụ ở Châu Đốc: Bửu Long cách 190 km). `db/015_tune_recommendation_weights.sql` tăng trọng số A; sau khi chỉnh, nơi gần (Hồ Soài So 33 km, Rừng Tràm Trà Sư 11 km) lên đầu, còn điểm xa rất hợp sở thích vẫn trong top 3.
+Trọng số trong `015` là cấu hình thử nghiệm do nhóm chọn, chưa phải kết quả học hoặc đánh giá Precision@3/NDCG@3. Bộ kiểm tra xếp hạng cũng dùng được cấu hình khởi tạo của tài liệu (0,4 / 0,2 / 0,2 / 0,1 / 0,1). Khi thay trọng số, cần đủ năm mã tiêu chí, từng giá trị từ 0 đến 1 và tổng bằng 1.
 
-Cấu hình `ACTIVE` được ưu tiên, nếu chưa có thì dùng bản nháp mới nhất. Kết quả kèm điểm từng tiêu chí, tiêu chí đã dùng, tiêu chí bị thiếu và phiên bản cấu hình để truy vết. Cụm và đặc trưng đã lưu trong database, nên API không cần gọi dịch vụ Python trong [`recommendation/`](../recommendation/).
+Chỉ cấu hình `ACTIVE` được sử dụng. Nếu chưa có cấu hình hoạt động hoặc cấu hình không hợp lệ, API trả lỗi rõ ràng. Người dùng phải có sở thích và mức vận động hợp lệ trước khi yêu cầu gợi ý. Véc-tơ rỗng hoặc có mã đặc trưng lạ bị loại; mỗi mã địa danh chỉ xuất hiện một lần. C và N_max được tính từ tập tham chiếu hợp lệ trước khi lọc theo lịch sử và khoảng cách của từng người dùng.
+
+Chạy `db/016_preserve_missing_rating_counts.sql` trước khi dùng bản API này. Rating/count thiếu là NULL; count = 0 là số liệu thật, không đồng nghĩa thiếu. Kết quả kèm `criteria`, `usedCriteria`, `missingCriteria`, `effectiveWeights`, `reasons` và `configVersion` để truy vết. Trọng số bằng 0 không được ghi là đã dùng. App hiển thị tối đa hai lý do, với nội dung đầy đủ cho trình đọc màn hình. Cụm và đặc trưng đã lưu trong database, nên API không cần gọi dịch vụ Python trong [`recommendation/`](../recommendation/).
+
+Kiểm tra 18 tình huống về thay đổi sở thích/mức vận động, lọc ứng viên, loại trùng, dữ liệu thiếu, số 0 thật, trọng số, lý do và hợp đồng 35 đặc trưng. Chạy từ thư mục gốc với .NET SDK 10, không cần database hoặc thư viện kiểm thử bổ sung:
+
+```powershell
+dotnet run --project backend/Bcv.RecommendationChecks --artifacts-path .runtime.local/ai-checks -p:UseAppHost=false
+```
 
 ## Phiên đăng nhập và bảo mật
 

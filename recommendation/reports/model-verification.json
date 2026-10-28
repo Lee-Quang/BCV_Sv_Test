@@ -1,0 +1,483 @@
+{
+  "status": "verified",
+  "checks": {
+    "selectedK15": true,
+    "selectedSeed42": true,
+    "snapshotSilhouetteMatchesReport": true,
+    "meanSilhouetteMatchesReport": true,
+    "stabilityMatchesReport": true,
+    "retrainedLabelsMatchSnapshot": true,
+    "retrainedCentersMatchSnapshot": true
+  },
+  "trainingRows": 315,
+  "evaluationCanonicalPlaces": 311,
+  "selectionRule": "Highest mean silhouette; ties: higher mean ARI, then lower K; each cluster needs >=3 canonical places in every seed",
+  "selected": {
+    "k": 15,
+    "seed": 42,
+    "silhouette": 0.4186467050919831,
+    "inertia": 44.97069757542861,
+    "minCanonicalClusterSize": 6,
+    "iterations": 5
+  },
+  "selectedSummary": {
+    "k": 15,
+    "meanSilhouette": 0.4138414042947152,
+    "meanAdjustedRandIndex": 0.9091022180435147,
+    "minCanonicalClusterSize": 4,
+    "eligible": true
+  },
+  "snapshotSilhouette": 0.4186467050919831,
+  "snapshotComparisonAri": 1.0,
+  "maximumMatchedCenterDifference": 0.0,
+  "artifactSha256": "0f79c0880d04dca5d056354689a33b1ec93cf203a11335cefc550ce1cc81f3d3",
+  "sourceSha256": {
+    "places.csv": "63fd28080797eaee821937277f5647614a5bd3bb57e7e5a4923e9f2f1001eaba",
+    "features.csv": "395831e1dc978171c5f8d2615b98668b8dd112b61ae267f550be6a08ad1d4cc0"
+  },
+  "versions": {
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "scikit-learn": "1.9.1",
+    "joblib": "1.6.0"
+  },
+  "configurations": [
+    {
+      "k": 2,
+      "meanSilhouette": 0.21840250578671572,
+      "meanAdjustedRandIndex": 1.0,
+      "minCanonicalClusterSize": 147,
+      "eligible": true
+    },
+    {
+      "k": 3,
+      "meanSilhouette": 0.21728246155469813,
+      "meanAdjustedRandIndex": 0.7793131587981552,
+      "minCanonicalClusterSize": 47,
+      "eligible": true
+    },
+    {
+      "k": 4,
+      "meanSilhouette": 0.2305157857783767,
+      "meanAdjustedRandIndex": 0.6865056367958448,
+      "minCanonicalClusterSize": 40,
+      "eligible": true
+    },
+    {
+      "k": 5,
+      "meanSilhouette": 0.2589063487240315,
+      "meanAdjustedRandIndex": 0.9485695086721387,
+      "minCanonicalClusterSize": 39,
+      "eligible": true
+    },
+    {
+      "k": 6,
+      "meanSilhouette": 0.2821492496182224,
+      "meanAdjustedRandIndex": 0.8327898504045194,
+      "minCanonicalClusterSize": 14,
+      "eligible": true
+    },
+    {
+      "k": 7,
+      "meanSilhouette": 0.305057050547057,
+      "meanAdjustedRandIndex": 0.7785079538522988,
+      "minCanonicalClusterSize": 14,
+      "eligible": true
+    },
+    {
+      "k": 8,
+      "meanSilhouette": 0.32484270745496363,
+      "meanAdjustedRandIndex": 0.8714867384351095,
+      "minCanonicalClusterSize": 14,
+      "eligible": true
+    },
+    {
+      "k": 9,
+      "meanSilhouette": 0.33965163818506783,
+      "meanAdjustedRandIndex": 0.7864330492261212,
+      "minCanonicalClusterSize": 14,
+      "eligible": true
+    },
+    {
+      "k": 10,
+      "meanSilhouette": 0.3576923803575276,
+      "meanAdjustedRandIndex": 0.824461259323057,
+      "minCanonicalClusterSize": 13,
+      "eligible": true
+    },
+    {
+      "k": 11,
+      "meanSilhouette": 0.37136801368675604,
+      "meanAdjustedRandIndex": 0.8813204211756563,
+      "minCanonicalClusterSize": 13,
+      "eligible": true
+    },
+    {
+      "k": 12,
+      "meanSilhouette": 0.39273250750249084,
+      "meanAdjustedRandIndex": 0.9513643516607617,
+      "minCanonicalClusterSize": 13,
+      "eligible": true
+    },
+    {
+      "k": 13,
+      "meanSilhouette": 0.4011175549437566,
+      "meanAdjustedRandIndex": 0.9181299179888507,
+      "minCanonicalClusterSize": 9,
+      "eligible": true
+    },
+    {
+      "k": 14,
+      "meanSilhouette": 0.3902399126509182,
+      "meanAdjustedRandIndex": 0.8396854980091106,
+      "minCanonicalClusterSize": 10,
+      "eligible": true
+    },
+    {
+      "k": 15,
+      "meanSilhouette": 0.4138414042947152,
+      "meanAdjustedRandIndex": 0.9091022180435147,
+      "minCanonicalClusterSize": 4,
+      "eligible": true
+    }
+  ],
+  "runs": [
+    {
+      "k": 2,
+      "seed": 42,
+      "silhouette": 0.21840250578671572,
+      "inertia": 124.39075643469081,
+      "minCanonicalClusterSize": 147,
+      "iterations": 6
+    },
+    {
+      "k": 2,
+      "seed": 7,
+      "silhouette": 0.21840250578671572,
+      "inertia": 124.39075643469081,
+      "minCanonicalClusterSize": 147,
+      "iterations": 4
+    },
+    {
+      "k": 2,
+      "seed": 2026,
+      "silhouette": 0.21840250578671572,
+      "inertia": 124.39075643469081,
+      "minCanonicalClusterSize": 147,
+      "iterations": 4
+    },
+    {
+      "k": 3,
+      "seed": 42,
+      "silhouette": 0.20339949527729292,
+      "inertia": 112.68903208770634,
+      "minCanonicalClusterSize": 47,
+      "iterations": 8
+    },
+    {
+      "k": 3,
+      "seed": 7,
+      "silhouette": 0.22422394469340073,
+      "inertia": 109.9962570493196,
+      "minCanonicalClusterSize": 59,
+      "iterations": 6
+    },
+    {
+      "k": 3,
+      "seed": 2026,
+      "silhouette": 0.22422394469340073,
+      "inertia": 109.9962570493196,
+      "minCanonicalClusterSize": 59,
+      "iterations": 5
+    },
+    {
+      "k": 4,
+      "seed": 42,
+      "silhouette": 0.25469847492096,
+      "inertia": 100.68968879901179,
+      "minCanonicalClusterSize": 40,
+      "iterations": 9
+    },
+    {
+      "k": 4,
+      "seed": 7,
+      "silhouette": 0.21842444120708504,
+      "inertia": 98.96409297766422,
+      "minCanonicalClusterSize": 51,
+      "iterations": 6
+    },
+    {
+      "k": 4,
+      "seed": 2026,
+      "silhouette": 0.21842444120708504,
+      "inertia": 98.96409297766422,
+      "minCanonicalClusterSize": 51,
+      "iterations": 6
+    },
+    {
+      "k": 5,
+      "seed": 42,
+      "silhouette": 0.25679588058587677,
+      "inertia": 89.12365566357524,
+      "minCanonicalClusterSize": 51,
+      "iterations": 5
+    },
+    {
+      "k": 5,
+      "seed": 7,
+      "silhouette": 0.2599615827931089,
+      "inertia": 88.73434501303326,
+      "minCanonicalClusterSize": 39,
+      "iterations": 6
+    },
+    {
+      "k": 5,
+      "seed": 2026,
+      "silhouette": 0.2599615827931089,
+      "inertia": 88.73434501303326,
+      "minCanonicalClusterSize": 39,
+      "iterations": 5
+    },
+    {
+      "k": 6,
+      "seed": 42,
+      "silhouette": 0.28213926257457467,
+      "inertia": 80.95625113830883,
+      "minCanonicalClusterSize": 35,
+      "iterations": 5
+    },
+    {
+      "k": 6,
+      "seed": 7,
+      "silhouette": 0.28311661963240403,
+      "inertia": 82.23766866198888,
+      "minCanonicalClusterSize": 14,
+      "iterations": 6
+    },
+    {
+      "k": 6,
+      "seed": 2026,
+      "silhouette": 0.2811918666476886,
+      "inertia": 80.96167139143591,
+      "minCanonicalClusterSize": 37,
+      "iterations": 5
+    },
+    {
+      "k": 7,
+      "seed": 42,
+      "silhouette": 0.29833480198854634,
+      "inertia": 76.40316869109674,
+      "minCanonicalClusterSize": 26,
+      "iterations": 6
+    },
+    {
+      "k": 7,
+      "seed": 7,
+      "silhouette": 0.308319522463477,
+      "inertia": 75.00149798234666,
+      "minCanonicalClusterSize": 14,
+      "iterations": 5
+    },
+    {
+      "k": 7,
+      "seed": 2026,
+      "silhouette": 0.30851682718914775,
+      "inertia": 74.06489669425955,
+      "minCanonicalClusterSize": 14,
+      "iterations": 6
+    },
+    {
+      "k": 8,
+      "seed": 42,
+      "silhouette": 0.3235257365612757,
+      "inertia": 68.87559988411601,
+      "minCanonicalClusterSize": 14,
+      "iterations": 8
+    },
+    {
+      "k": 8,
+      "seed": 7,
+      "silhouette": 0.3273715253293544,
+      "inertia": 68.89614624755504,
+      "minCanonicalClusterSize": 14,
+      "iterations": 5
+    },
+    {
+      "k": 8,
+      "seed": 2026,
+      "silhouette": 0.3236308604742608,
+      "inertia": 68.9104346017582,
+      "minCanonicalClusterSize": 14,
+      "iterations": 5
+    },
+    {
+      "k": 9,
+      "seed": 42,
+      "silhouette": 0.33857275682609544,
+      "inertia": 64.52357585608362,
+      "minCanonicalClusterSize": 14,
+      "iterations": 9
+    },
+    {
+      "k": 9,
+      "seed": 7,
+      "silhouette": 0.33876068018367816,
+      "inertia": 63.7779038727828,
+      "minCanonicalClusterSize": 14,
+      "iterations": 5
+    },
+    {
+      "k": 9,
+      "seed": 2026,
+      "silhouette": 0.3416214775454297,
+      "inertia": 63.88239068959916,
+      "minCanonicalClusterSize": 14,
+      "iterations": 6
+    },
+    {
+      "k": 10,
+      "seed": 42,
+      "silhouette": 0.35437200455965795,
+      "inertia": 59.75428044420194,
+      "minCanonicalClusterSize": 13,
+      "iterations": 6
+    },
+    {
+      "k": 10,
+      "seed": 7,
+      "silhouette": 0.3596369879921487,
+      "inertia": 58.664754381137406,
+      "minCanonicalClusterSize": 14,
+      "iterations": 6
+    },
+    {
+      "k": 10,
+      "seed": 2026,
+      "silhouette": 0.359068148520776,
+      "inertia": 59.56287687770489,
+      "minCanonicalClusterSize": 14,
+      "iterations": 4
+    },
+    {
+      "k": 11,
+      "seed": 42,
+      "silhouette": 0.36832744392724825,
+      "inertia": 55.70211374171873,
+      "minCanonicalClusterSize": 14,
+      "iterations": 5
+    },
+    {
+      "k": 11,
+      "seed": 7,
+      "silhouette": 0.37444003793982206,
+      "inertia": 54.78887023119071,
+      "minCanonicalClusterSize": 14,
+      "iterations": 7
+    },
+    {
+      "k": 11,
+      "seed": 2026,
+      "silhouette": 0.37133655919319775,
+      "inertia": 55.08195841908013,
+      "minCanonicalClusterSize": 13,
+      "iterations": 5
+    },
+    {
+      "k": 12,
+      "seed": 42,
+      "silhouette": 0.3925191158716679,
+      "inertia": 51.318036377094145,
+      "minCanonicalClusterSize": 13,
+      "iterations": 7
+    },
+    {
+      "k": 12,
+      "seed": 7,
+      "silhouette": 0.3930917333590935,
+      "inertia": 51.34165955934975,
+      "minCanonicalClusterSize": 14,
+      "iterations": 5
+    },
+    {
+      "k": 12,
+      "seed": 2026,
+      "silhouette": 0.3925866732767112,
+      "inertia": 51.26882697886548,
+      "minCanonicalClusterSize": 13,
+      "iterations": 6
+    },
+    {
+      "k": 13,
+      "seed": 42,
+      "silhouette": 0.4018050676911942,
+      "inertia": 48.407891024739506,
+      "minCanonicalClusterSize": 13,
+      "iterations": 7
+    },
+    {
+      "k": 13,
+      "seed": 7,
+      "silhouette": 0.3976555528235907,
+      "inertia": 49.169293422803996,
+      "minCanonicalClusterSize": 9,
+      "iterations": 4
+    },
+    {
+      "k": 13,
+      "seed": 2026,
+      "silhouette": 0.40389204431648495,
+      "inertia": 48.148953946899454,
+      "minCanonicalClusterSize": 13,
+      "iterations": 6
+    },
+    {
+      "k": 14,
+      "seed": 42,
+      "silhouette": 0.3615660559813058,
+      "inertia": 46.87294775233646,
+      "minCanonicalClusterSize": 13,
+      "iterations": 6
+    },
+    {
+      "k": 14,
+      "seed": 7,
+      "silhouette": 0.39992536255186784,
+      "inertia": 47.108704536172,
+      "minCanonicalClusterSize": 11,
+      "iterations": 5
+    },
+    {
+      "k": 14,
+      "seed": 2026,
+      "silhouette": 0.409228319419581,
+      "inertia": 46.54576302719294,
+      "minCanonicalClusterSize": 10,
+      "iterations": 5
+    },
+    {
+      "k": 15,
+      "seed": 42,
+      "silhouette": 0.4186467050919831,
+      "inertia": 44.97069757542861,
+      "minCanonicalClusterSize": 6,
+      "iterations": 5
+    },
+    {
+      "k": 15,
+      "seed": 7,
+      "silhouette": 0.4168330537882307,
+      "inertia": 44.865313650181875,
+      "minCanonicalClusterSize": 5,
+      "iterations": 6
+    },
+    {
+      "k": 15,
+      "seed": 2026,
+      "silhouette": 0.40604445400393185,
+      "inertia": 45.09862293121574,
+      "minCanonicalClusterSize": 4,
+      "iterations": 4
+    }
+  ],
+  "scope": "Content clustering reproducibility only; not personalized recommendation accuracy"
+}

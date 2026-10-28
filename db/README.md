@@ -43,7 +43,9 @@ try {
         '012_northern_place_images.sql',
         '013_northern_cards_collections.sql',
         '014_standard_place_types.sql',
-        '015_tune_recommendation_weights.sql'
+        '015_tune_recommendation_weights.sql',
+        '016_preserve_missing_rating_counts.sql',
+        '017_complete_place_cards.sql'
     )) {
         & $psql -X -w -v ON_ERROR_STOP=1 -h $config.DbHost -p $config.DbPort -U $config.DbUser -d $config.DbName -f (Join-Path db $file)
         if ($LASTEXITCODE -ne 0) { throw "Import failed: $file" }
@@ -88,6 +90,8 @@ Thay đổi dữ liệu nghiệp vụ hằng ngày nên làm qua web quản tr�
 | `013_northern_cards_collections.sql` | 120 thẻ miền Bắc, gán vào 5 bộ sưu tập |
 | `014_standard_place_types.sql` | Thay 10 loại gốc bằng 12 loại chuẩn (ID 101–112), gán lại loại cho 311 địa danh, chuyển sở thích đã lưu |
 | `015_tune_recommendation_weights.sql` | Trọng số gợi ý sau khi chỉnh (P 0,35 · C 0,15 · A 0,3 · R 0,1 · N 0,1) và kích hoạt cấu hình gợi ý |
+| `016_preserve_missing_rating_counts.sql` | Cho phép số lượt đánh giá thiếu là NULL; khôi phục 35 giá trị thiếu từ bản nhập gốc, giữ nguyên đánh giá đã bổ sung |
+| `017_complete_place_cards.sql` | Tạo 176 thẻ còn thiếu và 5 bộ sưu tập khu vực; mỗi địa danh có một thẻ, giữ nguyên thẻ cũ và cấp thẻ mới cho người đã khám phá |
 | `012_northern_place_images_sources.md` | Nguồn của từng ảnh trong `012` |
 
 Số thứ tự bị nhảy (`005`–`008`, `011`) vì các migration sửa dữ liệu cũ đã được gộp vào `004` và `010` rồi xóa.
@@ -96,6 +100,7 @@ Ghi chú về schema:
 
 - Bảng `USER` trong tài liệu được đặt tên `app_user` để tránh trùng từ khóa SQL; tên cột dùng `snake_case`.
 - Mục 4.1.3 của tài liệu ghi 28 bảng, nhưng mục 3.1.2 và 3.1.5 liệt kê 25 quan hệ; schema theo 25 quan hệ này.
+- Chạy `016` cả trên database đang dùng. Sau migration, `place.rating_count` có thể NULL; 0 là số lượt đánh giá đã biết bằng 0. Web quản trị cho phép để trống trường này. Các bản ghi đã có điểm hoặc số lượt lớn hơn 0 không bị backfill thay đổi.
 
 ## Loại địa danh
 
@@ -143,7 +148,7 @@ COMMIT;
 - **Người dùng mẫu** (ID từ `900001`, email `example.invalid`): mật khẩu là hash bcrypt của chuỗi ngẫu nhiên đã bỏ, nên **không đăng nhập được**; hãy đăng ký tài khoản mới qua app.
 - **Vật phẩm:** Giày tăng tốc (`SPEED_SHOES`, hệ số 2,00, hiệu lực 5.000 bước) và Vé máy bay (`FLIGHT_TICKET`).
 - **Nhiệm vụ:** 11 nhiệm vụ ngày/tuần với điều kiện `STEP_COUNT`, `DISCOVER_PLACE`, `COMPLETE_JOURNEY`.
-- **Thẻ và bộ sưu tập:** 135 thẻ, 7 bộ sưu tập; toàn bộ 125 địa danh miền Bắc có thẻ, 94 thẻ chưa có ảnh.
+- **Thẻ và bộ sưu tập:** sau `017` có 311 thẻ cho 311 địa danh, thuộc 12 bộ sưu tập; 270 thẻ chưa có ảnh. Migration giữ nguyên 135 thẻ cũ, thêm 176 thẻ và gán vào 5 bộ mới: Hành trình Bắc Trung Bộ (28), Duyên hải Nam Trung Bộ (35), Khám phá Tây Nguyên (23), Dấu chân Đông Nam Bộ (28), Sắc màu miền Tây (62). Một số thẻ mẫu cũ thuộc nhiều bộ nên tổng số thẻ theo từng bộ có thể lớn hơn 311. Thẻ mới dùng ảnh địa danh nếu có; không tự tạo ảnh thay thế. Thẻ mới được kích hoạt khi địa danh và khu vực đều ACTIVE; các bộ mới ở trạng thái ACTIVE. Chạy lại không thêm bản trùng.
 - **Ảnh:** 61 ảnh địa danh là URL trực tiếp từ Wikimedia Commons.
 - **Hành trình mẫu** tính số bước theo κ = 1 như Backend.
 - Trường dữ liệu gốc không có cột tương ứng (URL nguồn, mã băm, metadata mô hình) không được nhập; `rating_count` bị thiếu đặt `0`, `rating` để `NULL`.

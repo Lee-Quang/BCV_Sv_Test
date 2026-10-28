@@ -173,7 +173,7 @@ public sealed class ItemUseRepository(NpgsqlDataSource db)
             FROM public.place p
             JOIN public.region r ON r.region_id = p.region_id AND r.status = 'ACTIVE'
             WHERE p.region_id = $2 AND p.status = 'ACTIVE'
-            ORDER BY p.rating_count DESC, p.name
+            ORDER BY p.rating_count DESC NULLS LAST, p.name
             """, connection);
         command.Parameters.Add(new NpgsqlParameter<long> { TypedValue = userId, NpgsqlDbType = NpgsqlDbType.Bigint });
         command.Parameters.Add(new NpgsqlParameter<long> { TypedValue = regionId, NpgsqlDbType = NpgsqlDbType.Bigint });

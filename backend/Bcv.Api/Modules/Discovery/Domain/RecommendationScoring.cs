@@ -18,7 +18,8 @@ public sealed record CriterionScores(double? Preference, double? Cluster, double
     double? Rating, double? Popularity);
 
 public sealed record ScoredPlace(RecommendationPlace Place, int RequiredSteps, double Score,
-    CriterionScores Criteria, IReadOnlyList<string> MatchedPreferences);
+    CriterionScores Criteria, IReadOnlyList<string> MatchedPreferences,
+    IReadOnlyDictionary<string, double> EffectiveWeights);
 
 /// <summary>
 /// P/C/A/R/N ranking. Missing criteria are dropped and the remaining weights renormalised;
@@ -32,6 +33,17 @@ public static class RecommendationScoring
     public const string Rating = "RATING";
     public const string Popularity = "POPULARITY";
     public const int MaxResults = 3;
+    public static readonly IReadOnlySet<string> CriterionCodes = Set(Preference, Cluster, Activity, Rating, Popularity);
+
+    /// <summary>The exact reviewed 35-column content vocabulary; unknown/empty vectors are not candidates.</summary>
+    public static readonly IReadOnlySet<string> FeatureCodes = Set(
+        "kind__nature", "kind__heritage", "kind__religious", "kind__museum", "kind__structure",
+        "kind__market", "kind__craft", "kind__agriculture", "kind__community", "kind__recreation",
+        "landform__coast", "landform__island", "landform__mountain", "landform__cave", "landform__river",
+        "landform__lake", "landform__waterfall", "landform__stream", "landform__lagoon", "landform__dunes", "landform__valley",
+        "ecosystem__forest", "ecosystem__flooded_habitat", "ecosystem__grassland",
+        "theme__history", "theme__culture", "theme__architecture", "theme__spirituality", "theme__ecology",
+        "theme__geology", "theme__craft", "theme__cuisine", "theme__games", "theme__relaxation", "theme__agriculture");
 
     /// <summary>T(u): conventional daily steps per activity level.</summary>
     public static readonly IReadOnlyDictionary<string, int> ActivityThresholds = new Dictionary<string, int>
@@ -69,9 +81,14 @@ public static class RecommendationScoring
         IReadOnlyList<PreferenceGroup> preferences, string? activityLevel,
         IReadOnlyDictionary<string, decimal> weights, decimal distanceLimitMeters)
     {
+        if (distanceLimitMeters <= 0) throw new ArgumentOutOfRangeException(nameof(distanceLimitMeters));
+        if (!ValidWeights(weights)) throw new ArgumentException("Expected five nonnegative criterion weights summing to one", nameof(weights));
+        // One canonical database ID per place. Invalid content never affects C or N_max.
+        places = places.Where(p => p.PlaceId > 0 && p.Features.Count > 0 && p.Features.All(FeatureCodes.Contains))
+            .DistinctBy(p => p.PlaceId).ToList();
         // P(u, p) for every place; C(u, c) is the mean P over the distinct places of a cluster.
         var preference = places.ToDictionary(p => p.PlaceId, p => PreferenceScore(p, preferences));
-        var clusterScores = places.Where(p => p.Cluster is not null && preference[p.PlaceId] is not null)
+        var clusterScores = places.Where(p => p.Cluster is >= 0 && preference[p.PlaceId] is not null)
             .GroupBy(p => p.Cluster!.Value)
             .ToDictionary(g => g.Key, g => g.Average(p => preference[p.PlaceId]!.Value));
 
@@ -94,7 +111,7 @@ public static class RecommendationScoring
             var score = Combine(criteria, weights);
             if (score is null) continue;
             var matched = preferences.Where(g => g.Matches(place)).Select(g => g.Name).ToList();
-            ranked.Add(new ScoredPlace(place, steps, score.Value, criteria, matched));
+            ranked.Add(new ScoredPlace(place, steps, score.Value, criteria, matched, EffectiveWeights(criteria, weights)));
         }
         return ranked.OrderByDescending(p => p.Score).ThenBy(p => p.Place.PlaceId).Take(MaxResults).ToList();
     }
@@ -103,25 +120,37 @@ public static class RecommendationScoring
         preferences.Count == 0 ? null
             : (double)preferences.Count(g => g.Matches(place)) / preferences.Count;
 
-    /// <summary>The import stored a missing count as 0, so a place with neither rating nor count has no data.</summary>
-    private static bool HasRatingCount(RecommendationPlace place) =>
-        place.RatingCount is >= 0 && !(place.Rating is null && place.RatingCount == 0);
+    // Migration 016 restores NULL for the reviewed missing counts. A verified zero remains real data.
+    private static bool HasRatingCount(RecommendationPlace place) => place.RatingCount is >= 0;
+
+    public static bool ValidWeights(IReadOnlyDictionary<string, decimal> weights) =>
+        weights.Count == CriterionCodes.Count && weights.Keys.All(CriterionCodes.Contains)
+        && weights.Values.All(w => w is >= 0 and <= 1) && weights.Values.Sum() == 1m;
+
+    public static IEnumerable<(string Code, double? Value)> Criteria(CriterionScores scores) =>
+    [
+        (Preference, scores.Preference), (Cluster, scores.Cluster), (Activity, scores.Activity),
+        (Rating, scores.Rating), (Popularity, scores.Popularity)
+    ];
+
+    public static bool HasScore(double? value) => value is double s && double.IsFinite(s) && s is >= 0 and <= 1;
+
+    /// <summary>Only nonzero weights whose criterion has usable data take part in the score.</summary>
+    public static IReadOnlyDictionary<string, double> EffectiveWeights(CriterionScores criteria,
+        IReadOnlyDictionary<string, decimal> weights)
+    {
+        var available = Criteria(criteria).Where(c => HasScore(c.Value) && weights.TryGetValue(c.Code, out var w) && w > 0).ToList();
+        var sum = available.Sum(c => weights[c.Code]);
+        return sum > 0 ? available.ToDictionary(c => c.Code, c => (double)(weights[c.Code] / sum))
+            : new Dictionary<string, double>();
+    }
 
     /// <summary>S(u, p) = Σ w·s / Σ w over the criteria that have data.</summary>
     public static double? Combine(CriterionScores criteria, IReadOnlyDictionary<string, decimal> weights)
     {
-        double total = 0, weightSum = 0;
-        void Add(string code, double? value)
-        {
-            if (value is null || !weights.TryGetValue(code, out var w) || w <= 0) return;
-            total += (double)w * value.Value;
-            weightSum += (double)w;
-        }
-        Add(Preference, criteria.Preference);
-        Add(Cluster, criteria.Cluster);
-        Add(Activity, criteria.Activity);
-        Add(Rating, criteria.Rating);
-        Add(Popularity, criteria.Popularity);
-        return weightSum > 0 ? total / weightSum : null;
+        var effective = EffectiveWeights(criteria, weights);
+        return effective.Count > 0
+            ? Criteria(criteria).Where(c => effective.ContainsKey(c.Code)).Sum(c => effective[c.Code] * c.Value!.Value)
+            : null;
     }
 }

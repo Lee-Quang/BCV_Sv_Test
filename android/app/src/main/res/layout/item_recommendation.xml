@@ -56,7 +56,7 @@
             </LinearLayout>
             <TextView android:id="@+id/matched" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:layout_marginTop="3dp"
-                android:maxLines="1" android:ellipsize="end" android:textColor="@color/teal"
+                android:maxLines="2" android:ellipsize="end" android:textColor="@color/teal"
                 android:textSize="12sp" />
             <com.google.android.material.button.MaterialButton android:id="@+id/selectButton"
                 android:layout_width="match_parent" android:layout_height="52dp"

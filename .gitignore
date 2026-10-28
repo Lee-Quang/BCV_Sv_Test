@@ -1,4 +1,4 @@
-.DS_Store
+ .DS_Store
 .env
 .env.*
 !.env.example
@@ -33,3 +33,5 @@ android/dev.properties
 android/.cxx/
 android/.externalNativeBuild/
 *.iml
+recommendation/.venv/
+recommendation/**/__pycache__/
