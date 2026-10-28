@@ -137,7 +137,7 @@ Khi trình diễn, nút icon người đi bộ có dấu "+" cạnh chữ **Khá
 
 ### Web quản trị
 
-Quản lý người dùng, khu vực, địa danh (kèm bản đồ chọn tọa độ), loại địa danh, thẻ, bộ sưu tập, nhiệm vụ và vật phẩm. Nội dung ở trạng thái `DRAFT` chỉ hiện trong quản trị; chuyển sang `ACTIVE` thì app mới thấy. Xem [web/README.md](web/README.md).
+Quản lý người dùng, khu vực, địa danh (kèm bản đồ chọn tọa độ ngay trong form, chọn đặc trưng theo loại và tự phân cụm khi lưu), loại địa danh, thẻ, bộ sưu tập, nhiệm vụ và vật phẩm. Đổi loại địa danh sẽ thay toàn bộ ô tích; chọn lại mục mặc định sẽ bỏ hết tích. Nội dung ở trạng thái `DRAFT` chỉ hiện trong quản trị; chuyển sang `ACTIVE` thì app mới thấy. Xem [web/README.md](web/README.md).
 
 ### Quy tắc nghiệp vụ chính
 

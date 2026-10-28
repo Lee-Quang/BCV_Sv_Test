@@ -87,7 +87,19 @@ Mọi danh sách có tìm kiếm, lọc trạng thái, phân trang và xuất CS
 - **Nhiệm vụ đã có người làm:** chỉ đổi được tên và trạng thái; muốn đổi điều kiện hay phần thưởng thì tạo nhiệm vụ mới.
 - **Khóa người dùng** đăng xuất người đó ngay; không thể tự khóa chính mình.
 - **Ảnh** được nén thành JPEG (cạnh dài tối đa 1600 px, tối đa 5 MB). Nếu Backend đã cấu hình Cloudflare R2, ảnh địa danh vào thư mục `places/`, ảnh thẻ vào `cards/`, tách khỏi ảnh đại diện người dùng ở `avatars/`. Nếu chưa cấu hình, ảnh được lưu trong database.
-- **Địa danh mới thêm** chưa có dữ liệu đặc trưng của mô hình nên chưa được đưa vào gợi ý điểm đến; **loại địa danh mới** chỉ được tính điểm sở thích khi được thêm vào bảng ánh xạ ([db/README.md](../db/README.md#loại-địa-danh)).
+- **Địa danh mới thêm** được lưu cùng 35 giá trị đặc trưng và cụm của mô hình hiện có, có thể tham gia gợi ý khi đáp ứng trạng thái và các điều kiện xếp hạng. **Loại địa danh mới** chỉ được tính điểm sở thích khi được thêm vào bảng ánh xạ ([db/README.md](../db/README.md#loại-địa-danh)).
+
+### Chọn tọa độ và đặc trưng địa danh
+
+Trong form thêm/sửa địa danh, bấm ô vĩ độ hoặc kinh độ để mở bản đồ. Bấm lên bản đồ hoặc kéo ghim để cập nhật cả hai tọa độ; có thể đóng bản đồ và tiếp tục nhập tay.
+
+Chọn loại địa danh để tự tích bộ đặc trưng theo ID chuẩn 101–112. Mỗi lần đổi loại, toàn bộ ô đã tích (kể cả lựa chọn thủ công) được thay bằng bộ mặc định của loại mới. Chọn lại mục “Chọn loại địa danh” sẽ bỏ hết tích. Sau khi chọn loại, có thể chỉnh các ô cho đúng thực tế rồi lưu.
+
+Các đặc trưng chia thành bốn nhóm: loại nội dung, địa hình, hệ sinh thái và chủ đề. Loại gộp dùng một trường hợp mặc định, ví dụ sông trong “Sông, hồ và thác”; hãy đổi sang hồ/thác nếu phù hợp. Không tự tích mọi phương án trong một loại gộp. Rừng không tự kéo theo núi vì hệ sinh thái và địa hình là hai thuộc tính độc lập.
+
+Cần ít nhất một đặc trưng để lưu. Backend kiểm tra mã, lưu đủ 35 giá trị 0/1 và tính lại cụm trong cùng giao dịch. Việc sửa đặc trưng không huấn luyện lại mô hình. Đổi tên loại chuẩn không làm mất bộ tự tích vì ánh xạ dùng ID; thêm ID mới vẫn cần cập nhật quy tắc trong code.
+
+Nếu danh sách đặc trưng trống, kiểm tra backend đã chạy bản có trường `features` trong `/api/admin/lookups`, database đã nhập 35 tiêu chí, rồi tải lại trang. Database cũ cần migration `014` để đồng bộ mã loại/sở thích; gợi ý cho người dùng cần cấu hình `ACTIVE`.
 
 ## Build và triển khai
 
