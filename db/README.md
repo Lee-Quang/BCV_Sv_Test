@@ -127,7 +127,7 @@ Cùng bảng ánh xạ nằm trong backend (`RecommendationScoring.PlaceTypeFeat
 
 ## Trạng thái nội dung
 
-Các bảng `place`, `card`, `collection`, `quest`, `item`, `region`, `recommendation_config` có cột `status`: `DRAFT`, `ACTIVE` hoặc `INACTIVE`. **App chỉ dùng nội dung `ACTIVE`**; gợi ý điểm đến dùng cấu hình `ACTIVE` (bản nháp mới nhất nếu chưa có).
+Các bảng `place`, `card`, `collection`, `quest`, `item`, `region`, `recommendation_config` có cột `status`: `DRAFT`, `ACTIVE` hoặc `INACTIVE`. **App chỉ dùng nội dung `ACTIVE`**; gợi ý điểm đến chỉ dùng cấu hình `ACTIVE`; nếu chưa có, API báo chưa có cấu hình gợi ý đang hoạt động.
 
 Dữ liệu mẫu được nhập ở trạng thái `DRAFT` (riêng cấu hình gợi ý được `015` kích hoạt). Khi còn `DRAFT`, app không có điểm xuất phát đề xuất, báo mọi vị trí "chưa nằm trong vùng hỗ trợ", và bộ sưu tập, nhiệm vụ đều trống.
 

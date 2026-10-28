@@ -162,3 +162,19 @@ Xem [Đóng góp](../README.md#đóng-góp) ở README gốc.
 ## Giấy phép
 
 UNLICENSED © 2026 Nhóm ĐAHK1262703. Xem [Giấy phép](../README.md#giấy-phép) ở README gốc.
+
+## Lưu đặc trưng địa danh từ web quản trị
+
+`GET /api/admin/lookups` trả thêm `features`; chi tiết địa danh trả `feature_codes`. Khi tạo/sửa địa danh, gửi `feature_codes` là danh sách mã đặc trưng được chọn. Mã phải thuộc bộ 35 đặc trưng của mô hình và danh sách không được rỗng. Nếu cập nhật mà không gửi trường này, giữ đặc trưng hiện có của cấu hình được chọn.
+
+Backend chọn cấu hình ACTIVE trước, nếu chưa có thì dùng bản mới nhất để lưu nội dung quản trị; chỉ hỗ trợ cấu hình 15 cụm. Lưu địa danh, vector 35 giá trị và cụm trong một giao dịch; dữ liệu không hợp lệ làm hoàn tác toàn bộ. Xóa địa danh sẽ xóa các hàng đặc trưng sở hữu trong cùng giao dịch, nhưng vẫn tôn trọng ràng buộc lịch sử khác.
+
+`PlaceFeatureClassifier` dùng tài nguyên nhúng `recommendation-centroids.json`, chuẩn hóa bốn nhóm đặc trưng và tìm tâm cụm gần nhất; không huấn luyện lại khi chỉnh sửa địa danh. Script `recommendation/export_centroids.py` tái tạo tâm từ snapshot nhãn và xác minh 315 dòng nguồn trước khi xuất.
+
+Kiểm tra phân cụm, không cần database:
+
+```powershell
+dotnet run --project backend/Bcv.Checks/Bcv.Checks.csproj --artifacts-path backend/checks-build-out -p:UseAppHost=false
+```
+
+Để kiểm thử tạo/sửa/đọc lại, 35 giá trị, rollback và xóa dữ liệu thử, đặt biến môi trường tiến trình `BCV_CHECK_CONNECTION` bằng chuỗi kết nối cục bộ trước khi chạy. Không ghi chuỗi kết nối vào repo. Bộ kiểm tra tạo bản ghi tạm và tự xóa sau khi chạy.
