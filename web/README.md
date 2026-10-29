@@ -93,6 +93,19 @@ Mọi danh sách có tìm kiếm, lọc trạng thái, phân trang và xuất CS
 
 Trong form thêm/sửa địa danh, bấm ô vĩ độ hoặc kinh độ để mở bản đồ. Bấm lên bản đồ hoặc kéo ghim để cập nhật cả hai tọa độ; có thể đóng bản đồ và tiếp tục nhập tay.
 
+- Chọn **Khu vực** trước khi mở bản đồ: khung nhìn được xác định từ các địa danh có tọa độ hợp lệ trong khu vực đó. Ví dụ, chọn Hà Nội rồi bấm ô vĩ độ/kinh độ sẽ mở bản đồ tại vùng các địa danh Hà Nội.
+- Đổi khu vực khi bản đồ đang mở sẽ chuyển khung nhìn sang khu vực mới, giữ nguyên tọa độ đang nhập cho tới khi chọn điểm hoặc sửa tọa độ bằng tay.
+- Khi mở bản ghi đã có tọa độ hợp lệ và chưa đổi khu vực, bản đồ ưu tiên vị trí đã lưu. Nếu khu vực chưa có địa danh với tọa độ hợp lệ, bản đồ hiển thị toàn cảnh Việt Nam kèm thông báo.
+- Chuyển khung nhìn không tự lưu dữ liệu; cần bấm **Lưu thay đổi** trong biểu mẫu.
+
+#### Bản đồ Goong và khu vực trước sáp nhập
+
+Web sử dụng bản đồ nền Goong hiện hành; chưa tích hợp lựa chọn bản đồ trước sáp nhập. Tên và ranh giới trên bản đồ nền có thể khác danh sách khu vực trong database. Điểm địa danh vẫn được đặt theo vĩ độ/kinh độ, còn khung nhìn khu vực được tính từ dữ liệu địa danh của ứng dụng, không phụ thuộc tên tỉnh hiển thị trên nền bản đồ.
+
+Hướng đồng bộ dữ liệu đề xuất là dùng khu vực hành chính hiện tại và giữ tên khu vực cũ để tra cứu. Đây là hướng phát triển, chưa có chức năng tự chuyển đổi hay bảng đối chiếu trong thay đổi này; không đổi hàng loạt ID khu vực hoặc tọa độ chỉ vì sáp nhập.
+
+Goong có công bố tham số `has_deprecated_administrative_unit` của API V2 để bổ sung thông tin địa giới trước sáp nhập. Tham số này phục vụ dữ liệu địa chỉ, không phải công tắc chuyển bản đồ nền về phiên bản cũ và chưa được tích hợp trong phần chọn tọa độ. Xem [thông báo chính thức của Goong](https://goong.io/goong-thong-bao-cap-nhat-du-lieu-ban-do-theo-sap-nhap-dia-gioi-hanh-chinh-2/).
+
 Chọn loại địa danh để tự tích bộ đặc trưng theo ID chuẩn 101–112. Mỗi lần đổi loại, toàn bộ ô đã tích (kể cả lựa chọn thủ công) được thay bằng bộ mặc định của loại mới. Chọn lại mục “Chọn loại địa danh” sẽ bỏ hết tích. Sau khi chọn loại, có thể chỉnh các ô cho đúng thực tế rồi lưu.
 
 Các đặc trưng chia thành bốn nhóm: loại nội dung, địa hình, hệ sinh thái và chủ đề. Loại gộp dùng một trường hợp mặc định, ví dụ sông trong “Sông, hồ và thác”; hãy đổi sang hồ/thác nếu phù hợp. Không tự tích mọi phương án trong một loại gộp. Rừng không tự kéo theo núi vì hệ sinh thái và địa hình là hai thuộc tính độc lập.

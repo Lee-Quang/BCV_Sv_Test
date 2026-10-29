@@ -49,6 +49,8 @@ App và web **không** kết nối thẳng vào database; mọi dữ liệu đi 
 | Cloudflare R2 | Lưu ảnh tải lên; không có thì lưu trong database | Không |
 | Gmail SMTP | Gửi mã đặt lại mật khẩu; không có thì mã in ra log | Không |
 
+Web quản trị dùng bản đồ Goong hiện hành. Trong biểu mẫu địa danh, chọn khu vực rồi bấm ô vĩ độ/kinh độ để mở bản đồ tại vùng các địa danh thuộc khu vực đó; đổi khu vực chỉ chuyển khung nhìn, không tự thay tọa độ. Xem [cách chọn tọa độ và lưu ý khu vực trước sáp nhập](web/README.md#chọn-tọa-độ-và-đặc-trưng-địa-danh).
+
 ## Cài đặt
 
 Các lệnh dưới đây chạy bằng **PowerShell** tại thư mục gốc của kho mã, trên Windows. macOS/Linux dùng PowerShell 7 (`pwsh`) cho các script `.ps1`.

@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { regionViewport } from './regionViewport';
 
-export default function CoordinatePicker({ latitude, longitude, change }) {
+export default function CoordinatePicker({ latitude, longitude, regionId, places, preferRegion, change }) {
   const container = useRef(null), map = useRef(null), marker = useRef(null);
   const latest = useRef(change);
   latest.current = change;
@@ -16,7 +17,7 @@ export default function CoordinatePicker({ latitude, longitude, change }) {
     try {
       instance = new maplibregl.Map({ container: container.current,
         style: `https://tiles.goong.io/assets/goong_map_web.json?api_key=${__GOONG_MAP_KEY__}`,
-        center: valid ? [Number(longitude), Number(latitude)] : [105.8355, 21.0272], zoom: valid ? 14 : 12 });
+        center: valid ? [Number(longitude), Number(latitude)] : [106.1, 16.2], zoom: valid ? 14 : 4.7 });
       map.current = instance;
       instance.addControl(new maplibregl.NavigationControl(), 'top-right');
       const select = point => latest.current({ latitude: Number(point.lat.toFixed(6)), longitude: Number(point.lng.toFixed(6)) });
@@ -32,14 +33,21 @@ export default function CoordinatePicker({ latitude, longitude, change }) {
   }, []);
   useEffect(() => {
     if (!map.current || !marker.current) return;
-    if (!valid) { marker.current.remove(); return; }
-    const point = [Number(longitude), Number(latitude)];
-    marker.current.setLngLat(point).addTo(map.current);
-    map.current.easeTo({ center: point, duration: 250 });
-  }, [latitude, longitude, valid]);
+    if (valid) marker.current.setLngLat([Number(longitude), Number(latitude)]).addTo(map.current);
+    else marker.current.remove();
+    const bounds = regionViewport(regionId, places);
+    if (bounds && (preferRegion || !valid)) {
+      map.current.fitBounds(bounds, { padding: 40, maxZoom: 12, duration: 250 });
+    } else if (valid && !preferRegion) {
+      map.current.easeTo({ center: [Number(longitude), Number(latitude)], zoom: 14, duration: 250 });
+    } else {
+      map.current.easeTo({ center: [106.1, 16.2], zoom: 4.7, duration: 250 });
+    }
+  }, [latitude, longitude, valid, regionId, places, preferRegion]);
   return <section className="coordinate-picker" aria-label="Chọn vị trí địa danh trên bản đồ">
     <strong>Vị trí trên bản đồ</strong>
     <p>Bấm trên bản đồ hoặc kéo ghim để chọn vị trí. Vĩ độ và kinh độ sẽ tự cập nhật.</p>
+    {regionId && !regionViewport(regionId, places) && <p>Khu vực chưa có địa danh để xác định khung nhìn. Hãy tìm vị trí trên bản đồ hoặc nhập tọa độ.</p>}
     <div ref={container} className="coordinate-map" />
     <small aria-live="polite">{valid ? `Đã chọn: ${latitude}, ${longitude}` : 'Chưa chọn vị trí.'}</small>
     {error && <p className="field-error" role="alert">{error}</p>}
