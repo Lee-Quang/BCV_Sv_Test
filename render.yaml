@@ -2,7 +2,7 @@
 # Provision/import the external PostgreSQL + PostGIS database before deploying.
 services:
   - type: web
-    name: bcv-admin
+    name: bcv-admin-test
     runtime: docker
     branch: Web
     plan: free
