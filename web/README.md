@@ -54,6 +54,8 @@ Script hỏi mật khẩu (ít nhất 12 ký tự, có cả chữ và số). Ema
 
 ## Sử dụng
 
+Web dùng chung trên máy tính, tablet và điện thoại. Trên màn hình từ 760 px trở xuống, mở menu bằng nút ba gạch; danh sách hiển thị dạng thẻ có nhãn thay cho bảng rộng, biểu mẫu dùng một cột và các nút thao tác chính có vùng chạm tối thiểu 44 px. Bấm chọn điểm hoặc kéo ghim vẫn tự điền khu vực và tọa độ. Khung thông tin vị trí nằm dưới bản đồ để không che vùng chọn trên điện thoại. Dùng cùng link HTTPS sau khi [triển khai hosting](../DEPLOY.md), không cần cài thêm ứng dụng.
+
 ```powershell
 cd web
 npm run dev
