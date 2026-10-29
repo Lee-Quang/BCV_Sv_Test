@@ -63,6 +63,13 @@ public static class AdminEndpoints
         group.MapGet("/me", (HttpRequest request, ISessionStore sessions) => Results.Ok(CurrentUser.Get(request, sessions)));
         group.MapGet("/dashboard", (int? days, AdminRepository repo, CancellationToken ct) => repo.Dashboard(days ?? 30, ct));
         group.MapGet("/lookups", (AdminRepository repo, CancellationToken ct) => repo.Lookups(ct));
+        group.MapGet("/map/region", async (double latitude, double longitude, GoongGeocoder geocoder, CancellationToken ct) =>
+        {
+            try { return Results.Ok(await geocoder.Reverse(latitude, longitude, ct)); }
+            catch (HttpRequestException) { return Results.Json(new { message = "Không kết nối được Goong để xác định khu vực. Bạn có thể chọn khu vực trong biểu mẫu." }, statusCode: 503); }
+            catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+            { return Results.Json(new { message = "Goong phản hồi quá lâu. Bạn có thể chọn khu vực trong biểu mẫu." }, statusCode: 503); }
+        });
         group.MapGet("/data/{resource}", (string resource, string? q, string? status, long? regionId, long? typeId, int? page, int? pageSize, AdminRepository repo, CancellationToken ct) =>
             repo.List(resource, q, status, regionId, typeId, page ?? 1, pageSize ?? 12, ct));
         group.MapGet("/data/{resource}/{id:long}", async (string resource, long id, AdminRepository repo, CancellationToken ct) =>

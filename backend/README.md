@@ -178,3 +178,9 @@ dotnet run --project backend/Bcv.Checks/Bcv.Checks.csproj --artifacts-path backe
 ```
 
 Để kiểm thử tạo/sửa/đọc lại, 35 giá trị, rollback và xóa dữ liệu thử, đặt biến môi trường tiến trình `BCV_CHECK_CONNECTION` bằng chuỗi kết nối cục bộ trước khi chạy. Không ghi chuỗi kết nối vào repo. Bộ kiểm tra tạo bản ghi tạm và tự xóa sau khi chạy.
+
+### Tự xác định khu vực từ ghim bản đồ quản trị
+
+`GET /api/admin/map/region?latitude=21.0272&longitude=105.8355` yêu cầu phiên quản trị và trả về tỉnh hiện tại, tỉnh trước sáp nhập (nếu có) và địa chỉ từ Goong Geocode V2. Web đối chiếu tên với khu vực trong database trước khi điền biểu mẫu tạo địa danh; tọa độ giữ nguyên điểm người dùng chọn.
+
+Cấu hình Goong REST API Key bằng `Goong__ApiKey`. Script `run-local.ps1` cũng hỗ trợ `BCV_GOONG_API_KEY` và khóa `bcvGoongApiKey` trong `android/dev.properties` cho môi trường phát triển. Không dùng Maptiles Key thay cho REST key. REST key không được trả về trình duyệt. Khi thiếu khóa, lỗi dịch vụ hoặc không có khu vực tương ứng, người dùng vẫn có thể điền khu vực thủ công trong biểu mẫu.

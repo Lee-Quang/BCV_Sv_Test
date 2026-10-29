@@ -45,5 +45,6 @@
 @media(max-width:540px){.feature-options{grid-template-columns:1fr}.coordinate-map{height:260px}}
 
 .coordinate-picker-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.map-region-summary{font-size:11px;line-height:1.6;margin-top:8px}
 .feature-guidance{padding:14px;border:1px solid #c5ddce;border-radius:10px;background:#fff;margin-top:14px}
 .feature-guidance>strong{font-size:13px}.place-features .feature-notice{color:#8a5a16;margin-bottom:0}

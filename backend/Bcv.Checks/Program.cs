@@ -3,9 +3,26 @@ using Bcv.Api.Modules.Account.Infrastructure;
 using Bcv.Api.Modules.Admin;
 using Bcv.Api.Modules.Discovery.Domain;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Configuration;
 using Npgsql;
 
 void Check(bool condition, string message) { if (!condition) throw new Exception(message); }
+var geocoderConfiguration = new ConfigurationBuilder().AddInMemoryCollection(
+    new Dictionary<string, string?> { ["Goong:ApiKey"] = "test-key" }).Build();
+var handler = new GeocodeStub();
+var geocoder = new GoongGeocoder(new HttpClient(handler), geocoderConfiguration);
+var pinAddress = await geocoder.Reverse(20.8975369, 106.427671, default);
+Check(pinAddress.Province == "Hải Phòng" && pinAddress.LegacyProvince == "Hải Dương", "Lost old/new province from Goong");
+Check(handler.RequestUri!.Contains("latlng=20.8975369,106.427671") &&
+    handler.RequestUri.Contains("has_deprecated_administrative_unit=true"), "Wrong reverse-geocode query");
+try { await geocoder.Reverse(double.NaN, 106, default); throw new Exception("Accepted invalid pin"); }
+catch (AdminValidation) { }
+handler.Payload = """{"status":"ZERO_RESULTS","results":[]}""";
+Check((await geocoder.Reverse(21, 105, default)).Province is null, "Invented a region for no results");
+var unconfiguredGeocoder = new GoongGeocoder(new HttpClient(handler), new ConfigurationBuilder().Build());
+try { await unconfiguredGeocoder.Reverse(21, 105, default); throw new Exception("Accepted missing REST key"); }
+catch (AdminValidation) { }
+Console.WriteLine("PASS: reverse geocoding preserves old/new provinces, validates coordinates, handles empty results and missing key.");
 var lines = File.ReadAllLines("recommendation/service/data/features.csv");
 var columns = lines[0].Split(',');
 foreach (var line in lines.Skip(1))
@@ -58,3 +75,14 @@ try
 }
 finally { if (createdId is long id) await repo.Delete("places", id, default); }
 Console.WriteLine("PASS: temporary place and owned feature rows removed.");
+
+sealed class GeocodeStub : HttpMessageHandler
+{
+    public string? RequestUri { get; private set; }
+    public string Payload { get; set; } = """{"status":"OK","results":[{"compound":{"province":"Hải Phòng"},"deprecated_compound":{"province":"Hải Dương"},"formatted_address":"Thanh Hà, Hải Phòng"}]}""";
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
+    {
+        RequestUri = request.RequestUri!.OriginalString;
+        return Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.OK) { Content = new StringContent(Payload) });
+    }
+}

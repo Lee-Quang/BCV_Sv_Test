@@ -46,7 +46,7 @@ export default function CoordinatePicker({ latitude, longitude, regionId, places
   }, [latitude, longitude, valid, regionId, places, preferRegion]);
   return <section className="coordinate-picker" aria-label="Chọn vị trí địa danh trên bản đồ">
     <strong>Vị trí trên bản đồ</strong>
-    <p>Bấm trên bản đồ hoặc kéo ghim để chọn vị trí. Vĩ độ và kinh độ sẽ tự cập nhật.</p>
+    <p>Bấm trên bản đồ hoặc kéo ghim để chọn vị trí. Vĩ độ, kinh độ và khu vực sẽ tự cập nhật.</p>
     {regionId && !regionViewport(regionId, places) && <p>Khu vực chưa có địa danh để xác định khung nhìn. Hãy tìm vị trí trên bản đồ hoặc nhập tọa độ.</p>}
     <div ref={container} className="coordinate-map" />
     <small aria-live="polite">{valid ? `Đã chọn: ${latitude}, ${longitude}` : 'Chưa chọn vị trí.'}</small>
