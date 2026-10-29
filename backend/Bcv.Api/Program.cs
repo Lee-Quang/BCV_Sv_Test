@@ -21,6 +21,13 @@ using Bcv.Api.Modules.Admin;
 using Bcv.Api.Modules.Shared.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+// Cloud hosts such as Render assign the public listening port at runtime.
+if (builder.Configuration["PORT"] is { Length: > 0 } publicPort)
+{
+    if (!int.TryParse(publicPort, out var port) || port is < 1 or > 65535)
+        throw new InvalidOperationException("PORT must be an integer from 1 to 65535.");
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
 var connectionString = builder.Configuration.GetConnectionString("Bcv")
     ?? throw new InvalidOperationException("Set ConnectionStrings__Bcv before starting the API.");
 
@@ -104,6 +111,12 @@ if (Array.IndexOf(args, "--create-admin") is var adminIndex && adminIndex >= 0)
     if (created is null) throw new InvalidOperationException("Email already exists; no account or permissions were changed.");
     Console.WriteLine("Administrator created successfully.");
     return;
+}
+// The deployment image includes the Vite build. Local development still uses Vite's proxy.
+if (Directory.Exists(Path.Combine(app.Environment.ContentRootPath, "wwwroot")))
+{
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
 }
 app.MapGet("/health", async (NpgsqlDataSource db, CancellationToken cancellationToken) =>
 {

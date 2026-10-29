@@ -53,6 +53,8 @@ Web quản trị dùng bản đồ Goong hiện hành. Trong biểu mẫu địa
 
 ## Cài đặt
 
+Để nhóm truy cập qua Internet, xem [hướng dẫn triển khai web và backend lên hosting](DEPLOY.md). Bộ Docker dùng chung một tên miền cho web và API; database PostgreSQL/PostGIS được cấu hình riêng.
+
 Các lệnh dưới đây chạy bằng **PowerShell** tại thư mục gốc của kho mã, trên Windows. macOS/Linux dùng PowerShell 7 (`pwsh`) cho các script `.ps1`.
 
 ### Yêu cầu

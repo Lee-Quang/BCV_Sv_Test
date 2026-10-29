@@ -122,6 +122,8 @@ Nếu danh sách đặc trưng trống, kiểm tra backend đã chạy bản có
 
 ## Build và triển khai
 
+Để xuất bản cho các máy khác mạng truy cập, dùng [hướng dẫn Render + Neon](../DEPLOY.md). `Dockerfile` ở gốc repo build web và backend vào cùng image; backend phục vụ `wwwroot` và API trên một tên miền. `render.yaml` dùng nhánh `Web`, gói Free và database PostgreSQL/PostGIS bên ngoài.
+
 ```powershell
 npm run build
 ```
