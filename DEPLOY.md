@@ -62,7 +62,7 @@ Thay email mẫu bằng email thật. Lệnh không tự nâng quyền hay đổ
 ## 3. Triển khai Render từ nhánh Web
 
 1. Đưa các file `Dockerfile`, `.dockerignore`, `render.yaml` và thay đổi backend lên nhánh `Web` trên GitHub.
-2. Đăng ký/đăng nhập [Render](https://dashboard.render.com/), kết nối repository `ngtherr218/BCV`.
+2. Đăng ký/đăng nhập [Render](https://dashboard.render.com/), kết nối repository `Lee-Quang/BCV_Sv_Test`.
 3. Chọn **New → Blueprint**, chọn repository và nhánh **Web**; dùng `render.yaml` tại gốc repo. Kiểm tra plan là **Free** trước khi xác nhận.
 4. Điền các giá trị riêng tư khi Render yêu cầu:
 
@@ -96,4 +96,4 @@ docker build --build-arg VITE_GOONG_MAPTILES_KEY=<maptiles-key> -t bcv-web .
 
 Truyền `ConnectionStrings__Bcv`, `Goong__ApiKey` khi chạy container; không đặt chúng vào Dockerfile. Container lắng nghe cổng 8080 khi không có `PORT`. Mount volume có quyền ghi cho UID của user `app` vào `/app/data` nếu muốn giữ phiên đăng nhập dạng file. Trên VPS, đặt HTTPS reverse proxy trước container và giữ database ở mạng riêng.
 
-Hiện môi trường phát triển có Docker CLI nhưng Docker Engine chưa chạy, nên chưa kiểm thử build/run image tại đây. Các bước tạo tài khoản cloud, nhập dữ liệu và xuất bản URL cần hoàn tất trên tài khoản hosting của chủ dự án.
+Đã build và chạy image thành công trên Render ngày 29/10/2026 tại https://bcv-sv-test.onrender.com. Service dùng gói Free, vùng Singapore và nhánh Web; auto-deploy đã tắt. Database đã được chuyển từ bản hiện tại lên Neon với đủ 25 bảng ứng dụng, 312 địa danh, 63 khu vực, 6 tài khoản và 135 thẻ; giữ nguyên tài khoản quản trị. `/health` đã trả HTTP 200. Mọi thay đổi sau deploy ghi vào database Neon, không tự đồng bộ về database local. Bản backup trước khi chuyển nằm ở `output/cloud-deploy/bcv-before-neon.dump` trên máy phát triển, không đưa vào Git. Không lưu mật khẩu hoặc khóa API vào tài liệu này.
