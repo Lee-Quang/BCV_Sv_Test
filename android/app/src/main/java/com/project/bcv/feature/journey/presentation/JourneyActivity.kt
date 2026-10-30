@@ -124,6 +124,7 @@ class JourneyActivity : AppCompatActivity() {
     override fun onDestroy() { routeMap.onDestroy(); super.onDestroy() }
 
     private fun render(state: JourneyUiState) = with(binding) {
+        activeItemBanner.show((state as? JourneyUiState.Loaded)?.snapshot?.journey)
         when (state) {
             JourneyUiState.Loading -> showLoading()
             is JourneyUiState.Failed -> showMessage(title = "Chưa tải được hành trình", body = state.message,

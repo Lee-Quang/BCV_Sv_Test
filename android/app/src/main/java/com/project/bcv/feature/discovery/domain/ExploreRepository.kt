@@ -17,13 +17,17 @@ data class ExploreJourney(
     /** The destination PLACE, opened from the journey screen once it is unlocked. */
     val destinationPlaceId: Long? = null,
     /** Unboosted, cumulative server total; null means the server needs updating. */
-    val sourceSteps: Long? = null
+    val sourceSteps: Long? = null,
+    val activeItem: ActiveItemEffect? = null
 ) {
     val progressPercent: Int
         get() = if (requiredSteps <= 0) 0 else (recordedSteps.toLong() * 100 / requiredSteps).toInt().coerceIn(0, 100)
 }
 
 data class ExploreMapPlace(val id: Long, val name: String, val coordinates: Coordinates, val isDiscovered: Boolean)
+
+data class ActiveItemEffect(val itemType: String, val name: String, val multiplier: Double,
+    val range: Int, val remainingSteps: Int)
 
 /** [imageUrls] is filled only once the place is discovered; [imageUrl] is the locked (blurred) preview. */
 data class ExplorePlaceDetail(val id: Long, val name: String, val placeType: String,

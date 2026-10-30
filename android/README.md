@@ -56,6 +56,8 @@ Hoặc mở thư mục `android/` bằng Android Studio rồi bấm **Run**. M�
 
 ## Sử dụng
 
+Khi giày tăng tốc đang có hiệu lực, màn **Khám phá** và **Hành trình** hiển thị thẻ **Đang dùng Giày tăng tốc**, hệ số nhân và số bước thực tế còn được tăng tốc. Thanh hiệu lực giảm sau mỗi lần đồng bộ; thẻ ẩn khi hết hiệu lực hoặc hoàn thành hành trình. Chạm vào thẻ để mở chi tiết giày. Vé máy bay có tác dụng tức thời nên không có hiệu ứng duy trì.
+
 Trên màn đăng nhập, chọn **Ghi nhớ tài khoản và mật khẩu** để tự điền lại ở lần sau. App chỉ lưu sau khi đăng nhập thành công, mã hóa bằng AES-GCM với khóa trong Android Keystore. Bỏ tích sẽ xóa thông tin đã nhớ trên thiết bị; đăng xuất vẫn giữ thông tin nếu đã chọn ghi nhớ. Tính năng này không thay đổi thời hạn phiên đăng nhập.
 
 Mở app, đăng ký hoặc đăng nhập. Phiên được giữ 30 ngày và tự gia hạn, nên lần sau mở app sẽ vào thẳng màn đang dở (thiết lập hoặc Khám phá); chỉ khi phiên bị từ chối (đăng xuất, đổi mật khẩu, bị khóa) mới phải đăng nhập lại.

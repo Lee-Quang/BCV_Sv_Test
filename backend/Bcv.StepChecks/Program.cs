@@ -49,11 +49,15 @@ async Task<int> QuestSteps() => (int)(await Sql("SELECT progress_value FROM ques
 
 var first = await service.SyncStepsAsync(user, new(trip, 200), default);
 Check(first.Journey is { SourceSteps: 200, RecordedSteps: 200 }, "Raw steps did not advance journey");
+Check(first.Journey.ActiveItem is null, "An unused item appeared active");
 Check(await QuestSteps() == 200, "Raw steps did not advance quest");
 await items.UseShoesAsync(user, default);
 Check(await Quantity(shoesId) == 1, "Shoes were not consumed once");
+var equipped = await explore.LoadAsync(user, default);
+Check(equipped.Journey?.ActiveItem is { ItemType: "SPEED_SHOES", Multiplier: 2, Range: 5000, RemainingSteps: 5000 }, "Equipped shoes indicator is missing");
 var boosted = await service.SyncStepsAsync(user, new(trip, 400), default);
 Check(boosted.Journey is { SourceSteps: 400, RecordedSteps: 600 }, "Shoes should boost only journey, not raw steps");
+Check(boosted.Journey.ActiveItem is { RemainingSteps: 4800 }, "Item indicator must count raw steps remaining");
 Check(await QuestSteps() == 400, "Quest counted boosted steps instead of raw steps");
 await quests.LoadAsync(user, default);
 var rewarded = await Quantity(shoesId);
@@ -66,6 +70,7 @@ catch (ItemUseException error) when (error.Code == "JOURNEY_ACTIVE") { }
 Check(await Quantity(ticketId) == 2, "Rejected flight consumed a ticket");
 var completed = await service.SyncStepsAsync(user, new(trip, 800), default);
 Check(completed.Journey is { SourceSteps: 800, RecordedSteps: 1000, Status: "COMPLETED" }, "Journey did not complete with raw steps and shoes bonus");
+Check(completed.Journey.ActiveItem is null, "Completed journey still shows active shoes");
 Check((long)(await Sql("SELECT nearest_place_id FROM virtual_location WHERE user_id=$1", user))! == to, "Completion did not move virtual location");
 Check((long)(await Sql("SELECT count(*) FROM user_discovered_place WHERE user_id=$1 AND place_id=$2", user, to))! == 1, "Completion did not unlock place exactly once");
 await service.SyncStepsAsync(user, new(trip, 800), default);

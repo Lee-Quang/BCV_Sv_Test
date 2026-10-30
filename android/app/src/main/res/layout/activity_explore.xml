@@ -310,6 +310,12 @@
             android:text="Hiện chưa có hành trình đang thực hiện."
             android:textColor="#758A7F"
             android:textSize="12sp" />
+        <com.project.bcv.core.ui.ActiveItemBanner
+            android:id="@+id/activeItemBanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:visibility="gone" />
         <LinearLayout
             android:id="@+id/progressSection"
             android:layout_width="match_parent"

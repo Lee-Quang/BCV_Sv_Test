@@ -62,6 +62,7 @@ class ExploreActivity : AppCompatActivity() {
     private var shownStepsJourneyId: Long? = null
     /** Set while Hành trình is open, so coming back slides this tab in from the left. */
     private var returningFromTab = false
+    private var resumedOnce = false
     /** Set when Hành trình's map card was tapped: frame the journey (or virtual location) on return. */
     private var focusMapOnReturn = false
     private val journeyLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -220,6 +221,9 @@ class ExploreActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         goongMap.onResume()
+        // A directly opened item screen can equip shoes without switching tabs.
+        if (resumedOnce && !returningFromTab) model.load()
+        resumedOnce = true
         // Refreshed on every return so a photo changed in Hồ sơ shows here at once.
         loadProfileAvatar()
         if (::model.isInitialized) {
@@ -383,6 +387,7 @@ class ExploreActivity : AppCompatActivity() {
     }
 
     private fun render(state: ExploreUiState) = with(binding) {
+        activeItemBanner.show(state.snapshot?.journey)
         state.snapshot?.let { snapshot ->
             if (snapshot != lastSnapshot) {
                 goongMap.show(snapshot)

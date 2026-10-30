@@ -13,6 +13,7 @@ import com.project.bcv.feature.discovery.domain.RecommendedPlace
 import com.project.bcv.feature.discovery.domain.Recommendations
 import com.project.bcv.feature.location.startingpoint.domain.Coordinates
 import org.json.JSONObject
+import com.project.bcv.feature.discovery.domain.ActiveItemEffect
 
 class ExploreRepositoryImpl(
     private val remote: JsonApiClient,
@@ -77,7 +78,11 @@ class ExploreRepositoryImpl(
                 if (it.has("startLatitude") && !it.isNull("startLatitude"))
                     Coordinates(it.getDouble("startLatitude"), it.getDouble("startLongitude")) else null,
                 it.optLong("destinationPlaceId").takeIf { id -> id > 0 },
-                if(it.has("sourceSteps") && !it.isNull("sourceSteps")) it.getLong("sourceSteps") else null)
+                if(it.has("sourceSteps") && !it.isNull("sourceSteps")) it.getLong("sourceSteps") else null,
+                it.optJSONObject("activeItem")?.let { effect ->
+                    ActiveItemEffect(effect.getString("itemType"), effect.getString("name"),
+                        effect.getDouble("multiplier"), effect.getInt("range"), effect.getInt("remainingSteps"))
+                })
         }
         val places = optJSONArray("places")?.let { array ->
             (0 until array.length()).map { index ->

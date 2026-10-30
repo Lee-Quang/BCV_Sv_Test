@@ -3,6 +3,7 @@ using NpgsqlTypes;
 using Bcv.Api.Modules.Discovery.Application;
 using Bcv.Api.Modules.Shared.Infrastructure;
 using Bcv.Api.Modules.StepLocation.Domain;
+using Bcv.Api.Modules.QuestItem.Infrastructure;
 
 namespace Bcv.Api.Modules.Discovery.Infrastructure;
 
@@ -113,6 +114,18 @@ public sealed class PostgresExploreRepository(NpgsqlDataSource db) : IExploreRep
                     reader.GetDecimal(2), reader.GetDecimal(3), reader.GetInt32(4),
                     reader.GetInt32(5), reader.GetString(6), reader.GetInt64(7),
                     reader.GetDecimal(8), reader.GetDecimal(9), reader.GetInt64(10), reader.GetInt32(11));
+        }
+        if (journey is { Status: "IN_PROGRESS" })
+        {
+            var boosts = await SpeedShoesStore.LoadBoostsAsync(connection, null, userId, journey.JourneyId, ct);
+            var latest = boosts.MaxBy(b => b.From);
+            if (latest is not null)
+            {
+                var remaining = Math.Max(0, latest.Range - Math.Max(0, journey.SourceSteps - latest.From));
+                if (remaining > 0)
+                    journey = journey with { ActiveItem = new ExploreItemEffect("SPEED_SHOES", "Giày tăng tốc",
+                        latest.Multiplier, latest.Range, remaining) };
+            }
         }
         var places = new List<ExploreMapPlace>();
         await using (var command = new NpgsqlCommand("""
