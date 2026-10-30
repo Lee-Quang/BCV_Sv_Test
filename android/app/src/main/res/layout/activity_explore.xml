@@ -39,14 +39,14 @@
                     android:textColor="@color/forest"
                     android:textSize="27sp"
                     android:textStyle="bold" />
-                <!-- Demo helper: writes 2,000 sample steps to Health Connect to try syncing. -->
+                <!-- Debug/preview-only simulator; sends authenticated cumulative step totals. -->
                 <ImageButton
                     android:id="@+id/demoStepsButton"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
                     android:layout_marginStart="10dp"
                     android:background="@drawable/demo_steps_button_bg"
-                    android:contentDescription="Thêm 2.000 bước chân mẫu vào Health Connect để thử đồng bộ"
+                    android:contentDescription="Test bước chân: gửi số bước hoặc mô phỏng đi bộ"
                     android:padding="6dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_demo_steps"

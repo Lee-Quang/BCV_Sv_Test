@@ -15,6 +15,8 @@ fun quotedBuildValue(value: String): String = "\"" + value
     .replace("\n", "\\n")
     .replace("\r", "\\r") + "\""
 
+val hostedApiBaseUrl = "https://bcv-admin-test.onrender.com/"
+
 android {
     namespace = "com.project.bcv"
     compileSdk {
@@ -31,13 +33,15 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "PREVIEW_LOGIN_EMAIL", "\"\"")
         buildConfigField("String", "PREVIEW_LOGIN_PASSWORD", "\"\"")
+        buildConfigField("boolean", "STEP_TEST_ENABLED", "false")
     }
 
     buildTypes {
         debug {
+            buildConfigField("boolean", "STEP_TEST_ENABLED", "true")
             manifestPlaceholders["usesCleartextTraffic"] = "true"
             val apiUrl = providers.gradleProperty("bcvApiBaseUrl")
-                .orElse(localDevProperties.getProperty("bcvApiBaseUrl") ?: "http://10.0.2.2:5081/")
+                .orElse(localDevProperties.getProperty("bcvApiBaseUrl") ?: hostedApiBaseUrl)
                 .get()
             buildConfigField("String", "API_BASE_URL", "\"$apiUrl\"")
             val goongMaptilesKey = providers.gradleProperty("bcvGoongMaptilesKey")
@@ -64,7 +68,7 @@ android {
                 quotedBuildValue(localDevProperties.getProperty("bcvPreviewLoginPassword").orEmpty()))
         }
         release {
-            val apiUrl = providers.gradleProperty("bcvApiBaseUrl").orElse("https://api.example.invalid/").get()
+            val apiUrl = providers.gradleProperty("bcvApiBaseUrl").orElse(hostedApiBaseUrl).get()
             buildConfigField("String", "API_BASE_URL", "\"$apiUrl\"")
             val goongMaptilesKey = providers.gradleProperty("bcvGoongMaptilesKey").orElse("").get()
             buildConfigField("String", "GOONG_MAPTILES_KEY", "\"$goongMaptilesKey\"")

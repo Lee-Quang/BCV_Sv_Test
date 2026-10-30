@@ -74,7 +74,8 @@ class ExploreRepositoryImpl(
                 it.getString("status"), it.getLong("startedAtEpochSeconds"),
                 if (it.has("startLatitude") && !it.isNull("startLatitude"))
                     Coordinates(it.getDouble("startLatitude"), it.getDouble("startLongitude")) else null,
-                it.optLong("destinationPlaceId").takeIf { id -> id > 0 })
+                it.optLong("destinationPlaceId").takeIf { id -> id > 0 },
+                if(it.has("sourceSteps") && !it.isNull("sourceSteps")) it.getLong("sourceSteps") else null)
         }
         val places = optJSONArray("places")?.let { array ->
             (0 until array.length()).map { index ->

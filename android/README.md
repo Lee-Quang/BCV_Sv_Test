@@ -2,7 +2,7 @@
 
 App Kotlin cho người dùng: đọc số bước, đi hành trình ảo trên bản đồ Goong và mở khóa địa danh.
 
-App gọi Backend API qua HTTP, không truy cập database trực tiếp. Mã nguồn chia theo nghiệp vụ trong `feature/`; phần dùng chung nằm trong `core/`.
+App gọi Backend API qua HTTPS tại `https://bcv-admin-test.onrender.com/`, không truy cập database trực tiếp. Có thể ghi đè địa chỉ để chạy backend nội bộ khi phát triển. Mã nguồn chia theo nghiệp vụ trong `feature/`; phần dùng chung nằm trong `core/`.
 
 ## Mục lục
 
@@ -29,18 +29,19 @@ App gọi Backend API qua HTTP, không truy cập database trực tiếp. Mã ng
 Tạo `android/dev.properties` (Git bỏ qua file này):
 
 ```properties
-bcvApiBaseUrl=http://192.168.1.10:5081/
+bcvApiBaseUrl=https://bcv-admin-test.onrender.com/
 bcvGoongMaptilesKey=<Goong Maptiles Key>
 bcvGoongApiKey=<Goong REST API Key>
 ```
 
 | Khóa | Ý nghĩa | Nếu bỏ trống |
 | --- | --- | --- |
-| `bcvApiBaseUrl` | Địa chỉ Backend, kết thúc bằng `/` | `http://10.0.2.2:5081/` (máy tính, nhìn từ emulator) |
+| `bcvApiBaseUrl` | Địa chỉ Backend, kết thúc bằng `/` | `https://bcv-admin-test.onrender.com/` |
 | `bcvGoongMaptilesKey` | Hiển thị bản đồ Goong | Bản đồ trống |
 | `bcvGoongApiKey` | Tra địa chỉ từ tọa độ và chỉ đường theo đường phố | Không hiện địa chỉ, không vẽ đường đi |
 
-- **Điện thoại thật:** dùng IP Wi-Fi của máy tính chạy backend (xem bằng `ipconfig`); điện thoại và máy tính phải cùng mạng.
+- **Backend đã deploy:** dùng URL HTTPS trên; điện thoại có thể dùng Wi-Fi hoặc dữ liệu di động, không cần bật máy tính chạy backend.
+- **Chạy backend local:** ghi đè URL bằng `http://10.0.2.2:5081/` cho emulator, hoặc IP Wi-Fi máy tính cho điện thoại thật (hai máy phải cùng mạng). `127.0.0.1` trên điện thoại/emulator là chính thiết bị đó; chỉ dùng được với backend máy tính khi đã cấu hình chuyển tiếp ADB tương ứng.
 - Giá trị được đóng vào app lúc build, nên **sửa xong phải build lại**.
 - Bản release nhận giá trị qua Gradle property, ví dụ `-PbcvApiBaseUrl=https://... -PbcvGoongMaptilesKey=...`, và cần URL HTTPS.
 
@@ -89,7 +90,32 @@ Health Connect là nguồn bước chính, vì nó đã gộp mọi ứng dụng
 - Sau khi đăng ký, Google Play services tự đếm cả khi app tắt hay điện thoại khởi động lại, và giữ dữ liệu 10 ngày trên máy. Không mở app đồng bộ quá 10 ngày thì phần bước cũ hơn bị mất.
 - Hành trình đã bắt đầu đếm bằng Recording API thì dùng nó tới hết hành trình, để tổng bước không bị tụt khi nguồn thay đổi. Hành trình sau dùng Health Connect thì app hủy đăng ký.
 - **Tự động đồng bộ:** khi màn Khám phá đang mở, app tự gửi bước mới lúc mở màn và mỗi phút một lần (chỉ gửi khi tổng bước tăng), không hiện trạng thái "Đang đồng bộ" và lỗi thì giữ nguyên tiến độ để lần sau thử lại. Nút **Đồng bộ** vẫn dùng được để cập nhật ngay.
-- Nút "+2.000 bước thử" ghi bản ghi thử vào Health Connect; mỗi bản ghi bắt đầu sau bản ghi trước nên luôn cộng đủ 2.000.
+- Bảng **Test bước chân** gửi trực tiếp bước tích lũy tới API đã xác thực, không ghi mẫu Health Connect. Các mẫu cũ nếu đã có trong Health Connect vẫn được nguồn đọc xử lý như trước.
+
+## Test bước chân, nhiệm vụ và vật phẩm
+
+1. Cài APK debug/preview đã build với backend `https://bcv-admin-test.onrender.com/`; đăng nhập tài khoản dùng để test và bắt đầu một hành trình.
+2. Bấm icon người đi bộ cạnh **Khám phá**. Nhập **Số bước mỗi lần**, ví dụ `200`, và **Chu kỳ gửi**, ví dụ `5` giây.
+3. Chọn **Gửi bước một lần** hoặc **Bắt đầu mô phỏng**, rồi **Xem bản đồ** để theo dõi bước, phần trăm và người đi bộ. Chỉ gửi lần kế tiếp sau khi lần trước đã được xác nhận và chờ đủ chu kỳ; không gửi chồng request.
+4. Mở lại bảng để **Dừng mô phỏng**. Rời màn Khám phá, chuyển tab hoặc đưa app ra nền sẽ dừng lịch gửi; request đang gửi được phép hoàn tất. Lỗi hoặc hoàn thành hành trình cũng dừng mô phỏng.
+5. Bấm **Kiểm tra nhiệm vụ** để xem tiến độ. Nhiệm vụ đếm bước chỉ nhận bước gốc, không nhận phần thưởng nhân đôi của giày. Khi đạt mục tiêu, mở Nhiệm vụ để nhận phần thưởng theo xử lý hiện có.
+6. Trong **Kiểm tra / dùng vật phẩm**, dùng giày khi đang có hành trình, trở lại Khám phá và gửi thêm bước: tiến độ hành trình có thưởng, nhưng **Bước gốc** không bị nhân đôi. Vé máy bay chỉ dùng khi không có hành trình đang đi và chọn địa danh ở khu vực khác.
+
+Bảng cho phép `1–100.000` bước/lần, chu kỳ `2–3.600` giây. Các bước test **ghi thật vào tài khoản và ảnh hưởng nhiệm vụ, phần thưởng, tồn kho**; dùng tài khoản thử riêng. Hành trình đã bật test giữ nguồn mô phỏng đến khi kết thúc, không trộn thêm Health Connect/Recording API. Khi mất phản hồi, tổng bước đang chờ được lưu để lần gửi lại không cộng trùng. Tính năng ẩn trong bản release (`STEP_TEST_ENABLED=false`).
+
+Backend phải có trường `journey.sourceSteps` (bước gốc chưa cộng giày) trong phản hồi `/api/explore`. Nếu server cũ chưa có trường này, app sẽ báo cần cập nhật và không đoán từ tiến độ đã nhân đôi.
+
+Nhiệm vụ và vật phẩm phải đang `ACTIVE` và tài khoản phải có vật phẩm để sử dụng. Dữ liệu hiện tại có thể còn giày/vé ở `DRAFT`; kích hoạt qua web quản trị khi muốn sử dụng, không tự cấp thêm vật phẩm cho tài khoản thật từ nút test.
+
+Bản đồ Khám phá, Hành trình và Điểm xuất phát hỗ trợ cử chỉ zoom và nút **+ / −**; dùng các nút khi test bằng chuột trên emulator.
+
+Kiểm thử Android `StepSimulationTest`: bước gốc so với giày, mất phản hồi sau khi server đã nhận, dừng chu kỳ và tự dừng khi hoàn thành. `LocalApiNetworkTest` kiểm tra `/health` và request đăng ký sai định dạng không tạo tài khoản. Kiểm thử backend trên bản database local tạm:
+
+```powershell
+.\backend\test-step-flow.ps1 -Psql 'E:\PostgreSQL\bin\psql.exe'
+```
+
+Script cần `BCV_DB_PASSWORD`, sao chép database local thành `bcv_step_checks_*`, chạy ca bước/nhiệm vụ/giày/vé và xóa đúng database tạm; không thay dữ liệu gốc hoặc Neon.
 
 ## Cấu trúc mã nguồn
 
@@ -113,6 +139,11 @@ Test giao diện và tích hợp nằm trong `app/src/androidTest/`, chạy trê
 ## Xử lý sự cố
 
 **App báo "Chưa thể kết nối":**
+
+- Với backend online, mở `https://bcv-admin-test.onrender.com/health` và kiểm tra `{"status":"ok"}`. Render Free có thể cần khoảng một phút để thức dậy; app cho phép chờ phản hồi tối đa 90 giây và không tự gửi lại thao tác ghi dữ liệu. Link `bcv-sv-test.onrender.com` cũ đã tạm dừng.
+- Kiểm tra `android/dev.properties` không ghi đè URL mới bằng địa chỉ local. URL được đóng vào APK lúc build; phải build và cài lại sau khi đổi URL. Nếu phiên cũ không còn hợp lệ khi chuyển server, đăng nhập lại bằng tài khoản hiện có.
+
+Nếu chủ động chạy backend local:
 
 1. Trên điện thoại, mở trình duyệt vào `http://<IP-máy-tính>:5081/health`. Kết quả đúng là `{"status":"ok"}`.
 2. Nếu bị timeout, Windows Firewall đang chặn. Mở PowerShell bằng quyền Administrator và mở cổng 5081 cho mạng nội bộ (thay dải IP cho đúng):

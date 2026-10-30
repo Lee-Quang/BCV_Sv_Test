@@ -6,7 +6,7 @@ public sealed record ExploreJourney(
     long JourneyId, string DestinationName, decimal DestinationLatitude,
     decimal DestinationLongitude, int RequiredSteps, int RecordedSteps,
     string Status, long StartedAtEpochSeconds, decimal StartLatitude, decimal StartLongitude,
-    long DestinationPlaceId);
+    long DestinationPlaceId, int SourceSteps = 0);
 
 public sealed record ExploreMapPlace(long PlaceId, string Name, decimal Latitude, decimal Longitude, bool IsDiscovered);
 

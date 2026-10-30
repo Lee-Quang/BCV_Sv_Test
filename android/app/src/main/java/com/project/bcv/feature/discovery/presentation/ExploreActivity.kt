@@ -24,10 +24,6 @@ import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.StepsRecord
-import androidx.health.connect.client.records.metadata.DataOrigin
-import androidx.health.connect.client.records.metadata.Metadata
-import androidx.health.connect.client.request.ReadRecordsRequest
-import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.google.android.material.snackbar.Snackbar
 import com.project.bcv.R
@@ -49,8 +45,6 @@ import com.project.bcv.feature.journey.presentation.JourneyActivity
 import com.project.bcv.feature.collection.presentation.CollectionActivity
 import com.project.bcv.feature.questitem.quest.presentation.QuestActivity
 import java.util.Locale
-import java.time.Instant
-import java.time.ZoneId
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -75,14 +69,6 @@ class ExploreActivity : AppCompatActivity() {
     }
     private var shownSteps = 0
     private var stepsAnimator: ValueAnimator? = null
-    private var demoWriteInFlight = false
-    private val demoStepsPermission = HealthPermission.getWritePermission(StepsRecord::class)
-    private val demoPermissionLauncher = registerForActivityResult(
-        PermissionController.createRequestPermissionResultContract()
-    ) { granted ->
-        if (demoStepsPermission in granted) writeDemoSteps()
-        else Snackbar.make(binding.root, "Cần cho phép ghi bước chân để dùng dữ liệu thử.", Snackbar.LENGTH_LONG).show()
-    }
     private val readStepsPermission = HealthPermission.getReadPermission(StepsRecord::class)
     private var stepsPermissionAsked = false
     private val stepsPermissionLauncher = registerForActivityResult(
@@ -161,16 +147,16 @@ class ExploreActivity : AppCompatActivity() {
         scheduleMapTimeout()
 
         model = ViewModelProvider(this, ExploreViewModelFactory(
-            ExploreModule.repository(this), ExploreModule.stepSource(this), ExploreModule.addressLookup()
+            ExploreModule.repository(this), ExploreModule.stepSource(this), ExploreModule.addressLookup(), com.project.bcv.feature.discovery.data.StepTestPreferences(this)
         ))[ExploreViewModel::class.java]
         model.state.observe(this, ::render)
         model.address.observe(this) { model.state.value?.let(::renderLocationName) }
         binding.recenterButton.setOnClickListener { goongMap.recenter() }
         binding.primaryButton.setOnClickListener { primaryAction() }
         binding.secondaryButton.setOnClickListener { secondaryAction() }
-        binding.demoStepsButton.setOnClickListener { addDemoSteps() }
+        binding.demoStepsButton.setOnClickListener { StepTestDialog.show(this, model) }
         // Icon only now: long-press shows what it does.
-        TooltipCompat.setTooltipText(binding.demoStepsButton, "+2.000 bước thử")
+        TooltipCompat.setTooltipText(binding.demoStepsButton, "Test bước chân")
         binding.tertiaryButton.setOnClickListener { openRecommendations() }
         binding.notificationsButton.setOnClickListener { startActivity(Intent(this, NotificationsActivity::class.java)) }
         binding.profileButton.setOnClickListener { startActivity(Intent(this, ProfileActivity::class.java)) }
@@ -254,7 +240,7 @@ class ExploreActivity : AppCompatActivity() {
             binding.root.post { goongMap.recenter() }
         }
     }
-    override fun onPause() { handler.removeCallbacks(autoSync); goongMap.onPause(); super.onPause() }
+    override fun onPause() { model.stopStepSimulation(); handler.removeCallbacks(autoSync); goongMap.onPause(); super.onPause() }
     override fun onStop() { goongMap.onStop(); super.onStop() }
     override fun onLowMemory() { super.onLowMemory(); goongMap.onLowMemory() }
     override fun onSaveInstanceState(outState: Bundle) {
@@ -396,80 +382,6 @@ class ExploreActivity : AppCompatActivity() {
             ?: fallback ?: "Chưa có vị trí ảo"
     }
 
-    private fun addDemoSteps() {
-        if (demoWriteInFlight) return
-        val state = model.state.value ?: return
-        if (state.snapshot?.journey?.status != "IN_PROGRESS") {
-            Snackbar.make(binding.root, "Chọn một địa danh trên bản đồ rồi tạo hành trình trước.", Snackbar.LENGTH_LONG).show()
-            return
-        }
-        if (state.stage == ExploreStage.PERMISSION_REQUIRED) {
-            Snackbar.make(binding.root, "Cần cho phép đọc bước chân trước khi thử.", Snackbar.LENGTH_LONG).show()
-            startActivity(Intent(this, HealthConnectActivity::class.java))
-            return
-        }
-        lifecycleScope.launch {
-            try {
-                if (HealthConnectClient.getSdkStatus(this@ExploreActivity) != HealthConnectClient.SDK_AVAILABLE) {
-                    Snackbar.make(binding.root, "Thiết bị chưa có Health Connect.", Snackbar.LENGTH_LONG).show()
-                    return@launch
-                }
-                val granted = HealthConnectClient.getOrCreate(this@ExploreActivity)
-                    .permissionController.getGrantedPermissions()
-                if (demoStepsPermission in granted) writeDemoSteps()
-                else demoPermissionLauncher.launch(setOf(demoStepsPermission))
-            } catch (_: Exception) {
-                Snackbar.make(binding.root, "Chưa mở được Health Connect.", Snackbar.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    private fun writeDemoSteps() {
-        if (demoWriteInFlight) return
-        val journey = model.state.value?.snapshot?.journey ?: return
-        if (journey.status != "IN_PROGRESS") return
-        demoWriteInFlight = true
-        binding.demoStepsButton.isEnabled = false
-        binding.demoStepsButton.alpha = 0.4f
-        lifecycleScope.launch {
-            try {
-                val client = HealthConnectClient.getOrCreate(this@ExploreActivity)
-                val journeyStart = Instant.ofEpochSecond(journey.startedAtEpochSeconds)
-                val end = Instant.now()
-                // Health Connect does not count overlapping step records twice, so a sample overlapping an
-                // earlier one only added part of its 2,000 steps (or none). Each sample starts where this
-                // app's last one for the journey ended, so every tap adds the full 2,000.
-                val lastSampleEnd = client.readRecords(ReadRecordsRequest(StepsRecord::class,
-                    TimeRangeFilter.between(journeyStart, end),
-                    dataOriginFilter = setOf(DataOrigin(packageName))))
-                    .records.maxOfOrNull { it.endTime }
-                val start = listOfNotNull(journeyStart, end.minusSeconds(30), lastSampleEnd).max()
-                if (!start.isBefore(end)) {
-                    Snackbar.make(binding.root, "Chờ vài giây rồi thử lại.", Snackbar.LENGTH_SHORT).show()
-                    return@launch
-                }
-                val zone = ZoneId.systemDefault().rules
-                client.insertRecords(listOf(
-                    StepsRecord(
-                        count = 2_000,
-                        startTime = start,
-                        endTime = end,
-                        startZoneOffset = zone.getOffset(start),
-                        endZoneOffset = zone.getOffset(end),
-                        metadata = Metadata.manualEntry()
-                    )
-                ))
-                Snackbar.make(binding.root, "Đã thêm 2.000 bước thử. Bấm Đồng bộ để cập nhật.", Snackbar.LENGTH_LONG).show()
-            } catch (_: Exception) {
-                Snackbar.make(binding.root, "Chưa ghi được bước thử vào Health Connect.", Snackbar.LENGTH_LONG).show()
-            } finally {
-                demoWriteInFlight = false
-                binding.demoStepsButton.isEnabled = true
-                binding.demoStepsButton.alpha = 1f
-            }
-        }
-    }
-
     private fun render(state: ExploreUiState) = with(binding) {
         state.snapshot?.let { snapshot ->
             if (snapshot != lastSnapshot) {
@@ -521,9 +433,9 @@ class ExploreActivity : AppCompatActivity() {
         tertiaryButton.visibility = if (showProgress && journey?.status == "IN_PROGRESS" &&
             state.stage != ExploreStage.PERMISSION_REQUIRED) View.VISIBLE else View.GONE
         tertiaryButton.isEnabled = state.stage != ExploreStage.SYNCING
-        demoStepsButton.visibility = View.VISIBLE
-        demoStepsButton.isEnabled = !demoWriteInFlight
-        demoStepsButton.alpha = if (demoWriteInFlight) 0.4f else 1f
+        demoStepsButton.visibility = if (com.project.bcv.BuildConfig.STEP_TEST_ENABLED) View.VISIBLE else View.GONE
+        demoStepsButton.isEnabled = true
+        demoStepsButton.alpha = 1f
         if (renderedStage != state.stage) {
             if (renderedStage != null) {
                 ScreenMotion.reveal(statusCard)
