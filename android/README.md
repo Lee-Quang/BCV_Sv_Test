@@ -58,7 +58,7 @@ Hoặc mở thư mục `android/` bằng Android Studio rồi bấm **Run**. M�
 
 Mở app, đăng ký hoặc đăng nhập. Phiên được giữ 30 ngày và tự gia hạn, nên lần sau mở app sẽ vào thẳng màn đang dở (thiết lập hoặc Khám phá); chỉ khi phiên bị từ chối (đăng xuất, đổi mật khẩu, bị khóa) mới phải đăng nhập lại.
 
-Khi trình diễn trên thiết bị không có bước thật, bấm nút icon người đi bộ có dấu "+" cạnh chữ **Khám phá** để ghi 2.000 bước mẫu vào Health Connect, rồi bấm **Đồng bộ** (hoặc chờ tự đồng bộ).
+Trong bản debug, bấm icon người đi bộ cạnh chữ **Khám phá** để mở **Test bước chân**. Nhập số bước mỗi lần và khoảng chờ, rồi chọn gửi một lần hoặc mô phỏng định kỳ. Bước được gửi trực tiếp đến backend và làm thay đổi dữ liệu tài khoản đang đăng nhập; nên dùng tài khoản test.
 
 ## Luồng sử dụng
 
@@ -84,7 +84,7 @@ Health Connect là nguồn bước chính, vì nó đã gộp mọi ứng dụng
 | Không có ứng dụng nào ghi bước, máy có Google Play services **và** người dùng đã cho phép **Hoạt động thể chất** | Recording API của Google Play services (`RecordingStepCounter`), cộng với bước thử của BCV |
 | Còn lại (chưa cho phép, hoặc máy không có Google Play services) | Chỉ bước thử của BCV |
 
-- **Bước từ Recording API chỉ lưu trong app, không ghi vào Health Connect**, nên không bị đọc lại và cộng trùng. BCV chỉ ghi vào Health Connect bước thử (+2.000).
+- **Bước từ Recording API chỉ lưu trong app, không ghi vào Health Connect**, nên không bị đọc lại và cộng trùng. Bảng test hiện tại gửi bước trực tiếp đến backend, không ghi vào Health Connect.
 - Quyền Hoạt động thể chất chỉ được hỏi khi Health Connect không có nguồn đếm bước. Không cần cài thêm app nào: Recording API chạy trong Google Play services có sẵn trên máy.
 - Recording API bắt đầu ghi khi app đăng ký lần đầu cho hành trình (lúc tạo hành trình hoặc mở màn Khám phá); bước đi trước đó không có.
 - Sau khi đăng ký, Google Play services tự đếm cả khi app tắt hay điện thoại khởi động lại, và giữ dữ liệu 10 ngày trên máy. Không mở app đồng bộ quá 10 ngày thì phần bước cũ hơn bị mất.
