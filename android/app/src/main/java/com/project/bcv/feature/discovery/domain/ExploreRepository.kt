@@ -29,7 +29,8 @@ data class ExploreMapPlace(val id: Long, val name: String, val coordinates: Coor
 data class ExplorePlaceDetail(val id: Long, val name: String, val placeType: String,
     val imageUrl: String?, val isDiscovered: Boolean, val distanceKm: Double,
     val requiredSteps: Int, val introduction: String?, val highlights: String?,
-    val regionName: String? = null, val imageUrls: List<String> = emptyList())
+    val regionName: String? = null, val imageUrls: List<String> = emptyList(),
+    val rating: Double? = null, val ratingCount: Int? = null)
 
 data class ExploreSnapshot(val location: ExploreLocation?, val journey: ExploreJourney?,
     val places: List<ExploreMapPlace>)

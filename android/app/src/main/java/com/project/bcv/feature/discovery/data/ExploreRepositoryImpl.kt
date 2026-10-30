@@ -23,14 +23,16 @@ class ExploreRepositoryImpl(
     override fun loadPlace(placeId: Long): ExplorePlaceDetail =
         remote.get("api/explore/places/$placeId", token()).let {
             ExplorePlaceDetail(it.getLong("placeId"), it.getString("name"), it.getString("placeType"),
-                it.optString("imageUrl").takeIf(String::isNotBlank), it.getBoolean("isDiscovered"),
+                it.nullableText("imageUrl"), it.getBoolean("isDiscovered"),
                 it.getDouble("distanceKm"), it.getInt("requiredSteps"),
-                it.optString("introduction").takeIf(String::isNotBlank),
-                it.optString("highlights").takeIf(String::isNotBlank),
-                it.optString("regionName").takeIf(String::isNotBlank),
+                it.nullableText("introduction"),
+                it.nullableText("highlights"),
+                it.nullableText("regionName"),
                 it.optJSONArray("imageUrls")?.let { array ->
                     (0 until array.length()).map(array::getString)
-                }.orEmpty())
+                }.orEmpty(),
+                if (it.isNull("rating")) null else it.optDouble("rating").takeIf { value -> value.isFinite() },
+                if (it.isNull("ratingCount")) null else it.optInt("ratingCount"))
         }
 
     override fun loadRecommendations(): Recommendations =
@@ -92,3 +94,6 @@ class ExploreRepositoryImpl(
     private fun token(): String = session.token
         ?: throw ApiFailure("UNAUTHORIZED", "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.")
 }
+
+private fun JSONObject.nullableText(key: String): String? =
+    if (isNull(key)) null else optString(key).trim().takeIf { it.isNotEmpty() && it != "null" }

@@ -23,11 +23,13 @@ public sealed class PostgresExploreRepository(NpgsqlDataSource db) : IExploreRep
         string? introduction, highlights;
         bool discovered;
         decimal distanceKm;
+        decimal? rating;
+        int? ratingCount;
         await using (var command = new NpgsqlCommand($"""
             SELECT p.place_id, p.name, pt.name,
                    EXISTS (SELECT 1 FROM public.user_discovered_place d
                            WHERE d.user_id = $1 AND d.place_id = p.place_id),
-                   ({GeoSql.VirtualLocationToPlaceMeters} / 1000.0)::numeric, p.introduction, p.highlights, r.name
+                   ({GeoSql.VirtualLocationToPlaceMeters} / 1000.0)::numeric, p.introduction, p.highlights, r.name, p.rating, p.rating_count
             FROM public.place p
             JOIN public.place_type pt ON pt.place_type_id = p.place_type_id
             JOIN public.region r ON r.region_id = p.region_id
@@ -45,9 +47,11 @@ public sealed class PostgresExploreRepository(NpgsqlDataSource db) : IExploreRep
             placeType = reader.GetString(2);
             discovered = reader.GetBoolean(3);
             distanceKm = reader.GetDecimal(4);
-            introduction = discovered && !reader.IsDBNull(5) ? reader.GetString(5) : null;
+            introduction = !reader.IsDBNull(5) ? reader.GetString(5) : null;
             highlights = discovered && !reader.IsDBNull(6) ? reader.GetString(6) : null;
             regionName = reader.GetString(7);
+            rating = reader.IsDBNull(8) ? null : reader.GetDecimal(8);
+            ratingCount = reader.IsDBNull(9) ? null : reader.GetInt32(9);
         }
 
         var images = new List<string>();
@@ -64,7 +68,7 @@ public sealed class PostgresExploreRepository(NpgsqlDataSource db) : IExploreRep
         // The first photo stays visible (blurred) while locked; the gallery opens with the place.
         return new ExplorePlaceDetail(id, name, placeType, images.FirstOrDefault(), discovered, distanceKm,
             distanceKm <= 0 ? 0 : StepConversion.RequiredSteps(distanceKm), introduction, highlights, regionName,
-            discovered ? images : []);
+            discovered ? images : [], rating, ratingCount);
     }
 
     private static async Task<ExploreSnapshot> LoadSnapshotAsync(NpgsqlConnection connection,

@@ -16,7 +16,7 @@ public sealed record ExploreMapPlace(long PlaceId, string Name, decimal Latitude
 /// </summary>
 public sealed record ExplorePlaceDetail(long PlaceId, string Name, string PlaceType, string? ImageUrl,
     bool IsDiscovered, decimal DistanceKm, int RequiredSteps, string? Introduction, string? Highlights,
-    string RegionName, IReadOnlyList<string> ImageUrls);
+    string RegionName, IReadOnlyList<string> ImageUrls, decimal? Rating = null, int? RatingCount = null);
 
 public sealed record ExploreSnapshot(ExploreLocation? Location, ExploreJourney? Journey,
     IReadOnlyList<ExploreMapPlace> Places);
