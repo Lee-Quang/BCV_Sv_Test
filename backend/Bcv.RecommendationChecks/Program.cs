@@ -67,7 +67,8 @@ var checks = new (string Name, Action Run)[]
         Assert(Rank(places, Weights(Scores.Preference), preference: Preference("landform__coast"))[0].Place.PlaceId == 2);
     }),
     ("Changing activity level changes the effort ranking", () => {
-        var places = new[] { Place(1, 6000), Place(2, 1000) };
+        // With kappa=0.1, use 60 km / 10 km to retain the 8,000 / 1,334-step effort contrast.
+        var places = new[] { Place(1, 60000), Place(2, 10000) };
         Assert(Rank(places, Weights(Scores.Activity), activity: "LOW")[0].Place.PlaceId == 2);
         Assert(Rank(places, Weights(Scores.Activity), activity: "HIGH")[0].Place.PlaceId == 1);
     }),
@@ -132,8 +133,9 @@ var checks = new (string Name, Action Run)[]
         Error("NO_RECOMMENDATION_PREFERENCES", () => Recommend(Input(preferences: [])));
         Error("NO_ACTIVITY_LEVEL", () => Recommend(Input(activity: null)));
     }),
-    ("Required steps keep the current kappa=1 conversion", () => {
-        Assert(StepConversion.RequiredSteps(50) == 66667);
+    ("Required steps use kappa=0.1 with a minimum of one", () => {
+        Assert(StepConversion.RequiredSteps(50) == 6667);
+        Assert(StepConversion.RequiredSteps(0) == 1);
     })
 };
 

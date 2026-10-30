@@ -173,7 +173,9 @@ public sealed class AdminRepository(NpgsqlDataSource db, ISessionStore sessions)
         }
         if (key == "items")
         {
-            var type = (string)(await Scalar("SELECT item_type FROM item WHERE item_id=$1", id!.Value))!;
+            var type = (string)values["item_type"]!;
+            if (id is not null && !Equals(await Scalar("SELECT item_type FROM item WHERE item_id=$1", id.Value), type))
+                throw new AdminValidation("Không thể đổi loại vật phẩm đã tạo. Hãy tạo vật phẩm mới.");
             if (type == "SPEED_SHOES" && (values["effect_value"] is not decimal effect || effect <= 1 || values["effective_range"] is not int range || range < 1))
                 throw new AdminValidation("Giày tăng tốc cần hệ số lớn hơn 1 và số bước hiệu lực lớn hơn 0.");
             if (type == "FLIGHT_TICKET") { values["effect_value"] = null; values["effective_range"] = null; }

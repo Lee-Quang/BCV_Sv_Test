@@ -172,10 +172,10 @@ class PlaceDetailActivity : AppCompatActivity() {
         lockedNotice.visibility = if (place.isDiscovered) View.GONE else View.VISIBLE
         unlockedDescription.visibility = View.VISIBLE
         unlockedDescription.text = listOfNotNull(
+            ratingText(place),
             place.regionName?.takeIf(String::isNotBlank)?.let { "Khu vực: $it" },
             place.placeType.takeIf(String::isNotBlank)?.let { "Loại địa danh: $it" },
-            "Giới thiệu\n${place.introduction ?: "Chưa có dữ liệu giới thiệu."}",
-            ratingText(place))
+            "Giới thiệu\n${place.introduction ?: "Chưa có dữ liệu giới thiệu."}")
             .filter(String::isNotBlank).joinToString("\n\n")
         if (Build.VERSION.SDK_INT >= 31) {
             placeImage.setRenderEffect(if (place.isDiscovered) null else
@@ -192,7 +192,7 @@ class PlaceDetailActivity : AppCompatActivity() {
         unlockedName.text = place.name
         regionText.text = place.regionName
         regionText.visibility = if (place.regionName.isNullOrBlank()) View.GONE else View.VISIBLE
-        storyText.text = "${place.introduction ?: "Nội dung về địa danh này đang được cập nhật."}\n\n${ratingText(place)}"
+        storyText.text = "${ratingText(place)}\n\n${place.introduction ?: "Nội dung về địa danh này đang được cập nhật."}"
         val fact = place.highlights?.removePrefix("Bạn có biết?")?.trim()
         factCard.visibility = if (fact.isNullOrEmpty()) View.GONE else View.VISIBLE
         factText.text = fact

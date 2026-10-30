@@ -4,6 +4,8 @@ using Bcv.Api.Modules.Journey.Infrastructure;
 using Bcv.Api.Modules.QuestItem.Application;
 using Bcv.Api.Modules.QuestItem.Infrastructure;
 using Npgsql;
+using System.Text.Json;
+using Bcv.Api.Modules.Admin;
 
 var settings = new NpgsqlConnectionStringBuilder(Environment.GetEnvironmentVariable("BCV_STEP_CHECK_CONNECTION")
     ?? throw new Exception("Set BCV_STEP_CHECK_CONNECTION to an isolated copy of the database."));
@@ -81,4 +83,25 @@ Check(await Quantity(ticketId) == 1, "Flight did not consume exactly one ticket"
 Check((long)(await Sql("SELECT nearest_place_id FROM virtual_location WHERE user_id=$1", user))! == landing, "Flight did not move virtual location");
 try { await service.SyncStepsAsync(user + 10_000_000, new(trip, 900), default); throw new Exception("Another user could sync the journey"); }
 catch (JourneyException error) when (error.Code == "JOURNEY_NOT_FOUND") { }
-Console.WriteLine("PASS: cumulative steps, raw/boosted separation, quest progress/reward once, shoes consumption, duplicate requests, journey completion/unlock, flight restrictions/consumption, ownership.");
+var admin = new AdminRepository(db, null!); // Item saves do not use the session store; HTTP endpoints enforce admin access.
+var newItemBody = JsonSerializer.SerializeToElement(new { name = "Fixture new shoes", item_type = "SPEED_SHOES",
+    description = "Isolated fixture", effect_value = 3, effective_range = 100, usage_limit = (int?)null, status = "ACTIVE" });
+var createdItem = JsonSerializer.SerializeToElement(await admin.Save("items", null, newItemBody, user, default)).GetProperty("id").GetInt64();
+Check((string)(await Sql("SELECT item_type FROM item WHERE item_id=$1", createdItem))! == "SPEED_SHOES", "Admin could not create item");
+var changedType = JsonSerializer.SerializeToElement(new { name = "Invalid type change", item_type = "FLIGHT_TICKET", status = "ACTIVE" });
+try { await admin.Save("items", createdItem, changedType, user, default); throw new Exception("Item type could be changed"); }
+catch (AdminValidation) { }
+await Sql("INSERT INTO user_item(user_id,item_id,quantity) VALUES($1,$2,1)", user, createdItem);
+var secondTrip = (long)(await Sql("""
+    INSERT INTO journey(user_id,start_place_id,start_latitude,start_longitude,destination_place_id,distance,required_steps,status)
+    SELECT $1,place_id,latitude,longitude,$3,10,100000,'IN_PROGRESS' FROM place WHERE place_id=$2 RETURNING journey_id
+    """, user, landing, to))!;
+var originalQuantity = await Quantity(shoesId);
+var selectedStatus = await items.UseShoesAsync(user, default, createdItem);
+Check(selectedStatus.ItemId == createdItem && selectedStatus.Multiplier == 3, "Wrong shoe variant was used");
+Check(await Quantity(createdItem) == 0 && await Quantity(shoesId) == originalQuantity, "Wrong inventory item was consumed");
+var expiredBoost = await service.SyncStepsAsync(user, new(secondTrip, 200), default);
+Check(expiredBoost.Journey is { Status: "IN_PROGRESS", RecordedSteps: 400, ActiveItem: null }, "Expired item is still active");
+try { await items.ShoesAsync(user, default, ticketId); throw new Exception("Wrong item type accepted"); }
+catch (ItemUseException error) when (error.Code == "ITEM_NOT_FOUND") { }
+Console.WriteLine("PASS: cumulative steps, quest rewards, item effects/expiry, admin creation, selected item consumption, immutable type, ownership and flight restrictions.");

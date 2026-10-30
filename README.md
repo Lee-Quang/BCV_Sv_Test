@@ -147,7 +147,7 @@ Quản lý người dùng, khu vực, địa danh (kèm bản đồ chọn tọa
 
 | Quy tắc | Giá trị | Nơi mô tả |
 | --- | --- | --- |
-| Quy đổi khoảng cách thành bước | S = max(1, ⌈1000 · D · κ / L⌉), κ = 1, L = 0,75 m | [backend/README.md](backend/README.md#quy-đổi-khoảng-cách-thành-số-bước) |
+| Quy đổi khoảng cách thành bước | S = max(1, ⌈1000 · D · κ / L⌉), κ = 0,1, L = 0,75 m | [backend/README.md](backend/README.md#quy-đổi-khoảng-cách-thành-số-bước) |
 | Điểm gợi ý | S = 0,35P + 0,15C + 0,3A + 0,1R + 0,1N, trả tối đa 3 địa danh | [backend/README.md](backend/README.md#gợi-ý-điểm-đến) |
 | Loại địa danh | 12 loại chuẩn, mỗi loại ánh xạ sang nhóm đặc trưng của mô hình | [db/README.md](db/README.md#loại-địa-danh) |
 | Phạm vi điểm xuất phát | Địa danh `ACTIVE` gần nhất trong bán kính 75 km | [android/README.md](android/README.md#luồng-sử-dụng) |

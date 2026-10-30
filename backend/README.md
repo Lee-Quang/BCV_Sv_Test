@@ -100,7 +100,7 @@ Khi chưa cấu hình R2, ảnh được lưu thẳng trong cột ảnh của da
 
 ## Quy đổi khoảng cách thành số bước
 
-Theo mục 3.5.1.2 của tài liệu: **S = max(1, ⌈1000 · D · κ / L⌉)**, với D là khoảng cách (km) từ vị trí ảo tới điểm đến, L = 0,75 m/bước, **κ = 1**. Ví dụ 10 km cần 13.334 bước, 50 km cần 66.667 bước.
+Theo mục 3.5.1.2 của tài liệu: **S = max(1, ⌈1000 · D · κ / L⌉)**, với D là khoảng cách (km) từ vị trí ảo tới điểm đến, L = 0,75 m/bước, **κ = 0,1**. Ví dụ 10 km cần 1.334 bước, 50 km cần 6.667 bước.
 
 κ là hệ số tỉ lệ (0 < κ ≤ 1). κ = 1 giữ nguyên quãng đường thật; κ nhỏ hơn thu nhỏ hành trình (tài liệu ví dụ κ = 0,01). Mã: `Modules/StepLocation/Domain/StepConversion.cs`. Số bước được lưu khi tạo hành trình, nên đổi κ chỉ áp dụng cho hành trình mới.
 
