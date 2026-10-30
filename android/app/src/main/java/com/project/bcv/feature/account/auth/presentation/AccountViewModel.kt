@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.project.bcv.core.network.ApiFailure
 import com.project.bcv.feature.account.auth.domain.AccountRepository
+import com.project.bcv.feature.account.auth.data.local.RememberedLoginStore
 import java.io.IOException
 import java.util.concurrent.Executors
 
@@ -24,10 +25,12 @@ data class AccountUiState(
     val errors: FieldErrors = FieldErrors(),
     val requestError: String? = null,
     /** A saved session is being checked; the form stays hidden so it does not flash. */
-    val restoring: Boolean = false
+    val restoring: Boolean = false,
+    val rememberSaveFailed: Boolean = false
 )
 
-class AccountViewModel(private val repository: AccountRepository) : ViewModel() {
+class AccountViewModel(private val repository: AccountRepository,
+    private val rememberedLogin: RememberedLoginStore? = null) : ViewModel() {
     private val executor = Executors.newSingleThreadExecutor()
     private val mutableState = MutableLiveData(AccountUiState())
     val state: LiveData<AccountUiState> = mutableState
@@ -84,7 +87,7 @@ class AccountViewModel(private val repository: AccountRepository) : ViewModel() 
         }
     }
 
-    fun submit(rawEmail: String, password: String, confirmPassword: String) {
+    fun submit(rawEmail: String, password: String, confirmPassword: String, remember: Boolean = false) {
         val current = mutableState.value ?: return
         if (current.loading || current.registrationSuccess || current.completed ||
             current.needsInterestSelection || current.needsActivityLevel || current.needsVirtualLocation) return
@@ -103,11 +106,15 @@ class AccountViewModel(private val repository: AccountRepository) : ViewModel() 
                 } else {
                     repository.login(email, password)
                 }
+                val saveFailed = current.mode == AccountMode.LOGIN && runCatching {
+                    if (remember) rememberedLogin?.save(email, password) else rememberedLogin?.clear()
+                }.isFailure
                 mutableState.postValue(if (current.mode == AccountMode.REGISTER) {
                     current.copy(registrationSuccess = true, needsActivityLevel = true,
                         needsVirtualLocation = true)
                 } else {
                     current.copy(
+                        rememberSaveFailed = saveFailed,
                         completed = !session.needsInterestSelection && !session.needsActivityLevel &&
                             !session.needsVirtualLocation,
                         needsInterestSelection = session.needsInterestSelection,
@@ -190,7 +197,8 @@ class AccountViewModel(private val repository: AccountRepository) : ViewModel() 
     }
 }
 
-class AccountViewModelFactory(private val repository: AccountRepository) : ViewModelProvider.Factory {
+class AccountViewModelFactory(private val repository: AccountRepository,
+    private val rememberedLogin: RememberedLoginStore? = null) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T = AccountViewModel(repository) as T
+    override fun <T : ViewModel> create(modelClass: Class<T>): T = AccountViewModel(repository, rememberedLogin) as T
 }

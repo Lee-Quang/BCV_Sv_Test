@@ -56,6 +56,8 @@ Hoặc mở thư mục `android/` bằng Android Studio rồi bấm **Run**. M�
 
 ## Sử dụng
 
+Trên màn đăng nhập, chọn **Ghi nhớ tài khoản và mật khẩu** để tự điền lại ở lần sau. App chỉ lưu sau khi đăng nhập thành công, mã hóa bằng AES-GCM với khóa trong Android Keystore. Bỏ tích sẽ xóa thông tin đã nhớ trên thiết bị; đăng xuất vẫn giữ thông tin nếu đã chọn ghi nhớ. Tính năng này không thay đổi thời hạn phiên đăng nhập.
+
 Mở app, đăng ký hoặc đăng nhập. Phiên được giữ 30 ngày và tự gia hạn, nên lần sau mở app sẽ vào thẳng màn đang dở (thiết lập hoặc Khám phá); chỉ khi phiên bị từ chối (đăng xuất, đổi mật khẩu, bị khóa) mới phải đăng nhập lại.
 
 Trong bản debug, bấm icon người đi bộ cạnh chữ **Khám phá** để mở **Test bước chân**. Nhập số bước mỗi lần và khoảng chờ, rồi chọn gửi một lần hoặc mô phỏng định kỳ. Bước được gửi trực tiếp đến backend và làm thay đổi dữ liệu tài khoản đang đăng nhập; nên dùng tài khoản test.

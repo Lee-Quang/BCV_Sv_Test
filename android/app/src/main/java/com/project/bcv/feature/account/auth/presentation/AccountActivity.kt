@@ -29,10 +29,11 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.transition.platform.MaterialSharedAxis
 import com.project.bcv.R
-import com.project.bcv.BuildConfig
 import com.project.bcv.core.di.AccountModule
 import com.project.bcv.databinding.ActivityAccountBinding
 import com.project.bcv.feature.account.auth.data.local.SessionPreferences
+import com.project.bcv.feature.account.auth.data.local.RememberedLoginStore
+import android.widget.Toast
 import com.project.bcv.feature.account.interests.presentation.InterestsActivity
 import com.project.bcv.feature.account.activitylevel.presentation.ActivityLevelActivity
 import com.project.bcv.feature.location.startingpoint.presentation.StartingPointActivity
@@ -47,6 +48,7 @@ class AccountActivity : AppCompatActivity() {
     private var virtualLocationLaunched = false
     private var exploreLaunched = false
     private var previousState: AccountUiState? = null
+    private lateinit var rememberedLogin: RememberedLoginStore
     private val interestsResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         interestsLaunched = false
         if (result.resultCode == Activity.RESULT_OK) model.interestsSaved() else model.interestsCancelled()
@@ -64,6 +66,8 @@ class AccountActivity : AppCompatActivity() {
 
     private val passwordResetResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode != Activity.RESULT_OK) return@registerForActivityResult
+        rememberedLogin.clear()
+        binding.rememberLogin.isChecked = false
         result.data?.getStringExtra(PasswordResetActivity.EXTRA_EMAIL)?.let(binding.emailInput::setText)
         clearPasswords()
         binding.passwordInput.requestFocus()
@@ -81,7 +85,11 @@ class AccountActivity : AppCompatActivity() {
         setContentView(binding.root)
         configurePasswordToggle(binding.passwordLayout, binding.passwordInput)
         configurePasswordToggle(binding.confirmLayout, binding.confirmInput)
-        if (savedInstanceState == null) prefillPreviewLogin()
+        rememberedLogin = RememberedLoginStore(applicationContext)
+        if (savedInstanceState == null) prefillRememberedLogin()
+        binding.rememberLogin.setOnCheckedChangeListener { _, checked ->
+            if (!checked) rememberedLogin.clear()
+        }
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(bars.left, 0, bars.right, bars.bottom)
@@ -90,7 +98,7 @@ class AccountActivity : AppCompatActivity() {
 
         model = ViewModelProvider(
             this,
-            AccountViewModelFactory(AccountModule.repository(this))
+            AccountViewModelFactory(AccountModule.repository(this), rememberedLogin)
         )[AccountViewModel::class.java]
         model.state.observe(this, ::render)
         // A saved sign-in continues straight into the app; the form appears only if it is rejected.
@@ -113,7 +121,8 @@ class AccountActivity : AppCompatActivity() {
             model.submit(
                 binding.emailInput.text?.toString().orEmpty(),
                 binding.passwordInput.text?.toString().orEmpty(),
-                binding.confirmInput.text?.toString().orEmpty()
+                binding.confirmInput.text?.toString().orEmpty(),
+                binding.rememberLogin.isChecked
             )
         }
         binding.switchMode.setOnClickListener {
@@ -143,6 +152,9 @@ class AccountActivity : AppCompatActivity() {
     private fun render(state: AccountUiState) = with(binding) {
         val priorState = previousState
         previousState = state
+        if (state.rememberSaveFailed && priorState?.rememberSaveFailed != true) {
+            Toast.makeText(this@AccountActivity, "Đăng nhập thành công nhưng chưa lưu được thông tin đăng nhập trên thiết bị.", Toast.LENGTH_LONG).show()
+        }
         if (state.completed && !state.registrationSuccess && !exploreLaunched) {
             exploreLaunched = true
             startActivity(Intent(this@AccountActivity, ExploreActivity::class.java),
@@ -239,6 +251,8 @@ class AccountActivity : AppCompatActivity() {
         confirmGroup.visibility = if (registering) View.VISIBLE else View.GONE
         forgotPassword.visibility = if (registering) View.GONE else View.VISIBLE
         forgotPassword.isEnabled = !state.loading
+        rememberLogin.visibility = if (registering) View.GONE else View.VISIBLE
+        rememberLogin.isEnabled = !state.loading
         switchPrompt.text = if (registering) "Đã có tài khoản?" else "Chưa có tài khoản?"
         switchMode.text = if (registering) "Đăng nhập" else "Đăng ký"
         switchMode.isEnabled = !state.loading
@@ -308,12 +322,8 @@ class AccountActivity : AppCompatActivity() {
             .setDuration(140L)
             .withEndAction {
                 clearPasswords()
-                if (state.mode == AccountMode.LOGIN &&
-                    binding.emailInput.text?.toString() == BuildConfig.PREVIEW_LOGIN_EMAIL) {
-                    binding.emailInput.text?.clear()
-                }
                 model.changeMode()
-                if (state.mode == AccountMode.REGISTER) prefillPreviewLogin()
+                if (state.mode == AccountMode.REGISTER) prefillRememberedLogin()
 
                 binding.formContainer.apply {
                     alpha = 0f
@@ -336,14 +346,11 @@ class AccountActivity : AppCompatActivity() {
         resetPasswordToggle(binding.confirmLayout, binding.confirmInput)
     }
 
-    private fun prefillPreviewLogin() {
-        val demoEmail = BuildConfig.PREVIEW_LOGIN_EMAIL
-        if (demoEmail.isBlank()) return
-        if (binding.emailInput.text.isNullOrBlank()) binding.emailInput.setText(demoEmail)
-        if (binding.emailInput.text?.toString() == demoEmail &&
-            binding.passwordInput.text.isNullOrBlank()) {
-            binding.passwordInput.setText(BuildConfig.PREVIEW_LOGIN_PASSWORD)
-        }
+    private fun prefillRememberedLogin() {
+        val login = rememberedLogin.load() ?: return
+        binding.emailInput.setText(login.first)
+        binding.passwordInput.setText(login.second)
+        binding.rememberLogin.isChecked = true
     }
 
     private fun configurePasswordToggle(layout: TextInputLayout, input: TextInputEditText) {
