@@ -193,3 +193,7 @@ Xem [Đóng góp](../README.md#đóng-góp) ở README gốc. Migration mới: �
 ## Giấy phép
 
 UNLICENSED © 2026 Nhóm ĐAHK1262703 cho schema và script. Ảnh địa danh giữ giấy phép riêng theo từng tệp (xem [Ghi công](#ghi-công)).
+
+## Thời gian đăng nhập cuối
+
+`018_user_last_login.sql` thêm cột `app_user.last_login_at` kiểu TIMESTAMPTZ, cho phép NULL. Backend tự bảo đảm cột này tồn tại khi khởi động, nên bản triển khai hiện có được nâng cấp tự động. Không backfill thời gian cũ. Chỉ đăng nhập thành công bằng tài khoản/mật khẩu cập nhật cột này; khôi phục phiên và đăng nhập bị từ chối không cập nhật. Web hiển thị theo giờ Việt Nam (GMT+7).

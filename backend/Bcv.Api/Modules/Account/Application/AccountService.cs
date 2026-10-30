@@ -27,7 +27,7 @@ public sealed class AccountService(IAccountRepository repository, ISessionStore 
         };
     }
 
-    public async Task<AccountSession> Login(LoginCommand request, CancellationToken cancellationToken)
+    public async Task<AccountSession> Login(LoginCommand request, CancellationToken cancellationToken, bool requireAdmin = false)
     {
         var email = NormalizeEmail(request.Email);
         if (string.IsNullOrEmpty(request.Password))
@@ -37,10 +37,15 @@ public sealed class AccountService(IAccountRepository repository, ISessionStore 
             throw new AccountException("INVALID_CREDENTIALS", "Email hoặc mật khẩu không đúng.");
         if (account.Status != "ACTIVE")
             throw new AccountException("ACCOUNT_INACTIVE", "Tài khoản hiện không hoạt động.");
+        if (requireAdmin && account.Role != "ADMIN")
+            throw new AccountException("FORBIDDEN", "Tài khoản không có quyền quản trị.");
         var hasInterests = await repository.HasSelectedPlaceTypesAsync(account.UserId, cancellationToken);
         var hasActivityLevel = await repository.HasActivityLevelAsync(account.UserId, cancellationToken);
         var hasVirtualLocation = await repository.HasVirtualLocationAsync(account.UserId, cancellationToken);
-        return sessions.Create(account) with
+        var session = sessions.Create(account);
+        try { await repository.RecordLoginAsync(account.UserId, cancellationToken); }
+        catch { sessions.Revoke(session.Token); throw; }
+        return session with
         {
             NeedsInterestSelection = !hasInterests,
             NeedsActivityLevel = !hasActivityLevel,

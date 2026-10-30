@@ -14,7 +14,7 @@ public static class AdminEndpoints
         {
             try
             {
-                var session = await accounts.Login(body, ct);
+                var session = await accounts.Login(body, ct, requireAdmin: true);
                 if (session.User.Role != "ADMIN")
                 {
                     sessions.Revoke(session.Token);
@@ -22,7 +22,7 @@ public static class AdminEndpoints
                 }
                 return Results.Ok(session);
             }
-            catch (AccountException ex) { return Results.Json(new { code = ex.Code, message = ex.Message }, statusCode: 401); }
+            catch (AccountException ex) { return Results.Json(new { code = ex.Code, message = ex.Message }, statusCode: ex.Code == "FORBIDDEN" ? 403 : 401); }
             catch (NpgsqlException) { return Results.Json(new { code = "DATABASE_UNAVAILABLE", message = "Chưa kết nối được cơ sở dữ liệu. Kiểm tra cấu hình backend." }, statusCode: 503); }
         });
 

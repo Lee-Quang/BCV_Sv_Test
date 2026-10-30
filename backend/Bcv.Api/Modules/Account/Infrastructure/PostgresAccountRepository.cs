@@ -61,6 +61,13 @@ public sealed class PostgresAccountRepository(NpgsqlDataSource db) : IAccountRep
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
+    public async Task RecordLoginAsync(long userId, CancellationToken cancellationToken)
+    {
+        await using var command = db.CreateCommand("UPDATE public.app_user SET last_login_at = clock_timestamp() WHERE user_id = $1");
+        command.Parameters.AddWithValue(userId);
+        await command.ExecuteNonQueryAsync(cancellationToken);
+    }
+
     public async Task<bool> HasSelectedPlaceTypesAsync(long userId, CancellationToken cancellationToken)
     {
         await using var command = db.CreateCommand("""

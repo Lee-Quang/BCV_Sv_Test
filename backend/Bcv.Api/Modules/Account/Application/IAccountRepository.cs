@@ -8,6 +8,7 @@ public interface IAccountRepository
     Task<AccountUser?> FindByEmailAsync(string email, CancellationToken cancellationToken);
     Task<AccountUser?> FindByIdAsync(long userId, CancellationToken cancellationToken);
     Task UpdatePasswordAsync(long userId, string passwordHash, CancellationToken cancellationToken);
+    Task RecordLoginAsync(long userId, CancellationToken cancellationToken);
     Task<bool> HasSelectedPlaceTypesAsync(long userId, CancellationToken cancellationToken);
     Task<bool> HasActivityLevelAsync(long userId, CancellationToken cancellationToken);
     Task<bool> HasVirtualLocationAsync(long userId, CancellationToken cancellationToken);

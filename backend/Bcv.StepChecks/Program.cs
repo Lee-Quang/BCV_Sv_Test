@@ -6,12 +6,17 @@ using Bcv.Api.Modules.QuestItem.Infrastructure;
 using Npgsql;
 using System.Text.Json;
 using Bcv.Api.Modules.Admin;
+using Bcv.Api.Modules.Account.Application;
+using Bcv.Api.Modules.Account.Domain;
+using Bcv.Api.Modules.Account.Infrastructure;
 
 var settings = new NpgsqlConnectionStringBuilder(Environment.GetEnvironmentVariable("BCV_STEP_CHECK_CONNECTION")
     ?? throw new Exception("Set BCV_STEP_CHECK_CONNECTION to an isolated copy of the database."));
 if (!settings.Database!.StartsWith("bcv_step_checks_", StringComparison.Ordinal))
     throw new Exception("Only isolated bcv_step_checks_* databases are allowed. Never point these fixtures at a live database.");
 await using var db = NpgsqlDataSource.Create(settings.ConnectionString);
+await AccountSchema.EnsureAsync(db);
+await AccountSchema.EnsureAsync(db); // Upgrade is safe to repeat.
 void Check(bool condition, string message) { if (!condition) throw new Exception(message); }
 async Task<object?> Sql(string text, params object[] parameters)
 {
@@ -108,3 +113,41 @@ Check(expiredBoost.Journey is { Status: "IN_PROGRESS", RecordedSteps: 400, Activ
 try { await items.ShoesAsync(user, default, ticketId); throw new Exception("Wrong item type accepted"); }
 catch (ItemUseException error) when (error.Code == "ITEM_NOT_FOUND") { }
 Console.WriteLine("PASS: cumulative steps, quest rewards, item effects/expiry, admin creation, selected item consumption, immutable type, ownership and flight restrictions.");
+
+var loginEmail = $"login-check-{Guid.NewGuid():N}@example.invalid";
+const string loginPassword = "Fixture-login-123!";
+await Sql("UPDATE app_user SET email=$2,password_hash=$3 WHERE user_id=$1", user, loginEmail, PasswordHasher.Hash(loginPassword));
+var loginSessions = new CheckSessions();
+var accounts = new AccountService(new PostgresAccountRepository(db), loginSessions);
+async Task<DateTime?> LoginTime() => await Sql("SELECT last_login_at FROM app_user WHERE user_id=$1", user) is DateTime value ? value : null;
+Check(await LoginTime() is null, "Historical login time was invented");
+try { await accounts.Login(new(loginEmail, "wrong"), default); throw new Exception("Wrong password accepted"); }
+catch (AccountException error) when (error.Code == "INVALID_CREDENTIALS") { }
+Check(await LoginTime() is null, "Failed login updated timestamp");
+await accounts.Login(new(loginEmail, loginPassword), default);
+var firstLoginTime = await LoginTime();
+Check(firstLoginTime is not null && firstLoginTime.Value.Kind == DateTimeKind.Utc, "Successful login did not store UTC time");
+await accounts.GetActiveUser(user, default);
+Check(await LoginTime() == firstLoginTime, "Session restore updated last login");
+try { await accounts.Login(new(loginEmail, loginPassword), default, requireAdmin: true); throw new Exception("Non-admin accepted"); }
+catch (AccountException error) when (error.Code == "FORBIDDEN") { }
+Check(await LoginTime() == firstLoginTime, "Rejected admin login updated timestamp");
+await Sql("UPDATE app_user SET status='BLOCKED' WHERE user_id=$1", user);
+try { await accounts.Login(new(loginEmail, loginPassword), default); throw new Exception("Blocked user accepted"); }
+catch (AccountException error) when (error.Code == "ACCOUNT_INACTIVE") { }
+Check(await LoginTime() == firstLoginTime, "Blocked login updated timestamp");
+await Sql("UPDATE app_user SET status='ACTIVE',role='ADMIN' WHERE user_id=$1", user);
+await accounts.Login(new(loginEmail, loginPassword), default, requireAdmin: true);
+Check(await LoginTime() > firstLoginTime, "Latest successful admin login did not update timestamp");
+var usersJson = JsonSerializer.SerializeToElement(await admin.List("users", loginEmail, null, null, null, 1, 12, default));
+Check(usersJson.GetProperty("items")[0].GetProperty("last_login_at").ValueKind == JsonValueKind.String, "Admin list is missing last login time");
+Check(!usersJson.GetProperty("items")[0].TryGetProperty("password_hash", out _), "Admin list leaked password hash");
+Console.WriteLine("PASS: last-login migration, successful/failed/blocked/admin logins, session restoration and admin list.");
+
+sealed class CheckSessions : ISessionStore
+{
+    public AccountSession Create(AccountUser account) => new(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow.AddDays(1), account.ToPublic());
+    public PublicAccount? Get(string? token) => null;
+    public void Revoke(string? token) { }
+    public void RevokeAll(long userId) { }
+}

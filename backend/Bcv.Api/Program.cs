@@ -146,4 +146,5 @@ app.MapInventoryEndpoints();
 app.MapItemUseEndpoints();
 app.MapStatsNotifyEndpoints();
 app.MapAdminEndpoints();
+await AccountSchema.EnsureAsync(app.Services.GetRequiredService<NpgsqlDataSource>());
 app.Run();
