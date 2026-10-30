@@ -18,8 +18,14 @@ data class ExploreJourney(
     val destinationPlaceId: Long? = null,
     /** Unboosted, cumulative server total; null means the server needs updating. */
     val sourceSteps: Long? = null,
-    val activeItem: ActiveItemEffect? = null
+    val activeItem: ActiveItemEffect? = null,
+    val startPlaceName: String? = null
 ) {
+    val startLabel: String
+        get() = startPlaceName?.takeIf(String::isNotBlank)
+            ?: start?.let { String.format(java.util.Locale.US, "Vị trí xuất phát (%.5f, %.5f)", it.latitude, it.longitude) }
+            ?: "Chưa có thông tin điểm xuất phát"
+
     val progressPercent: Int
         get() = if (requiredSteps <= 0) 0 else (recordedSteps.toLong() * 100 / requiredSteps).toInt().coerceIn(0, 100)
 }

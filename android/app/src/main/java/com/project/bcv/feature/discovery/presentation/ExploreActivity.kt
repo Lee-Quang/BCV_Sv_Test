@@ -421,6 +421,8 @@ class ExploreActivity : AppCompatActivity() {
         val showProgress = journey != null && !mapFailed && state.stage !in setOf(
             ExploreStage.LOADING, ExploreStage.LOAD_FAILED)
         progressSection.visibility = if (showProgress) View.VISIBLE else View.GONE
+        startLocation.visibility = if (journey != null) View.VISIBLE else View.GONE
+        startLocation.text = journey?.let { "Xuất phát: ${it.startLabel}" }.orEmpty()
         // With progress shown the sheet follows the journey design: no description or footer line.
         sheetDescription.visibility = if (showProgress) View.GONE else View.VISIBLE
         sheetFooter.visibility = sheetDescription.visibility

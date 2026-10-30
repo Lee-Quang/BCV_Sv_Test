@@ -82,7 +82,7 @@ class ExploreRepositoryImpl(
                 it.optJSONObject("activeItem")?.let { effect ->
                     ActiveItemEffect(effect.getString("itemType"), effect.getString("name"),
                         effect.getDouble("multiplier"), effect.getInt("range"), effect.getInt("remainingSteps"))
-                })
+                }, it.nullableText("startPlaceName"))
         }
         val places = optJSONArray("places")?.let { array ->
             (0 until array.length()).map { index ->

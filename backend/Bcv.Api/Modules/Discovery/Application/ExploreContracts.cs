@@ -6,7 +6,8 @@ public sealed record ExploreJourney(
     long JourneyId, string DestinationName, decimal DestinationLatitude,
     decimal DestinationLongitude, int RequiredSteps, int RecordedSteps,
     string Status, long StartedAtEpochSeconds, decimal StartLatitude, decimal StartLongitude,
-    long DestinationPlaceId, int SourceSteps = 0, ExploreItemEffect? ActiveItem = null);
+    long DestinationPlaceId, int SourceSteps = 0, ExploreItemEffect? ActiveItem = null,
+    string? StartPlaceName = null);
 
 public sealed record ExploreItemEffect(string ItemType, string Name, decimal Multiplier, int Range, int RemainingSteps);
 

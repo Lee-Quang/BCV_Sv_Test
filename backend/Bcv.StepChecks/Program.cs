@@ -51,6 +51,8 @@ async Task<int> QuestSteps() => (int)(await Sql("SELECT progress_value FROM ques
 
 var first = await service.SyncStepsAsync(user, new(trip, 200), default);
 Check(first.Journey is { SourceSteps: 200, RecordedSteps: 200 }, "Raw steps did not advance journey");
+var expectedStartName = (string)(await Sql("SELECT name FROM place WHERE place_id=$1", from))!;
+Check(first.Journey?.StartPlaceName == expectedStartName, "Journey start place name is missing");
 Check(first.Journey.ActiveItem is null, "An unused item appeared active");
 Check(await QuestSteps() == 200, "Raw steps did not advance quest");
 await items.UseShoesAsync(user, default);
@@ -72,6 +74,7 @@ catch (ItemUseException error) when (error.Code == "JOURNEY_ACTIVE") { }
 Check(await Quantity(ticketId) == 2, "Rejected flight consumed a ticket");
 var completed = await service.SyncStepsAsync(user, new(trip, 800), default);
 Check(completed.Journey is { SourceSteps: 800, RecordedSteps: 1000, Status: "COMPLETED" }, "Journey did not complete with raw steps and shoes bonus");
+Check(completed.Journey?.StartPlaceName == expectedStartName, "Completed journey lost its original start place");
 Check(completed.Journey.ActiveItem is null, "Completed journey still shows active shoes");
 Check((long)(await Sql("SELECT nearest_place_id FROM virtual_location WHERE user_id=$1", user))! == to, "Completion did not move virtual location");
 Check((long)(await Sql("SELECT count(*) FROM user_discovered_place WHERE user_id=$1 AND place_id=$2", user, to))! == 1, "Completion did not unlock place exactly once");
