@@ -45,7 +45,7 @@ class RememberedLoginStore(context: Context, scope: String = BuildConfig.API_BAS
         check(preferences.edit().putString("credentials", data.toString()).commit())
     }
 
-    fun clear() { preferences.edit().clear().commit() }
+    fun clear() { preferences.edit().clear().apply() }
 
     private fun key(): SecretKey {
         val store = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }

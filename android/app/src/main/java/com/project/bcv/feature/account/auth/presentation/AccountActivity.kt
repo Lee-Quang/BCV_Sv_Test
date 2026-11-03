@@ -23,6 +23,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
@@ -76,6 +80,11 @@ class AccountActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (SessionPreferences(this).readyForHome) {
+            startActivity(Intent(this, ExploreActivity::class.java))
+            finish()
+            return
+        }
         interestsLaunched = savedInstanceState?.getBoolean("interestsLaunched") ?: false
         activityLevelLaunched = savedInstanceState?.getBoolean("activityLevelLaunched") ?: false
         virtualLocationLaunched = savedInstanceState?.getBoolean("virtualLocationLaunched") ?: false
@@ -86,7 +95,7 @@ class AccountActivity : AppCompatActivity() {
         configurePasswordToggle(binding.passwordLayout, binding.passwordInput)
         configurePasswordToggle(binding.confirmLayout, binding.confirmInput)
         rememberedLogin = RememberedLoginStore(applicationContext)
-        if (savedInstanceState == null) prefillRememberedLogin()
+        if (savedInstanceState == null && SessionPreferences(this).token == null) prefillRememberedLogin()
         binding.rememberLogin.setOnCheckedChangeListener { _, checked ->
             if (!checked) rememberedLogin.clear()
         }
@@ -156,6 +165,7 @@ class AccountActivity : AppCompatActivity() {
             Toast.makeText(this@AccountActivity, "Đăng nhập thành công nhưng chưa lưu được thông tin đăng nhập trên thiết bị.", Toast.LENGTH_LONG).show()
         }
         if (state.completed && !state.registrationSuccess && !exploreLaunched) {
+            SessionPreferences(this@AccountActivity).readyForHome = true
             exploreLaunched = true
             startActivity(Intent(this@AccountActivity, ExploreActivity::class.java),
                 ActivityOptionsCompat.makeCustomAnimation(this@AccountActivity,
@@ -234,8 +244,9 @@ class AccountActivity : AppCompatActivity() {
             return@with
         }
 
+        restoreStatus.visibility = if (state.restoring) View.VISIBLE else View.GONE
         if (state.restoring) {
-            formContainer.visibility = View.INVISIBLE
+            formContainer.visibility = View.GONE
             successContainer.visibility = View.GONE
             return@with
         }
@@ -347,10 +358,15 @@ class AccountActivity : AppCompatActivity() {
     }
 
     private fun prefillRememberedLogin() {
-        val login = rememberedLogin.load() ?: return
-        binding.emailInput.setText(login.first)
-        binding.passwordInput.setText(login.second)
-        binding.rememberLogin.isChecked = true
+        lifecycleScope.launch {
+            val login = withContext(Dispatchers.IO) { rememberedLogin.load() } ?: return@launch
+            if (binding.emailInput.text.isNullOrEmpty() && binding.passwordInput.text.isNullOrEmpty() &&
+                model.state.value?.loading != true) {
+                binding.emailInput.setText(login.first)
+                binding.passwordInput.setText(login.second)
+                binding.rememberLogin.isChecked = true
+            }
+        }
     }
 
     private fun configurePasswordToggle(layout: TextInputLayout, input: TextInputEditText) {

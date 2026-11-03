@@ -9,6 +9,7 @@ using Bcv.Api.Modules.Admin;
 using Bcv.Api.Modules.Account.Application;
 using Bcv.Api.Modules.Account.Domain;
 using Bcv.Api.Modules.Account.Infrastructure;
+using Bcv.Api.Modules.PlaceCollection.Infrastructure;
 
 var settings = new NpgsqlConnectionStringBuilder(Environment.GetEnvironmentVariable("BCV_STEP_CHECK_CONNECTION")
     ?? throw new Exception("Set BCV_STEP_CHECK_CONNECTION to an isolated copy of the database."));
@@ -17,6 +18,9 @@ if (!settings.Database!.StartsWith("bcv_step_checks_", StringComparison.Ordinal)
 await using var db = NpgsqlDataSource.Create(settings.ConnectionString);
 await AccountSchema.EnsureAsync(db);
 await AccountSchema.EnsureAsync(db); // Upgrade is safe to repeat.
+await CollectionSchema.EnsureAsync(db);
+await CollectionSchema.EnsureAsync(db);
+await Bcv.Api.Modules.StatsNotify.Infrastructure.NotificationSchema.EnsureAsync(db);
 void Check(bool condition, string message) { if (!condition) throw new Exception(message); }
 async Task<object?> Sql(string text, params object[] parameters)
 {
@@ -143,6 +147,60 @@ var usersJson = JsonSerializer.SerializeToElement(await admin.List("users", logi
 Check(usersJson.GetProperty("items")[0].GetProperty("last_login_at").ValueKind == JsonValueKind.String, "Admin list is missing last login time");
 Check(!usersJson.GetProperty("items")[0].TryGetProperty("password_hash", out _), "Admin list leaked password hash");
 Console.WriteLine("PASS: last-login migration, successful/failed/blocked/admin logins, session restoration and admin list.");
+
+// Reproduce places discovered while their cards were DRAFT, then activated later.
+await Sql("""
+    INSERT INTO card(name,place_id,status)
+    SELECT 'Fixture collectible',$1,'ACTIVE' WHERE NOT EXISTS(SELECT 1 FROM card WHERE place_id=$1)
+    """, to);
+await Sql("UPDATE card SET status='ACTIVE' WHERE place_id=$1", to);
+await Sql("DELETE FROM user_card WHERE user_id=$1", user);
+var collectibleId = (long)(await Sql("SELECT card_id FROM card WHERE place_id=$1 ORDER BY card_id LIMIT 1", to))!;
+var appCollections = new CollectionRepository(db);
+async Task CheckCardCounts()
+{
+    var appOwned = (await appCollections.LoadAsync(user, default)).OwnedCards;
+    var adminUser = await admin.Detail("users", user, default);
+    Check(appOwned > 0 && adminUser!.Value.GetProperty("card_count").GetInt32() == appOwned,
+        "Admin and app disagree about cards from discovered places");
+}
+await CheckCardCounts();
+var beforeExplicitGrant = (await appCollections.LoadAsync(user, default)).OwnedCards;
+async Task<int> AdminCardOwners()
+{
+    var name = (string)(await Sql("SELECT name FROM card WHERE card_id=$1", collectibleId))!;
+    var list = JsonSerializer.SerializeToElement(await admin.List("cards", name, null, null, null, 1, 100, default));
+    return list.GetProperty("items").EnumerateArray().Single(c => c.GetProperty("card_id").GetInt64() == collectibleId)
+        .GetProperty("collected_count").GetInt32();
+}
+var beforeOwners = await AdminCardOwners();
+Check(beforeOwners >= 1, "Admin card owner count missed discovered ownership");
+await Sql("INSERT INTO user_card(user_id,card_id) VALUES($1,$2)", user, collectibleId);
+await CheckCardCounts();
+Check(await AdminCardOwners() == beforeOwners, "Admin card owners double counted the same user");
+Check((await appCollections.LoadAsync(user, default)).OwnedCards == beforeExplicitGrant, "Explicit and discovered ownership double counted");
+Console.WriteLine("PASS: admin/app card counts agree after activation, with no double counting.");
+
+// New-card badges count unique cards, survive notification changes and clear only on opening a card.
+var badgeCollection = (long)(await Sql("INSERT INTO collection(name,status) VALUES('Badge fixture','ACTIVE') RETURNING collection_id"))!;
+await Sql("INSERT INTO collection_card(collection_id,card_id) VALUES($1,$2)", badgeCollection, collectibleId);
+var newOverview = await appCollections.LoadAsync(user, default);
+Check(newOverview.NewCards == 1, "A newly granted card is missing from the global badge");
+Check(newOverview.Collections.Single(c => c.CollectionId == badgeCollection).NewCards == 1, "Collection badge is missing its new card");
+Check((await appCollections.LoadDetailAsync(user, badgeCollection, default))!.Cards.Single().IsNew, "Card tile is not marked new");
+await CollectionSchema.EnsureAsync(db);
+Check((await appCollections.LoadAsync(user, default)).NewCards == 1, "Restarting the API cleared unseen cards");
+await Sql("DELETE FROM notification WHERE user_id=$1", user);
+Check((await appCollections.LoadAsync(user, default)).NewCards == 1, "Deleting notifications cleared the card badge");
+await appCollections.MarkSeenAsync(0, collectibleId, default);
+Check((await appCollections.LoadAsync(user, default)).NewCards == 1, "Another account cleared the card badge");
+await appCollections.MarkSeenAsync(user, collectibleId, default);
+await appCollections.MarkSeenAsync(user, collectibleId, default);
+var seenOverview = await appCollections.LoadAsync(user, default);
+Check(seenOverview.NewCards == 0 && seenOverview.OwnedCards == newOverview.OwnedCards, "Opening a card did not clear only the new count");
+Check(seenOverview.Collections.Single(c => c.CollectionId == badgeCollection).NewCards == 0, "Collection badge did not clear");
+Check(!(await appCollections.LoadDetailAsync(user, badgeCollection, default))!.Cards.Single().IsNew, "Opened card is still marked new");
+Console.WriteLine("PASS: global/collection/card badges, restart persistence, notification independence, account isolation and idempotent viewing.");
 
 sealed class CheckSessions : ISessionStore
 {

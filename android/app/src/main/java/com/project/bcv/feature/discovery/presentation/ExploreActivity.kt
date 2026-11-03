@@ -51,6 +51,8 @@ import kotlin.math.abs
 class ExploreActivity : AppCompatActivity() {
     private lateinit var binding: ActivityExploreBinding
     private lateinit var model: ExploreViewModel
+    private lateinit var journeyRewards: com.project.bcv.feature.collection.presentation.JourneyRewardController
+    private lateinit var notificationBell: com.project.bcv.feature.statsnotify.notifications.presentation.NotificationBell
     private lateinit var goongMap: GoongExploreMap
     private val handler = Handler(Looper.getMainLooper())
     private var sheetCollapsed = false
@@ -150,7 +152,19 @@ class ExploreActivity : AppCompatActivity() {
         model = ViewModelProvider(this, ExploreViewModelFactory(
             ExploreModule.repository(this), ExploreModule.stepSource(this), ExploreModule.addressLookup(), com.project.bcv.feature.discovery.data.StepTestPreferences(this)
         ))[ExploreViewModel::class.java]
-        model.state.observe(this, ::render)
+        notificationBell = com.project.bcv.feature.statsnotify.notifications.presentation.NotificationBell(
+            this, binding.notificationsButton, binding.notificationBadge)
+        journeyRewards = com.project.bcv.feature.collection.presentation.JourneyRewardController(this) {
+            com.project.bcv.core.ui.CollectionNavBadge.refresh(binding.bottomNavigation)
+        }
+        model.state.observe(this) { state ->
+            render(state)
+            if (state.stage == ExploreStage.COMPLETED) {
+                state.snapshot?.journey?.let(journeyRewards::completed)
+                notificationBell.refresh()
+                com.project.bcv.core.ui.CollectionNavBadge.refresh(binding.bottomNavigation)
+            }
+        }
         model.address.observe(this) { model.state.value?.let(::renderLocationName) }
         binding.recenterButton.setOnClickListener { goongMap.recenter() }
         binding.primaryButton.setOnClickListener { primaryAction() }
@@ -403,6 +417,7 @@ class ExploreActivity : AppCompatActivity() {
         val copy = if (mapFailed) mapErrorCopy else copyFor(state)
         statusTitle.text = copy.noticeTitle
         statusDetail.text = copy.noticeDetail
+        statusDetail.visibility = if (copy.noticeDetail.isBlank()) View.GONE else View.VISIBLE
         statusCard.backgroundTintList = ColorStateList.valueOf(copy.noticeBackground)
         statusTitle.setTextColor(copy.noticeColor)
         statusDetail.setTextColor(copy.noticeColor)
@@ -499,7 +514,7 @@ class ExploreActivity : AppCompatActivity() {
                 "Kết nối Health Connect", secondary = "Xem hành trình đã lưu",
                 footer = "Giữ nguyên tiến độ đã được xác nhận.",
                 noticeBackground = 0xFFFFF0D9.toInt(), noticeColor = 0xFFAD7A32.toInt())
-            ExploreStage.COMPLETED -> ScreenCopy("Hành trình hoàn thành", "Vị trí ảo cập nhật sau xác nhận Backend.",
+            ExploreStage.COMPLETED -> ScreenCopy("Hành trình hoàn thành", "",
                 journey?.destinationName.orEmpty(), "Bạn đã đến điểm đích của hành trình.",
                 "Khám phá tiếp", footer = "Tiến độ hoàn thành được lưu trong hành trình.")
         }

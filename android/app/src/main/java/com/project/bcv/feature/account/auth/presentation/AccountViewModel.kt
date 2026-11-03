@@ -106,22 +106,25 @@ class AccountViewModel(private val repository: AccountRepository,
                 } else {
                     repository.login(email, password)
                 }
-                val saveFailed = current.mode == AccountMode.LOGIN && runCatching {
-                    if (remember) rememberedLogin?.save(email, password) else rememberedLogin?.clear()
-                }.isFailure
-                mutableState.postValue(if (current.mode == AccountMode.REGISTER) {
+                val signedIn = if (current.mode == AccountMode.REGISTER) {
                     current.copy(registrationSuccess = true, needsActivityLevel = true,
                         needsVirtualLocation = true)
                 } else {
                     current.copy(
-                        rememberSaveFailed = saveFailed,
                         completed = !session.needsInterestSelection && !session.needsActivityLevel &&
                             !session.needsVirtualLocation,
                         needsInterestSelection = session.needsInterestSelection,
                         needsActivityLevel = session.needsActivityLevel,
                         needsVirtualLocation = session.needsVirtualLocation
                     )
-                })
+                }
+                mutableState.postValue(signedIn)
+                // Navigation can start immediately; Keystore/disk work must not hold up sign-in.
+                if (current.mode == AccountMode.LOGIN) {
+                    runCatching {
+                        if (remember) rememberedLogin?.save(email, password) else rememberedLogin?.clear()
+                    }.onFailure { mutableState.postValue(signedIn.copy(rememberSaveFailed = true)) }
+                }
             } catch (error: ApiFailure) {
                 mutableState.postValue(current.copy(
                     errors = FieldErrors(

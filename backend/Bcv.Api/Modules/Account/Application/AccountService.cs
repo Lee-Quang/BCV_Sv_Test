@@ -39,17 +39,15 @@ public sealed class AccountService(IAccountRepository repository, ISessionStore 
             throw new AccountException("ACCOUNT_INACTIVE", "Tài khoản hiện không hoạt động.");
         if (requireAdmin && account.Role != "ADMIN")
             throw new AccountException("FORBIDDEN", "Tài khoản không có quyền quản trị.");
-        var hasInterests = await repository.HasSelectedPlaceTypesAsync(account.UserId, cancellationToken);
-        var hasActivityLevel = await repository.HasActivityLevelAsync(account.UserId, cancellationToken);
-        var hasVirtualLocation = await repository.HasVirtualLocationAsync(account.UserId, cancellationToken);
+        var onboarding = await repository.GetOnboardingStatusAsync(account.UserId, cancellationToken);
         var session = sessions.Create(account);
         try { await repository.RecordLoginAsync(account.UserId, cancellationToken); }
         catch { sessions.Revoke(session.Token); throw; }
         return session with
         {
-            NeedsInterestSelection = !hasInterests,
-            NeedsActivityLevel = !hasActivityLevel,
-            NeedsVirtualLocation = !hasVirtualLocation
+            NeedsInterestSelection = !onboarding.HasInterests,
+            NeedsActivityLevel = !onboarding.HasActivityLevel,
+            NeedsVirtualLocation = !onboarding.HasVirtualLocation
         };
     }
 
@@ -61,10 +59,9 @@ public sealed class AccountService(IAccountRepository repository, ISessionStore 
     {
         var account = await repository.FindByIdAsync(userId, cancellationToken);
         if (account?.Status != "ACTIVE") return null;
+        var onboarding = await repository.GetOnboardingStatusAsync(userId, cancellationToken);
         return new SignedInUser(account.UserId, account.FullName, account.Email, account.Role,
-            !await repository.HasSelectedPlaceTypesAsync(userId, cancellationToken),
-            !await repository.HasActivityLevelAsync(userId, cancellationToken),
-            !await repository.HasVirtualLocationAsync(userId, cancellationToken));
+            !onboarding.HasInterests, !onboarding.HasActivityLevel, !onboarding.HasVirtualLocation);
     }
 
     /// <summary>Signed-in change: the current password stands in for the email code of a reset.</summary>
